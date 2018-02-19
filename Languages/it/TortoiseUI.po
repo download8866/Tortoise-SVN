@@ -15,7 +15,8 @@
 # Alessio <alessio@alessiodamato.com>, 2014
 # Andrea Tuscano <andrea.tuscano1997@gmail.com>, 2016
 # Cecilia Saltori <csaltori@gmail.com>, 2011
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
+# Fabio Turrin, 2018
+# Lübbe Onken <luebbe.opensource@gmail.com>, 2011
 # Lübbe  <luebbe.tortoisesvn@googlemail.com>, 2012
 # Lübbe Onken <l.onken@rac.de>, 2011
 # acehigh, 2011
@@ -30,8 +31,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-07-29 13:24+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-02-15 17:02+0000\n"
+"Last-Translator: Fabio Turrin\n"
 "Language-Team: Italian (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "it/)\n"
 "MIME-Version: 1.0\n"
@@ -135,7 +136,7 @@ msgstr "%1!ls! in %2!ls!"
 #. Resource IDs: (5703)
 #, c-format
 msgid "%1!ls!, %2!ls!"
-msgstr ""
+msgstr "%1!ls!, %2!ls!"
 
 #. Resource IDs: (2316)
 #, c-format
@@ -927,7 +928,7 @@ msgstr "&Ingnora e procedi"
 
 #. Resource IDs: (283)
 msgid "&Ignore multiple items by name"
-msgstr ""
+msgstr "&Ignora elementi per nome"
 
 #. Resource IDs: (16914)
 msgid "&Image"
@@ -1557,7 +1558,7 @@ msgstr "&Nome utente:"
 
 #. Resource IDs: (1647)
 msgid "&Vacuum pristine copies"
-msgstr ""
+msgstr "&Svuota la cartella delle copie originali"
 
 #. Resource IDs: (65535)
 msgid "&View"
@@ -1774,6 +1775,8 @@ msgid ""
 "=&Check Now=&Add Project=E&dit=&Remove=&Mark all as read=&Update "
 "all=&Options=="
 msgstr ""
+"=&Controlla ora=A&ggiungi progetto=&Modifica=&Rimuovi=&Segna tutti come "
+"letti=&Aggiorna tutto=&Opzioni=="
 
 #. Resource IDs: (32814)
 msgid "?"
@@ -2943,6 +2946,8 @@ msgid ""
 "Cancel\n"
 "You can enter another password and try again"
 msgstr ""
+"Annulla\n"
+"Puoi inserire un'altra password e riprovare"
 
 #. Resource IDs: (2758)
 msgid ""
@@ -4223,7 +4228,7 @@ msgstr "Elimina e &ignora %d elementi per nome"
 
 #. Resource IDs: (284)
 msgid "Delete and &ignore multiple items by name"
-msgstr ""
+msgstr "Elimina e &ignora elementi per nome"
 
 #. Resource IDs: (222)
 #, c-format
@@ -4232,7 +4237,7 @@ msgstr "Elimina e ignora %d elementi per &estensione"
 
 #. Resource IDs: (285)
 msgid "Delete and ignore multiple items by &extension"
-msgstr ""
+msgstr "Elimina e ignora elementi per &estensione"
 
 #. Resource IDs: (9855)
 msgid "Delete unversioned items"
@@ -4627,6 +4632,8 @@ msgstr ""
 msgid ""
 "Do you want to update the folder \"%ls\" to fetch the applied svn:externals?"
 msgstr ""
+"Vuoi aggiornare la cartella \"%ls\" per recuperare gli elementi svn:"
+"externals applicati?"
 
 #. Resource IDs: (65535)
 msgid "Document :"
@@ -4811,6 +4818,8 @@ msgid ""
 "Edit property '%1!S!' on\r\n"
 "%2!ls!"
 msgstr ""
+"Modifica le proprietà '%1!S!' su\r\n"
+"%2!ls!"
 
 #. Resource IDs: (1331, 1382)
 msgid "Edit..."
@@ -4854,7 +4863,7 @@ msgstr "Abilita modifica"
 
 #. Resource IDs: (1510)
 msgid "Enable EditorConfig"
-msgstr ""
+msgstr "Abilita EditorConfig"
 
 #. Resource IDs: (1648)
 msgid "Enable drag context menu"
@@ -5124,7 +5133,7 @@ msgstr "Esporta &cartella:"
 
 #. Resource IDs: (2506)
 msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
-msgstr ""
+msgstr "File di esportazione (*.tsex)|*.tsex|Tutti i file (*.*)|*.*||"
 
 #. Resource IDs: (1667)
 msgid "Export settings to file..."
@@ -5236,6 +5245,9 @@ msgid ""
 "\n"
 "%ls"
 msgstr ""
+"Impossibile copiare il file '%ls' in '%ls'.\n"
+"\n"
+"%ls"
 
 #. Resource IDs: (61700)
 msgid "Failed to create empty document."
@@ -6290,6 +6302,10 @@ msgid ""
 "do not mark the parent folders as modified\r\n"
 "i.e., they get the normal icon unless another file or folder is modified."
 msgstr ""
+"Se impostato, i file modificati che si trovano nella changelist \"ignore-on-"
+"commit\" non contrassegnano le cartelle superiori come modificate.\r\n"
+"Vale a dire, queste cartelle ottengono l'icona normale a meno che non venga "
+"modificato un altro file o cartella."
 
 #. Resource IDs: (3133)
 msgid ""
@@ -6386,7 +6402,7 @@ msgstr "Ignora i caratt&eri di fine riga (raccomandato)"
 
 #. Resource IDs: (282)
 msgid "Ignore multiple items by &extension"
-msgstr ""
+msgstr "Ignora elementi per &estensione"
 
 #. Resource IDs: (1529)
 msgid "Ignore whitespace &changes"
@@ -7210,6 +7226,8 @@ msgid ""
 "Marks the conflict as resolved.\r\n"
 "Note: this does not resolve the conflict, only marks it as resolved!"
 msgstr ""
+"Segna il conflitto come risolto.\r\n"
+"Nota: questo non risolve il conflitto, lo segna solo come risolto! "
 
 #. Resource IDs: (9520)
 msgid ""
@@ -7332,6 +7350,8 @@ msgid ""
 "Merges all missing revisions from trunk into the working copy of a feature "
 "branch using merge-tracking information"
 msgstr ""
+"Unisce tutte le revisioni mancanti dal trunk nella copia di lavoro del "
+"branch usando le informazioni di tracciabilità delle unioni"
 
 #. Resource IDs: (1073)
 msgid "Merging"
@@ -7513,6 +7533,9 @@ msgid ""
 "Move and add\n"
 "The file is moved to the destination and added to version control."
 msgstr ""
+"Sposta e aggiungi\n"
+"Il file verrà spostato nella cartella di destinazione e aggiunto al "
+"controllo di versione."
 
 #. Resource IDs: (2336)
 msgid "Move and rename"
@@ -7561,6 +7584,9 @@ msgid ""
 "Move\n"
 "The file is moved to the destination and left unversioned."
 msgstr ""
+"Sposta\n"
+"Il file verrà spostato nella cartella di destinazione ma non verrà aggiunto "
+"al controllo di versione."
 
 #. Resource IDs: (1695)
 msgid ""
@@ -8099,7 +8125,7 @@ msgstr "Apri livello superiore"
 
 #. Resource IDs: (1846)
 msgid "Open repository &Url"
-msgstr ""
+msgstr "Apri lo &Url del repository"
 
 #. Resource IDs: (1807)
 msgid "Open with..."
@@ -8107,7 +8133,7 @@ msgstr "Apri con..."
 
 #. Resource IDs: (1045)
 msgid "Open working copy in &explorer"
-msgstr ""
+msgstr "Apri la copia di lavoro in &Esplora risorse"
 
 #. Resource IDs: (57666)
 msgid ""
@@ -8139,7 +8165,7 @@ msgstr "Opzioni"
 
 #. Resource IDs: (32779)
 msgid "Ori&ginal size\t(S)"
-msgstr ""
+msgstr "Dimensioni ori&ginali\t(S)"
 
 #. Resource IDs: (17024)
 msgid "Other Task Panes"
@@ -8182,6 +8208,8 @@ msgid ""
 "Overwrite\n"
 "The settings are overwritten"
 msgstr ""
+"Sovrascrivi\n"
+"Le impostazioni verranno sovrascritte"
 
 #. Resource IDs: (2340)
 msgid ""
@@ -8296,7 +8324,7 @@ msgstr "Applico patch"
 #. Resource IDs: (2703)
 #, c-format
 msgid "Patching file '%1!ls!'"
-msgstr ""
+msgstr "Applicazione patch al file '%1!ls!'"
 
 #. Resource IDs: (304, 1004, 1223, 2704, 3153, 3300)
 msgid "Path"
@@ -8646,7 +8674,7 @@ msgstr "Proprietà %1!ls! : Copia base, revisione %2!ld!"
 #. Resource IDs: (2412)
 #, c-format
 msgid "Property %ls : merged"
-msgstr ""
+msgstr "Proprietà %ls : unita"
 
 #. Resource IDs: (2408)
 #, c-format
@@ -8917,15 +8945,15 @@ msgstr "Aggiorna shell per %1!ls!"
 
 #. Resource IDs: (165, 500, 65535)
 msgid "Regex Filter"
-msgstr ""
+msgstr "Filtro Regex"
 
 #. Resource IDs: (164)
 msgid "Regex Filters"
-msgstr ""
+msgstr "Filtri Regex"
 
 #. Resource IDs: (65535)
 msgid "Regex matching message:"
-msgstr ""
+msgstr "Messaggio di corrispondenza regex:"
 
 #. Resource IDs: (65535)
 msgid "Regex:"
@@ -9242,6 +9270,8 @@ msgid ""
 "Reopens the commit dialog after a successful commit if there were files and/"
 "or folders left uncommitted."
 msgstr ""
+"Riapri la finestra di dialogo dopo il commit se ci sono dei file e/o "
+"cartelle che non sono stati committati."
 
 #. Resource IDs: (3342)
 msgid "Repair copy"
@@ -9282,7 +9312,7 @@ msgstr "Sostituisci:"
 #. Resource IDs: (1507)
 #, c-format
 msgid "Replaced %d matches"
-msgstr ""
+msgstr "Sostituite %d occorrenze"
 
 #. Resource IDs: (1173)
 msgid "Replacing"
@@ -9530,6 +9560,13 @@ msgid ""
 "Log message:\r\n"
 "%7!ls!"
 msgstr ""
+"Revisione: %1!ld! %2!ls!\r\n"
+"URL: %3!ls!\r\n"
+"%4!ls!Autore: %5!ls!\r\n"
+"Data: %6!ls!\r\n"
+"\r\n"
+"Messaggio di log:\r\n"
+"%7!ls!"
 
 #. Resource IDs: (4344)
 #, c-format
@@ -9544,6 +9581,15 @@ msgid ""
 "Log message:\r\n"
 "%9!ls!"
 msgstr ""
+"Revisione: %1!ld! %2!ls!\r\n"
+"URL: %3!ls!\r\n"
+"%4!ls!Autore: %5!ls!\r\n"
+"Data: %6!ls!\r\n"
+"\r\n"
+"Tags (%7!d!):%8!ls!\r\n"
+"\r\n"
+"Messaggio di log:\r\n"
+"%9!ls!"
 
 #. Resource IDs: (1838, 1854, 65535)
 msgid "Revisions"
@@ -9751,6 +9797,8 @@ msgid ""
 "Save Bottom File as\n"
 "You're asked where to save the bottom file"
 msgstr ""
+"Salva file in basso come\n"
+"Ti verrà chiesto dove salvare il file in basso"
 
 #. Resource IDs: (5046)
 msgid "Save File"
@@ -9807,18 +9855,25 @@ msgid ""
 "Save and exclude\n"
 "Your changes are saved and the original content is used"
 msgstr ""
+"Salva ed escludi\n"
+"Le modifiche vengono salvate e viene utilizzato il contenuto originale"
 
 #. Resource IDs: (107)
 msgid ""
 "Save and ignore marked blocks\n"
 "Only your manual edits are saved, marked blocks are left as they are"
 msgstr ""
+"Salva e ignora i blocchi selezionati\n"
+"Solo le tue modifiche manuali vengono salvate, i blocchi contrassegnati sono "
+"lasciati come sono"
 
 #. Resource IDs: (105)
 msgid ""
 "Save and include\n"
 "Your changes are saved and the marked blocks are included"
 msgstr ""
+"Salva e includi\n"
+"Le modifiche vengono salvate e i blocchi selezionati sono inclusi"
 
 #. Resource IDs: (5050, 57604)
 msgid "Save as"
@@ -9936,7 +9991,7 @@ msgstr "Cerca commenti nel &registro attività..."
 
 #. Resource IDs: (1074)
 msgid "Search &up"
-msgstr ""
+msgstr "Cerca s&u"
 
 #. Resource IDs: (65535)
 msgid "Search for:"
@@ -10161,6 +10216,8 @@ msgid ""
 "Set property '%1!S!' on\r\n"
 "%2!ls!"
 msgstr ""
+"Imposta la proprietà '%1!S!' su\r\n"
+"%2!ls!"
 
 #. Resource IDs: (200)
 msgid "Setting properties..."
@@ -10498,6 +10555,8 @@ msgid ""
 "Shows a unified diff of all changes of the path and those below, including "
 "property changes."
 msgstr ""
+"Mostra una diff unificata di tutti i cambiamenti del percorso e di quelli "
+"sottostanti, incluse le modifiche delle proprietà."
 
 #. Resource IDs: (193)
 msgid ""
@@ -10578,6 +10637,8 @@ msgid ""
 "Skip\n"
 "The file is left where it is."
 msgstr ""
+"Salta\n"
+"Il file viene lasciato dove si trova."
 
 #. Resource IDs: (1177)
 msgid "Skipped"
@@ -10781,10 +10842,14 @@ msgstr ""
 #. Resource IDs: (1036)
 msgid "Starts the merge tool where you can resolve the property conflict"
 msgstr ""
+"Avvia lo strumento di merge con il quale è possibile risolvere il conflitto "
+"di proprietà"
 
 #. Resource IDs: (1038)
 msgid "Starts the property dialog where you can edit the property manually."
 msgstr ""
+"Avvia la finestra di dialogo della proprietà in cui è possibile modificare "
+"manualmente la proprietà."
 
 #. Resource IDs: (2705)
 msgid "State"
@@ -10852,6 +10917,9 @@ msgid ""
 "Stores the path of the file to be used for a diff on a later right-click. "
 "Hold down the Ctrl key to remove the last saved path."
 msgstr ""
+"Memorizza il percorso del file da utilizzare per un diff in un successivo "
+"clic destro. Tenere premuto il tasto Ctrl per rimuovere l'ultimo percorso "
+"salvato."
 
 #. Resource IDs: (65535)
 msgid "Stripes"
@@ -11229,7 +11297,7 @@ msgstr "Il file %ls non esiste!"
 #. Resource IDs: (2370)
 #, c-format
 msgid "The file %ls is not versioned. How do you want to proceed?"
-msgstr ""
+msgstr "Il file %ls non è versionato. Come vuoi procedere?"
 
 #. Resource IDs: (1021)
 #, c-format
@@ -11541,6 +11609,8 @@ msgid ""
 "The password is wrong.\n"
 "Please enter the correct password in the settings dialog."
 msgstr ""
+"La password non è corretta.\n"
+"Per favore inserisci la password corretta nella finestra delle impostazioni."
 
 #. Resource IDs: (9921)
 msgid "The passwords don't match"
@@ -11648,6 +11718,9 @@ msgid ""
 "The settings file can not be decrypted with the specified password!\n"
 "Do you want to overwrite the sync file?"
 msgstr ""
+"Il file delle impostazioni non può essere decriptato con la password "
+"specificata!\n"
+"Vuoi sovrascrivere il file di sincronizzazione?"
 
 #. Resource IDs: (1343)
 #, c-format
@@ -11656,6 +11729,9 @@ msgid ""
 "%ls\n"
 "is invalid!"
 msgstr ""
+"Il percorso/URL specificato\n"
+"%ls\n"
+"non è valido!"
 
 #. Resource IDs: (2339)
 msgid "The target already exists."
@@ -12038,6 +12114,8 @@ msgstr "Consiglio"
 #. Resource IDs: (1027)
 msgid "To add projects to be monitored, click the \"Add\" button above"
 msgstr ""
+"Per aggiungere i progetti da monitorare, fare clic sul pulsante \"Aggiungi\" "
+"qui sopra"
 
 #. Resource IDs: (3580)
 msgid ""
@@ -12223,6 +12301,8 @@ msgid ""
 "TortoiseSVN Project Monitor\r\n"
 "%d new commit in %d project"
 msgstr ""
+"TortoiseSVN Project Monitor\r\n"
+"%d nuovo commit nel progetto %d"
 
 #. Resource IDs: (1026)
 #, c-format
@@ -12230,6 +12310,8 @@ msgid ""
 "TortoiseSVN Project Monitor\r\n"
 "%d new commits in %d projects"
 msgstr ""
+"TortoiseSVN Project Monitor\r\n"
+"%d nuovi commit nei progetti %d"
 
 #. Resource IDs: (4482)
 msgid "TortoiseSVN auto commit: changed externals to fixed revision."
@@ -12326,7 +12408,7 @@ msgstr "Albero delle unioni"
 
 #. Resource IDs: (8005)
 msgid "Trim right"
-msgstr ""
+msgstr "Ritaglia a destra"
 
 #. Resource IDs: (65535)
 msgid "Trunk nodes"
@@ -12630,7 +12712,7 @@ msgstr "Aggiornato"
 
 #. Resource IDs: (1041)
 msgid "Updates all monitored working copies"
-msgstr ""
+msgstr "Aggiorna tutte le copie di lavoro monitorate"
 
 #. Resource IDs: (171)
 msgid "Updates the working copy to a specific revision"
@@ -12888,6 +12970,14 @@ msgid ""
 "\r\n"
 "To merge all revisions (reintegrate/automatic merge), leave the box empty."
 msgstr ""
+"Usa la finestra di log per selezionare le revisioni che vuoi unire, o "
+"inserisci le revisioni da unire, separate da virgole. E' possibile "
+"specificare un intervallo di revisione con un trattino.\n"
+"\n"
+"Esempio: 4-7,9,11,15-HEAD@pegrevision\n"
+"\n"
+"Per unire tutte le revisioni (reintegro/merge automatico), lascia la cella "
+"vuota."
 
 #. Resource IDs: (5018)
 #, c-format
@@ -12950,6 +13040,21 @@ msgid ""
 "/oneway <forces the one-way view>\n"
 "/line:<line number to jump to>"
 msgstr ""
+"Le opzioni valide della linea di comando sono:\n"
+"/base: <path to base file>\n"
+"/basename: <name to show on the view title>\n"
+"/theirs: <path to their file>\n"
+"/theirsname: <name to show on the view title>\n"
+"/mine: <path to your file>\n"
+"/minename: <name to show on the view title>\n"
+"/merged: <path to resulting merged file>\n"
+"/mergedname: <name to show on the view title>\n"
+"/diff: <path to unified diff file>\n"
+"/patchpath: <path to folder>\n"
+"/saverequired\n"
+"/saverequiredonconflicts\n"
+"/oneway <forces the one-way view>\n"
+"/line: <line number to jump to>"
 
 #. Resource IDs: (1338)
 msgid "Validation of the property value failed!"
@@ -13220,6 +13325,8 @@ msgstr ""
 #. Resource IDs: (104)
 msgid "You have marked changed blocks. How should those blocks be saved?"
 msgstr ""
+"Hai contrassegnato i blocchi modificati. Come dovrebbero essere salvati quei "
+"blocchi?"
 
 #. Resource IDs: (254)
 msgid ""
@@ -13689,7 +13796,7 @@ msgstr "esterno"
 #. Resource IDs: (2706)
 #, c-format
 msgid "failed hunks: %d"
-msgstr ""
+msgstr "parti fallite: %d"
 
 #. Resource IDs: (65535)
 msgid "file external:"
@@ -13886,7 +13993,7 @@ msgstr "segni accoppiati:"
 
 #. Resource IDs: (2707)
 msgid "patched"
-msgstr ""
+msgstr "patch applicata"
 
 #. Resource IDs: (65535)
 msgid "path elements: "

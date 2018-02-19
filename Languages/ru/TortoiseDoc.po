@@ -10,14 +10,14 @@
 # 
 # Authors:
 # Translators:
-# Arkady “KindDragon” Shapkin <arkadiy_s@inbox.ru>, 2011
-# Arkady “KindDragon” Shapkin <arkadiy_s@inbox.ru>, 2011,2014
+# Arkady Shapkin <arkadiy_s@inbox.ru>, 2011
+# Arkady Shapkin <arkadiy_s@inbox.ru>, 2011,2014
 # _deniska <denis_levin@mail.ru>, 2012-2013
 # _deniska <denis_levin@mail.ru>, 2013
 # _deniska <denis_levin@mail.ru>, 2012
 # netpatriciapussy <Deshe1973@jourrapide.com>, 2016
 # Dmitriy Mamonov <sassy.but.classic@gmail.com>, 2013
-# Dmitry Oshkalo <dmitry.oshkalo@gmail.com>, 2015
+# Дмитрий Ошкало <dmitry.oshkalo@gmail.com>, 2015
 # netpatriciapussy <Deshe1973@jourrapide.com>, 2016
 # Nikolay Falileev <kelvinkolyan@mail.ru>, 2017
 # Nikolay Osinin <nikolay.osinin@gmail.com>, 2011
@@ -34,8 +34,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-04-26 04:42+0000\n"
-"Last-Translator: Вячеслав Третьяков <tret2003@gmail.com>\n"
+"PO-Revision-Date: 2018-02-01 01:53+0000\n"
+"Last-Translator: Lübbe Onken <luebbe.opensource@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "ru/)\n"
 "MIME-Version: 1.0\n"

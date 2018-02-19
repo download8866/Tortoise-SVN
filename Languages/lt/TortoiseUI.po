@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-01-25 12:52+0000\n"
+"PO-Revision-Date: 2018-02-09 15:33+0000\n"
 "Last-Translator: Andrius Burokas\n"
 "Language-Team: Lithuanian (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/lt/)\n"
@@ -1249,7 +1249,7 @@ msgstr ""
 
 #. Resource IDs: (201)
 msgid "&Repo-browser"
-msgstr "&Repo-naršyklė"
+msgstr "&Talpyklos naršyklė"
 
 #. Resource IDs: (16613, 16624)
 msgid "&Reset"
@@ -1361,7 +1361,7 @@ msgstr "&Pradėti Grupę"
 
 #. Resource IDs: (1605)
 msgid "&Start Repobrowser"
-msgstr "&Paleisti Repobrowser"
+msgstr "&Paleisti talpyklos naršyklę"
 
 #. Resource IDs: (59393)
 msgid "&Status Bar"
@@ -5424,7 +5424,7 @@ msgstr ""
 
 #. Resource IDs: (4365)
 msgid "Graphs for repository roots are always empty!"
-msgstr ""
+msgstr "Diagramos talpyklos šaknyje visada yra tuščios!"
 
 #. Resource IDs: (16972)
 msgid "Gray"
@@ -5833,6 +5833,8 @@ msgid ""
 "If enabled, the repository is contacted when the dialog starts up.\r\n"
 "You don't have to click on 'Check Repository' anymore."
 msgstr ""
+"Jei pažymėta, su talpykla susisiekiama pasirodžius dialogo langui.\r\n"
+"Jums nebereikia pasirinkti veiksmo 'Tikrinti talpyklą'."
 
 #. Resource IDs: (3138)
 msgid ""
@@ -5875,7 +5877,7 @@ msgstr ""
 
 #. Resource IDs: (1439)
 msgid "If the repository can not be contacted"
-msgstr ""
+msgstr "Jei talpykla nepasiekiama"
 
 #. Resource IDs: (1585)
 msgid ""
@@ -5889,6 +5891,8 @@ msgid ""
 "If you want to break the lock, use the 'Check For Modifications' dialog or "
 "the repository browser."
 msgstr ""
+"Jei norite pašalinti užrakinimą, atverkite dialogo langą 'Tikrinti, ar nėra "
+"pakeitimų' arba talpyklos naršyklę."
 
 #. Resource IDs: (65535)
 msgid "Ignore"
@@ -6066,7 +6070,7 @@ msgstr ""
 
 #. Resource IDs: (144)
 msgid "Imports the directory to a repository"
-msgstr ""
+msgstr "Importuoja katalogą į talpyklą"
 
 #. Resource IDs: (65535)
 msgid ""

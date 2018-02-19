@@ -12,22 +12,22 @@
 # Translators:
 # Bas <duvel3@gmail.com>, 2013
 # Jean-Marc van Leerdam <j.m.van.leerdam@gmail.com>, 2011
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
-# mark van tilburg <markvantilburg@gmail.com>, 2015-2016
+# Lübbe Onken <luebbe.opensource@gmail.com>, 2011
+# Lübbe Onken <luebbe.opensource@gmail.com>, 2011
+# mark van tilburg <markvantilburg@gmail.com>, 2015-2016,2018
 # Paul <paul@piak.nl>, 2011
 # Paul <paul@piak.nl>, 2011
 # Paul <paul@piak.nl>, 2011
-# wstalsma <wietze@wietzetalsma.nl>, 2011
-# wstalsma <wietze@wietzetalsma.nl>, 2011
+# wstalsma, 2011
+# wstalsma, 2011
 # W VB <vanbeirendonck.willem@gmail.com>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-02-11 09:03+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-02-12 15:41+0000\n"
+"Last-Translator: mark van tilburg <markvantilburg@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "nl/)\n"
 "MIME-Version: 1.0\n"
@@ -2004,6 +2004,10 @@ msgid ""
 "repository format, then everyone else will be unable to access the "
 "repository until they also upgrade to the new client version."
 msgstr ""
+"Als een gebruiker een nieuwere versie van de cliënt installeert welke het "
+"repository formaat bijwerkt naar een nieuwere versie. Dan moeten de andere "
+"gebruikers ook upgraden naar de nieuwe cliënt versie om gebruik te kunnen "
+"maken van de repository."
 
 #. (title)
 msgid "Revisions"
@@ -2634,6 +2638,14 @@ msgid ""
 "/tags/calc\n"
 "    "
 msgstr ""
+"\n"
+"/trunk/paint\n"
+"/trunk/calc\n"
+"/branches/paint\n"
+"/branches/calc\n"
+"/tags/paint\n"
+"/tags/calc\n"
+"    "
 
 #. (para)
 msgid "...or by project:"
@@ -2651,6 +2663,14 @@ msgid ""
 "/calc/tags\n"
 "    "
 msgstr ""
+"\n"
+"/paint/trunk\n"
+"/paint/branches\n"
+"/paint/tags\n"
+"/calc/trunk\n"
+"/calc/branches\n"
+"/calc/tags\n"
+"    "
 
 #. (para)
 msgid ""
@@ -3176,7 +3196,7 @@ msgstr ""
 
 #. (title)
 msgid "General Features"
-msgstr ""
+msgstr "Algemene Features"
 
 #. (para)
 msgid ""
