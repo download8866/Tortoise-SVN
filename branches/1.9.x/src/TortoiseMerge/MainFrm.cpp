@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2004-2017 - TortoiseSVN
+// Copyright (C) 2004-2018 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -1268,6 +1268,7 @@ void CMainFrame::OnViewOnewaydiff()
     if (CheckForSave(CHFSR_RELOAD)==IDCANCEL)
         return;
     m_bOneWay = !m_bOneWay;
+    m_regOneWay = m_bOneWay;
     ShowDiffBar(!m_bOneWay);
     LoadViews(-1);
 }
