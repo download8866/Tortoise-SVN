@@ -10,14 +10,14 @@
 # 
 # Authors:
 # Translators:
-# Arith Hsu <arithmandar@gmail.com>, 2011,2013-2014,2017
-# Binota Liu <binota@binota.org>, 2013
-# Binota Liu <binota@binota.org>, 2013
+# Arith Hsu <arithmandar@gmail.com>, 2011,2013-2014,2017-2018
+# BinotaLIU <binota@binota.org>, 2013
+# BinotaLIU <binota@binota.org>, 2013
 # Cecil Sheng <zcecil@csie.org>, 2011,2013-2015
 # Chien Wei Lin <cwlin0416@gmail.com>, 2016
 # Jin Yang <smile86541@gmail.com>, 2017
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011,2014
+# luebbe <luebbe.opensource@gmail.com>, 2011
+# luebbe <luebbe.opensource@gmail.com>, 2011,2014
 # Nick Vrvilo <nick@vrvilo.com>, 2011
 # Cecil Sheng <zcecil@csie.org>, 2013
 # Cecil Sheng <zcecil@csie.org>, 2011-2013
@@ -27,8 +27,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-17 01:34+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-03-06 07:04+0000\n"
+"Last-Translator: Arith Hsu <arithmandar@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/zh_TW/)\n"
 "MIME-Version: 1.0\n"

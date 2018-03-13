@@ -13,14 +13,15 @@
 # Friedrich Brunzema <brunzefb@yahoo.com>, 2013
 # Friedrich Brunzema <brunzefb@yahoo.com>, 2013
 # lonken <l.onken@rac.de>, 2014
-# Lübbe Onken <luebbe.opensource@gmail.com>, 2011
+# luebbe <luebbe.opensource@gmail.com>, 2011
 # Lübbe Onken <l.onken@rac.de>, 2011-2012
 # Lübbe Onken <l.onken@rac.de>, 2011-2012, 2013-2017
 # Lübbe Onken <l.onken@rac.de>, 2011-2012, 2013-2014, 2015-2016
 # Lübbe Onken <l.onken@rac.de>, 2011-2012, 2013-2014, 2015-2016, 2017
 # Lübbe Onken <l.onken@rac.de>, 2011-2012, 2013-2015, 2016-2017
 # Lübbe Onken <l.onken@rac.de>, 2011-2012, 2013-2016, 2017
-# Lübbe Onken <luebbe.opensource@gmail.com>, 2011,2013
+# luebbe <luebbe.opensource@gmail.com>, 2011,2013
+# luebbe <luebbe.opensource@gmail.com>, 2018
 # peu <peu@rekoba.de>, 2012-2013
 # peu <peu@rekoba.de>, 2012
 # peu <peu@rekoba.de>, 2013
@@ -35,8 +36,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-02-01 01:53+0000\n"
-"Last-Translator: Lübbe Onken <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2018-02-26 08:20+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: German (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "de/)\n"
 "MIME-Version: 1.0\n"
@@ -19154,10 +19155,10 @@ msgid ""
 "use the <emphasis>default</emphasis> status cache option (see below)."
 msgstr ""
 "Sie können auch festlegen, dass Ordner als modifiziert angezeigt werden "
-"sollen, wenn Sie unversionierte Objekte enthalten. Das können Sie als "
+"sollen, wenn Sie nicht versionierte Objekte enthalten. Das können Sie als "
 "Erinnerung nutzen, dass Sie neue, noch nicht versionierte, Dateien angelegt "
 "haben. Diese Option ist nur verfügbar, wenn Sie die <emphasis>Standard</"
-"emphasis> Puffer Einstellungen nutzen (siehe unten)."
+"emphasis> Statuscache Einstellungen nutzen (siehe unten)."
 
 #. (para)
 msgid ""
