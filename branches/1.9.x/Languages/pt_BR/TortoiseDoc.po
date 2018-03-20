@@ -19,8 +19,8 @@
 # Edson Chen <edson.chen@gmail.com>, 2011
 # Jonas Ricardo Rossi Cardoso <jrrossicardoso@gmail.com>, 2015
 # Leandro Hermes Neto <leandro@leandrohermes.net>, 2015
-# Lübbe Onken <luebbe.opensource@gmail.com>, 2012
-# Lübbe Onken <luebbe.opensource@gmail.com>, 2012
+# luebbe <luebbe.opensource@gmail.com>, 2012
+# luebbe <luebbe.opensource@gmail.com>, 2012
 # Marcelo Boeira <marceloboeira@live.com>, 2013
 # Marco Costa <mmarcottulio@gmail.com>, 2012
 # Michel K <michel.apt1@gmail.com>, 2015
@@ -38,8 +38,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-02-01 01:53+0000\n"
-"Last-Translator: Lübbe Onken <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2018-03-18 00:37+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/luebbe/"
 "tortoisesvn/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
