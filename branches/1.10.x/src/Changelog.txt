@@ -1,4 +1,18 @@
-﻿Version 1.9.8
+﻿Version 1.10.1
+- BUG: Wrong texts in conflict resolving
+       dialogs. (Stefan)
+- BUG: Shelving from TSVN dialogs returned
+       an error. (Stefan)
+- BUG: Crash when trying to unshelve from
+       an outdated or corrupted working copy. (Stefan)
+- CHG: Improved project monitor toolbar for
+       high dpi monitors. (Stefan)
+
+Version 1.10.0
+See the release notes here:
+http://tortoisesvn.net/tsvn_1.10_releasenotes.html
+
+Version 1.9.8 (unreleased)
 - BUG: GDI leak in repobrowser. (Stefan)
 - BUG: Endless loop in vendor-branch. (Stefan)
 - CHG: New line margin icons and minor high dpi refinements
