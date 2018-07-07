@@ -4953,17 +4953,25 @@ void CRepositoryBrowser::FilterUnknownDepthItems(std::map<CString,svn_depth_t>& 
 
         for (std::map<CString,svn_depth_t>::iterator it2 = depths.begin(); it2 != depths.end(); ++it2)
         {
-            if (it->first.Compare(it2->first)==0)
-                continue;
             if (it2->second != svn_depth_unknown)
+                continue;
+            if (it->first.Compare(it2->first)==0)
                 continue;
 
             CString url1 = it->first + L"/";
             if (url1.Compare(it2->first.Left(url1.GetLength()))==0)
             {
-                std::map<CString,svn_depth_t>::iterator kill = it2;
-                --it2;
-                depths.erase(kill);
+                // only remove items which are already checked out, i.e. are
+                // already present in the working copy.
+                // if an item isn't in the working copy yet, we need to
+                // check out/update the item even if it has unknown depth
+                auto wcit = m_wcDepths.find(it2->first);
+                if (wcit != m_wcDepths.end())
+                {
+                    std::map<CString, svn_depth_t>::iterator kill = it2;
+                    --it2;
+                    depths.erase(kill);
+                }
             }
         }
     }
