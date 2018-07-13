@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2017 - TortoiseSVN
+// Copyright (C) 2003-2018 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -260,7 +260,6 @@ private:
     void EditLogMessage(size_t index);
     void DoSizeV1(int delta);
     void DoSizeV2(int delta);
-    void AdjustMinSize();
     void SetSplitterRange();
     void SetFilterCueText();
     void CopySelectionToClipBoard();
