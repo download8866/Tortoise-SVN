@@ -492,7 +492,6 @@
     <ClInclude Include="..\Utils\CreateProcessHelper.h" />
     <ClInclude Include="..\Utils\DebugOutput.h" />
     <ClInclude Include="..\Utils\DirFileEnum.h" />
-    <ClInclude Include="..\Utils\DPIAware.h" />
     <ClInclude Include="..\Utils\DragDropImpl.h" />
     <ClInclude Include="..\Utils\FormatMessageWrapper.h" />
     <ClInclude Include="..\Utils\HighResClock.h" />
@@ -981,7 +980,6 @@
     <Image Include="..\Resources\monitorurl.ico" />
     <Image Include="..\Resources\monitorwc.ico" />
     <Image Include="..\Resources\monitor_add.ico" />
-    <Image Include="..\Resources\monitor_clearerrors.ico" />
     <Image Include="..\Resources\monitor_edit.ico" />
     <Image Include="..\Resources\monitor_getall.ico" />
     <Image Include="..\Resources\monitor_markallasread.ico" />

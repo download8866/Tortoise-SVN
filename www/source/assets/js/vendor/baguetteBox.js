@@ -1,7 +1,7 @@
 /*!
  * baguetteBox.js
  * @author  feimosi
- * @version 1.10.0
+ * @version 1.9.1
  * @url https://github.com/feimosi/baguetteBox.js
  */
 
@@ -58,8 +58,6 @@
     var currentGallery = [];
     // Current image index inside the slider
     var currentIndex = 0;
-    // Visibility of the overlay
-    var isOverlayVisible = false;
     // Touch event start position (for slide gesture)
     var touch = {};
     // If set to true ignore touch events because animation was already fired
@@ -164,12 +162,11 @@
     function run(selector, userOptions) {
         // Fill supports object
         supports.transforms = testTransformsSupport();
-        supports.svg = testSvgSupport();
-        supports.passiveEvents = testPassiveEventsSupport();
+        supports.svg = testSVGSupport();
 
         buildOverlay();
         removeFromCache(selector);
-        return bindImageClickListeners(selector, userOptions);
+        bindImageClickListeners(selector, userOptions);
     }
 
     function bindImageClickListeners(selector, userOptions) {
@@ -220,8 +217,6 @@
             });
             selectorData.galleries.push(gallery);
         });
-
-        return selectorData.galleries;
     }
 
     function clearCachedData() {
@@ -311,27 +306,25 @@
     }
 
     function bindEvents() {
-        var options = supports.passiveEvents ? { passive: true } : null;
         bind(overlay, 'click', overlayClickHandler);
         bind(previousButton, 'click', previousButtonClickHandler);
         bind(nextButton, 'click', nextButtonClickHandler);
         bind(closeButton, 'click', closeButtonClickHandler);
         bind(slider, 'contextmenu', contextmenuHandler);
-        bind(overlay, 'touchstart', touchstartHandler, options);
-        bind(overlay, 'touchmove', touchmoveHandler, options);
+        bind(overlay, 'touchstart', touchstartHandler);
+        bind(overlay, 'touchmove', touchmoveHandler);
         bind(overlay, 'touchend', touchendHandler);
         bind(document, 'focus', trapFocusInsideOverlay, true);
     }
 
     function unbindEvents() {
-        var options = supports.passiveEvents ? { passive: true } : null;
         unbind(overlay, 'click', overlayClickHandler);
         unbind(previousButton, 'click', previousButtonClickHandler);
         unbind(nextButton, 'click', nextButtonClickHandler);
         unbind(closeButton, 'click', closeButtonClickHandler);
         unbind(slider, 'contextmenu', contextmenuHandler);
-        unbind(overlay, 'touchstart', touchstartHandler, options);
-        unbind(overlay, 'touchmove', touchmoveHandler, options);
+        unbind(overlay, 'touchstart', touchstartHandler);
+        unbind(overlay, 'touchmove', touchmoveHandler);
         unbind(overlay, 'touchend', touchendHandler);
         unbind(document, 'focus', trapFocusInsideOverlay, true);
     }
@@ -437,7 +430,6 @@
         }
         documentLastFocus = document.activeElement;
         initFocus();
-        isOverlayVisible = true;
     }
 
     function initFocus() {
@@ -490,7 +482,6 @@
                 options.afterHide();
             }
             documentLastFocus && documentLastFocus.focus();
-            isOverlayVisible = false;
         }, 500);
     }
 
@@ -590,62 +581,46 @@
 
     // Return false at the right end of the gallery
     function showNextImage() {
-        return show(currentIndex + 1);
+        var returnValue;
+        // Check if next image exists
+        if (currentIndex <= imagesElements.length - 2) {
+            currentIndex++;
+            updateOffset();
+            preloadNext(currentIndex);
+            returnValue = true;
+        } else if (options.animation) {
+            slider.className = 'bounce-from-right';
+            setTimeout(function() {
+                slider.className = '';
+            }, 400);
+            returnValue = false;
+        }
+        if (options.onChange) {
+            options.onChange(currentIndex, imagesElements.length);
+        }
+        return returnValue;
     }
 
     // Return false at the left end of the gallery
     function showPreviousImage() {
-        return show(currentIndex - 1);
-    }
-
-    /**
-     * Move the gallery to a specific index
-     * @param `index` {number} - the position of the image
-     * @param `gallery` {array} - gallery which should be opened, if omitted assumes the currently opened one
-     * @return {boolean} - true on success or false if the index is invalid
-     */
-    function show(index, gallery) {
-        if (!isOverlayVisible && index >= 0 && index < gallery.length) {
-            prepareOverlay(gallery, options);
-            showOverlay(index);
-            return true;
-        }
-        if (index < 0) {
-            if (options.animation) {
-                bounceAnimation('left');
-            }
-            return false;
-        }
-        if (index >= imagesElements.length) {
-            if (options.animation) {
-                bounceAnimation('right');
-            }
-            return false;
-        }
-
-        currentIndex = index;
-        loadImage(currentIndex, function() {
-            preloadNext(currentIndex);
+        var returnValue;
+        // Check if previous image exists
+        if (currentIndex >= 1) {
+            currentIndex--;
+            updateOffset();
             preloadPrev(currentIndex);
-        });
-        updateOffset();
-
+            returnValue = true;
+        } else if (options.animation) {
+            slider.className = 'bounce-from-left';
+            setTimeout(function() {
+                slider.className = '';
+            }, 400);
+            returnValue = false;
+        }
         if (options.onChange) {
             options.onChange(currentIndex, imagesElements.length);
         }
-
-        return true;
-    }
-
-    /**
-     * Triggers the bounce animation
-     * @param {('left'|'right')} direction - Direction of the movement
-     */
-    function bounceAnimation(direction) {
-        slider.className = 'bounce-from-' + direction;
-        setTimeout(function() {
-            slider.className = '';
-        }, 400);
+        return returnValue;
     }
 
     function updateOffset() {
@@ -672,25 +647,10 @@
     }
 
     // Inline SVG test
-    function testSvgSupport() {
+    function testSVGSupport() {
         var div = create('div');
         div.innerHTML = '<svg/>';
         return (div.firstChild && div.firstChild.namespaceURI) === 'http://www.w3.org/2000/svg';
-    }
-
-    // Borrowed from https://github.com/seiyria/bootstrap-slider/pull/680/files
-    function testPassiveEventsSupport() {
-        var passiveEvents = false;
-        try {
-            var opts = Object.defineProperty({}, 'passive', {
-                get: function() {
-                    passiveEvents = true;
-                }
-            });
-            window.addEventListener('test', null, opts);
-        } catch (e) { /* Silence the error and continue */ }
-
-        return passiveEvents;
     }
 
     function preloadNext(index) {
@@ -711,9 +671,9 @@
         });
     }
 
-    function bind(element, event, callback, options) {
+    function bind(element, event, callback, useCapture) {
         if (element.addEventListener) {
-            element.addEventListener(event, callback, options);
+            element.addEventListener(event, callback, useCapture);
         } else {
             // IE8 fallback
             element.attachEvent('on' + event, function(event) {
@@ -725,9 +685,9 @@
         }
     }
 
-    function unbind(element, event, callback, options) {
+    function unbind(element, event, callback, useCapture) {
         if (element.removeEventListener) {
-            element.removeEventListener(event, callback, options);
+            element.removeEventListener(event, callback, useCapture);
         } else {
             // IE8 fallback
             element.detachEvent('on' + event, callback);
@@ -754,10 +714,8 @@
 
     return {
         run: run,
-        show: show,
         showNext: showNextImage,
         showPrevious: showPreviousImage,
-        hide: hideOverlay,
         destroy: destroyPlugin
     };
 }));

@@ -371,7 +371,6 @@ BEGIN_MESSAGE_MAP(CLogDlg, CResizableStandAloneDialog)
     ON_COMMAND(ID_LOGDLG_MONITOR_EDIT, &CLogDlg::OnMonitorEditProject)
     ON_COMMAND(ID_LOGDLG_MONITOR_REMOVE, &CLogDlg::OnMonitorRemoveProject)
     ON_COMMAND(ID_MISC_MARKALLASREAD, &CLogDlg::OnMonitorMarkAllAsRead)
-    ON_COMMAND(ID_LOGDLG_MONITOR_CLEARERRORS, &CLogDlg::OnMonitorClearErrors)
     ON_COMMAND(ID_MISC_UPDATE, &CLogDlg::OnMonitorUpdateAll)
     ON_COMMAND(ID_MISC_OPTIONS, &CLogDlg::OnMonitorOptions)
     ON_COMMAND(ID_LOGDLG_MONITOR_THREADFINISHED, &CLogDlg::OnMonitorThreadFinished)
@@ -469,11 +468,11 @@ void CLogDlg::SetupDialogFonts()
     LOGFONT lf = {0};
     font->GetLogFont(&lf);
 
-    lf.lfWeight = FW_DEMIBOLD;
-    m_unreadFont.CreateFontIndirect(&lf);
-
     lf.lfWeight = FW_BOLD;
-    m_wcRevFont.CreateFontIndirect(&lf);
+    m_boldFont.CreateFontIndirect(&lf);
+
+    lf.lfItalic = TRUE;
+    m_boldItalicFont.CreateFontIndirect(&lf);
     CAppUtils::CreateFontForLogs(m_logFont);
 }
 
@@ -3509,7 +3508,7 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
                         crText = GetSysColor(COLOR_GRAYTEXT);
                     if ((data->GetRevision() == m_wcRev) || data->GetUnread())
                     {
-                        SelectObject(pLVCD->nmcd.hdc, data->GetUnread() ? m_unreadFont : m_wcRevFont);
+                        SelectObject(pLVCD->nmcd.hdc, data->GetUnread() ? m_boldFont : m_boldItalicFont);
                         // We changed the font, so we're returning CDRF_NEWFONT. This
                         // tells the control to recalculate the extent of the text.
                         *pResult = CDRF_NOTIFYSUBITEMDRAW | CDRF_NEWFONT;
@@ -4942,7 +4941,7 @@ void CLogDlg::ResizeAllListCtrlCols(bool bOnlyVisible)
                 {
                     HFONT hFont = (HFONT)m_LogList.SendMessage(WM_GETFONT);
                     // set the bold font and ask for the string width again
-                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)m_wcRevFont.GetSafeHandle(), NULL);
+                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)m_boldItalicFont.GetSafeHandle(), NULL);
                     linewidth = m_LogList.GetStringWidth(m_LogList.GetItemText((int)index, col)) + 14;
                     // restore the system font
                     m_LogList.SendMessage(WM_SETFONT, (WPARAM)hFont, NULL);
@@ -4951,7 +4950,7 @@ void CLogDlg::ResizeAllListCtrlCols(bool bOnlyVisible)
                 {
                     HFONT hFont = (HFONT)m_LogList.SendMessage(WM_GETFONT);
                     // set the bold font and ask for the string width again
-                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)m_unreadFont.GetSafeHandle(), NULL);
+                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)m_boldFont.GetSafeHandle(), NULL);
                     linewidth = m_LogList.GetStringWidth(m_LogList.GetItemText((int)index, col)) + 14;
                     // restore the system font
                     m_LogList.SendMessage(WM_SETFONT, (WPARAM)hFont, NULL);
@@ -6219,9 +6218,6 @@ void CLogDlg::ShowContextMenuForChangedPaths(CWnd* /*pWnd*/, CPoint point)
 
     switch (cmd)
     {
-    case ID_COMPARE:
-        ExecuteCompareChangedPaths(pCmi, selIndex);
-        break;
     case ID_DIFF:
         ExecuteDiffChangedPaths(pCmi, selIndex, false);
         break;
@@ -7131,10 +7127,6 @@ bool CLogDlg::PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsP
                 popup.AppendMenuIcon(ID_BLAMEDIFF, IDS_LOG_POPUP_BLAMEDIFF, IDI_BLAME);
                 popup.SetDefaultItem(ID_DIFF, FALSE);
                 popup.AppendMenuIcon(ID_GNUDIFF1, IDS_LOG_POPUP_GNUDIFF_CH, IDI_DIFF);
-                if (m_hasWC)
-                {
-                    popup.AppendMenuIcon(ID_COMPARE, IDS_LOG_POPUP_COMPARE, IDI_DIFF);
-                }
                 bEntryAdded = true;
             }
             else if (pCmi->OneRev)
@@ -7250,76 +7242,6 @@ void CLogDlg::ExecuteMultipleDiffChangedPaths( ContextMenuInfoForChangedPathsPtr
     }
 }
 
-void CLogDlg::ExecuteCompareChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex)
-{
-    SVNRev getrev = m_currentChangedArray[selIndex].GetAction() == LOGACTIONS_DELETED ?
-        pCmi->Rev2 : pCmi->Rev1;
-    auto f = [=]()
-    {
-        CoInitialize(NULL);
-        OnOutOfScope(CoUninitialize());
-        this->EnableWindow(FALSE);
-        OnOutOfScope(this->EnableWindow(TRUE); this->SetFocus());
-
-        DialogEnableWindow(IDOK, FALSE);
-        SetPromptApp(&theApp);
-        CString filepath;
-        if (SVN::PathIsURL(m_path))
-        {
-            filepath = m_path.GetSVNPathString();
-        }
-        else
-        {
-            filepath = GetURLFromPath(m_path);
-            if (filepath.IsEmpty())
-            {
-                ReportNoUrlOfFile(filepath);
-                EnableOKButton();
-                return;
-            }
-        }
-        m_bCancelled = false;
-        filepath = GetRepositoryRoot(CTSVNPath(filepath));
-        filepath += m_currentChangedArray[selIndex].GetPath();
-        CTSVNPath tsvnfilepath = CTSVNPath(filepath);
-
-        CProgressDlg progDlg;
-        progDlg.SetTitle(IDS_APPNAME);
-        CString sInfoLine;
-        sInfoLine.FormatMessage(IDS_PROGRESSGETFILEREVISION, (LPCTSTR)filepath,
-            (LPCTSTR)getrev.ToString());
-        progDlg.SetLine(1, sInfoLine, true);
-        SetAndClearProgressInfo(&progDlg);
-        progDlg.ShowModeless(m_hWnd);
-
-        CTSVNPath tempfile = CTempFiles::Instance().GetTempFilePath(false, tsvnfilepath, getrev);
-        m_bCancelled = false;
-        if (!Export(tsvnfilepath, tempfile, getrev, getrev))
-        {
-            progDlg.Stop();
-            SetAndClearProgressInfo((HWND)NULL);
-            ShowErrorDialog(m_hWnd);
-            EnableOKButton();
-            return;
-        }
-        progDlg.Stop();
-        SetAndClearProgressInfo((HWND)NULL);
-
-        CString sName1, sName2;
-        sName1.Format(L"%s - Revision %ld", (LPCTSTR)CPathUtils::GetFileNameFromPath(filepath), (svn_revnum_t)getrev);
-        sName2.Format(IDS_DIFF_WCNAME, (LPCTSTR)CPathUtils::GetFileNameFromPath(filepath));
-        CAppUtils::DiffFlags flags;
-        flags.AlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
-        CString mimetype;
-        CAppUtils::GetMimeType(tsvnfilepath, mimetype);
-
-        CAppUtils::StartExtDiff(tempfile, CTSVNPath(pCmi->wcPath), sName1, sName2, tsvnfilepath, tsvnfilepath,
-            getrev, getrev, getrev, flags, 0,
-            CPathUtils::GetFileNameFromPath(filepath), mimetype);
-        EnableOKButton();
-    };
-    new async::CAsyncCall(f, &netScheduler);
-}
 
 void CLogDlg::ExecuteDiffChangedPaths( ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex, bool ignoreprops )
 {
@@ -7840,7 +7762,7 @@ bool CLogDlg::CreateToolbar()
 
     ::SendMessage(m_hwndToolbar, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), 0);
 
-#define MONITORMODE_TOOLBARBUTTONCOUNT  11
+#define MONITORMODE_TOOLBARBUTTONCOUNT  10
     TBBUTTON tbb[MONITORMODE_TOOLBARBUTTONCOUNT] = { 0 };
     // create an image list containing the icons for the toolbar
     const int iconSizeX = int(24 * CDPIAware::Instance().ScaleFactor());
@@ -7899,14 +7821,6 @@ bool CLogDlg::CreateToolbar()
     hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_MARKALLASREAD, iconSizeX, iconSizeY, LR_VGACOLOR | LR_LOADTRANSPARENT);
     tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
     tbb[index].idCommand = ID_MISC_MARKALLASREAD;
-    tbb[index].fsState = TBSTATE_ENABLED | BTNS_SHOWTEXT;
-    tbb[index].fsStyle = BTNS_BUTTON;
-    tbb[index].dwData = 0;
-    tbb[index++].iString = iString++;
-
-    hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_CLEARERRORS, iconSizeX, iconSizeY, LR_VGACOLOR | LR_LOADTRANSPARENT);
-    tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
-    tbb[index].idCommand = ID_LOGDLG_MONITOR_CLEARERRORS;
     tbb[index].fsState = TBSTATE_ENABLED | BTNS_SHOWTEXT;
     tbb[index].fsStyle = BTNS_BUTTON;
     tbb[index].dwData = 0;
@@ -8368,11 +8282,17 @@ void CLogDlg::OnMonitorMarkAllAsRead()
 {
     // mark all entries as unread
     HTREEITEM hItem = m_projTree.GetSelectedItem();
+    bool bShift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
     RecurseMonitorTree(TVI_ROOT, [&](HTREEITEM hItem)->bool
     {
         MonitorItem * pItem = (MonitorItem *)m_projTree.GetItemData(hItem);
         pItem->UnreadItems = 0;
         pItem->unreadFirst = 0;
+        if (bShift)
+        {
+            pItem->authfailed = false;
+            pItem->lastErrorMsg.Empty();
+        }
         m_projTree.SetItemState(hItem, pItem->UnreadItems ? TVIS_BOLD : 0, TVIS_BOLD);
         m_projTree.SetItemState(hItem, pItem->authfailed ? INDEXTOOVERLAYMASK(OVERLAY_MODIFIED) : 0, TVIS_OVERLAYMASK);
         return false;
@@ -8384,22 +8304,6 @@ void CLogDlg::OnMonitorMarkAllAsRead()
         LRESULT result = 0;
         MonitorShowProject(hItem, &result);
     }
-    SaveMonitorProjects(false);
-    m_projTree.Invalidate();
-}
-
-void CLogDlg::OnMonitorClearErrors()
-{
-    // clear all errors
-    RecurseMonitorTree(TVI_ROOT, [&](HTREEITEM hItem)->bool
-    {
-        MonitorItem * pItem = (MonitorItem *)m_projTree.GetItemData(hItem);
-        pItem->authfailed = false;
-        pItem->lastErrorMsg.Empty();
-        m_projTree.SetItemState(hItem, pItem->authfailed ? INDEXTOOVERLAYMASK(OVERLAY_MODIFIED) : 0, TVIS_OVERLAYMASK);
-        return false;
-    });
-
     SaveMonitorProjects(false);
     m_projTree.Invalidate();
 }

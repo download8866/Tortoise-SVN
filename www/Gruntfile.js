@@ -68,6 +68,7 @@ module.exports = function(grunt) {
                 src: ['<%= dirs.src %>/assets/js/vendor/plugins.js',
                       '<%= dirs.src %>/assets/js/no-js-class.js',
                       '<%= dirs.src %>/assets/js/onLoad.js',
+                      '<%= dirs.src %>/assets/js/sf-accel.js',
                       '<%= dirs.src %>/assets/js/google-analytics.js'
                 ],
                 dest: '<%= dirs.dest %>/assets/js/main.js'
@@ -80,14 +81,19 @@ module.exports = function(grunt) {
             }
         },
 
-        postcss: {
+        autoprefixer: {
             options: {
-                processors: [
-                    require('autoprefixer')() // add vendor prefixes
+                browsers: [
+                    'last 2 versions',
+                    '> 1%',
+                    'Edge >= 12',
+                    'Explorer >= 9',
+                    'Firefox ESR'
                 ]
             },
-            dist: {
-                src: '<%= concat.css.dest %>'
+            pack: {
+                src: '<%= concat.css.dest %>',
+                dest: '<%= concat.css.dest %>'
             }
         },
 
@@ -243,9 +249,6 @@ module.exports = function(grunt) {
         },
 
         htmllint: {
-            options: {
-                ignore: /This document appears to be written in./
-            },
             src: '<%= dirs.dest %>/**/*.html'
         },
 
@@ -286,7 +289,7 @@ module.exports = function(grunt) {
         'jekyll',
         'useminPrepare',
         'concat',
-        'postcss',
+        'autoprefixer',
         'uncss',
         'cssmin',
         'uglify',
@@ -309,7 +312,7 @@ module.exports = function(grunt) {
         'jekyll',
         'useminPrepare',
         'concat',
-        'postcss',
+        'autoprefixer',
         'filerev',
         'usemin'
     ]);

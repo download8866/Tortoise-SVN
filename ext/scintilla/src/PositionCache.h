@@ -10,12 +10,8 @@
 
 namespace Scintilla {
 
-inline constexpr bool IsEOLChar(int ch) noexcept {
+static inline bool IsEOLChar(char ch) {
 	return (ch == '\r') || (ch == '\n');
-}
-
-inline constexpr bool IsSpaceOrTab(int ch) noexcept {
-	return ch == ' ' || ch == '\t';
 }
 
 /**
@@ -44,13 +40,6 @@ enum PointEnd {
 	peSubLineEnd = 0x2
 };
 
-class BidiData {
-public:
-	std::vector<FontAlias> stylesFonts;
-	std::vector<XYPOSITION> widthReprs;
-	void Resize(size_t maxLineLength_);
-};
-
 /**
  */
 class LineLayout {
@@ -77,8 +66,6 @@ public:
 	std::unique_ptr<XYPOSITION[]> positions;
 	char bracePreviousStyles[2];
 
-	std::unique_ptr<BidiData> bidiData;
-
 	// Hotspot support
 	Range hotspot;
 
@@ -95,16 +82,12 @@ public:
 	void operator=(LineLayout &&) = delete;
 	virtual ~LineLayout();
 	void Resize(int maxLineLength_);
-	void EnsureBidiData();
 	void Free();
 	void Invalidate(validLevel validity_);
 	int LineStart(int line) const;
-	int LineLength(int line) const;
-	enum class Scope { visibleOnly, includeEnd };
-	int LineLastVisible(int line, Scope scope) const;
-	Range SubLineRange(int subLine, Scope scope) const;
+	int LineLastVisible(int line) const;
+	Range SubLineRange(int subLine) const;
 	bool InLine(int offset, int line) const;
-	int SubLineFromPosition(int posInLine, PointEnd pe) const;
 	void SetLineStart(int line, int start);
 	void SetBracesHighlight(Range rangeLine, const Sci::Position braces[],
 		char bracesMatchStyle, int xHighlight, bool ignoreStyle);
@@ -113,36 +96,6 @@ public:
 	int FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
 	Point PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
 	int EndLineStyle() const;
-};
-
-struct ScreenLine : public IScreenLine {
-	const LineLayout *ll;
-	size_t start;
-	size_t len;
-	XYPOSITION width;
-	XYPOSITION height;
-	int ctrlCharPadding;
-	XYPOSITION tabWidth;
-	int tabWidthMinimumPixels;
-
-	ScreenLine(const LineLayout *ll_, int subLine, const ViewStyle &vs, XYPOSITION width_, int tabWidthMinimumPixels_);
-	// Deleted so ScreenLine objects can not be copied.
-	ScreenLine(const ScreenLine &) = delete;
-	ScreenLine(ScreenLine &&) = delete;
-	void operator=(const ScreenLine &) = delete;
-	void operator=(ScreenLine &&) = delete;
-	virtual ~ScreenLine();
-
-	std::string_view Text() const override;
-	size_t Length() const override;
-	size_t RepresentationCount() const override;
-	XYPOSITION Width() const override;
-	XYPOSITION Height() const override;
-	XYPOSITION TabWidth() const override;
-	XYPOSITION TabWidthMinimumPixels() const override;
-	const Font *FontOfPosition(size_t position) const override;
-	XYPOSITION RepresentationWidth(size_t position) const override;
-	XYPOSITION TabPositionAfter(XYPOSITION xPosition) const override;
 };
 
 /**
@@ -283,6 +236,10 @@ public:
 	void MeasureWidths(Surface *surface, const ViewStyle &vstyle, unsigned int styleNumber,
 		const char *s, unsigned int len, XYPOSITION *positions, const Document *pdoc);
 };
+
+inline bool IsSpaceOrTab(int ch) {
+	return ch == ' ' || ch == '\t';
+}
 
 }
 
