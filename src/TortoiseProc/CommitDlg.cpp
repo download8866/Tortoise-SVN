@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2017 - TortoiseSVN
+// Copyright (C) 2003-2018 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -769,6 +769,7 @@ void CCommitDlg::OnCancel()
         for (auto it = m_restorepaths.cbegin(); it != m_restorepaths.cend(); ++it)
         {
             CopyFile(it->first, std::get<0>(it->second), FALSE);
+            CPathUtils::Touch(std::get<0>(it->second));
             svn.AddToChangeList(CTSVNPathList(CTSVNPath(std::get<0>(it->second))), std::get<1>(it->second), svn_depth_empty);
         }
     }
