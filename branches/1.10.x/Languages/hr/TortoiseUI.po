@@ -13,14 +13,14 @@
 # Boris Nociar <boris.nociar@gmail.com>, 2016
 # Ivan Vučica <ivan@vucica.net>, 2012-2013
 # Ivan Vučica <ivan@vucica.net>, 2011, 2012
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
+# luebbe <luebbe.opensource@gmail.com>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-17 01:34+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Croatian (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/hr/)\n"
 "MIME-Version: 1.0\n"
@@ -3052,9 +3052,9 @@ msgid "Commit"
 msgstr "Pohrane"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "prema %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4626,9 +4626,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr "Izvoz datoteka (*.tsex)|*.tsex|Sve datoteke (*.*)|*.*||"
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "Izvozim %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5806,9 +5806,8 @@ msgid "Ignore Comments"
 msgstr "Zanemari Komentare"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Ignoriraj &EOL promjene"
+msgstr ""
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -7232,9 +7231,8 @@ msgid "Nothing is selected for commit!"
 msgstr "Ništa nije odabrano za slanje!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "Ništa nije odabrano za slanje!"
+msgstr ""
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"

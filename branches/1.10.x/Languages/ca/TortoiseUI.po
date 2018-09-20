@@ -14,14 +14,14 @@
 # el_libre como el chaval <el.libre@gmail.com>, 2011
 # Joan Monguillot <jmonguillot@gmail.com>, 2013-2018
 # el_libre como el chaval <el.libre@gmail.com>, 2011
-# Lübbe Onken <luebbe.opensource@gmail.com>, 2013
+# luebbe <luebbe.opensource@gmail.com>, 2013
 # Haommin <tfs.msimangu@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-02-01 22:00+0000\n"
+"PO-Revision-Date: 2018-09-17 18:45+0000\n"
 "Last-Translator: Joan Monguillot <jmonguillot@gmail.com>\n"
 "Language-Team: Catalan (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "ca/)\n"
@@ -3170,9 +3170,9 @@ msgid "Commit"
 msgstr "Pujada"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "fins %1!ls!"
+msgstr "Puja a %1!ls!"
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4754,9 +4754,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr "Exporta fitxers (*.tsex)|*.tsex|Tots els fitxers (*.*)|*.*||"
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "S'està exportant %1!ls!"
+msgstr "Exporta des de %1!ls!"
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5939,9 +5939,8 @@ msgid "Ignore Comments"
 msgstr "Ignora comentaris"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Ignora els canvis &EOL"
+msgstr "Ignora els canvis EOL"
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -7373,9 +7372,8 @@ msgid "Nothing is selected for commit!"
 msgstr "No hi ha res seleccionat per pujar."
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "No hi ha res seleccionat per pujar."
+msgstr "No s'ha desat res al prestatge."
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"

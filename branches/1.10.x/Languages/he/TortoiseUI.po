@@ -11,6 +11,7 @@
 # Authors:
 # Translators:
 # Nachshon Armon <nachshon.armon@gmail.com>, 2013
+# Opher Shachar <ophers@gmail.com>, 2018
 # shimshon Fishler <shimshon.fishler@gmail.com>, 2016
 # Yaron Shahrabani <sh.yaron@gmail.com>, 2012
 msgid ""
@@ -18,15 +19,16 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-17 01:34+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Hebrew (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "he/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: he\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % "
+"1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
 
 # msgid/msgstr fields for Accelerator keys
 # Format is: "ID:xxxxxx:VACS+X" where:
@@ -98,12 +100,12 @@ msgstr "%1!d! היוצרים הפעילים ביותר עם לפחות %2!d! מ�
 #. Resource IDs: (IDS_PROGRS_TIME)
 #, c-format
 msgid "%1!ld! minute(s) and %2!ld! second(s)"
-msgstr "%1!ld! דקות ו־%2!ld! שניות"
+msgstr "%1!ld! דקה(ות) ו־%2!ld! שניה(ות)"
 
 #. Resource IDs: (IDS_LOG_DLGTITLEOFFLINE)
 #, c-format
 msgid "%1!ls! (offline)"
-msgstr ""
+msgstr "%1!ls! (לא מקוון)"
 
 #. Resource IDs: (IDS_PROGRS_PATHATREV)
 #, c-format
@@ -123,7 +125,7 @@ msgstr "%1!ls! תוך %2!ls!"
 #. Resource IDs: (IDS_SVN_PROGRESS_TOTALANDSPEED)
 #, c-format
 msgid "%1!ls!, %2!ls!"
-msgstr ""
+msgstr "%1!ls!, %2!ls!"
 
 #. Resource IDs: (IDS_PROC_EXPORTFOLDERNAME)
 #, c-format
@@ -141,6 +143,8 @@ msgid ""
 "%1!ls!\r\n"
 "Revision %2!ls!, Author %3!ls!, Date %4!ls!"
 msgstr ""
+"%1!ls!\r\n"
+"מהדורה %2!ls!, יוצר %3!ls!, תאריך %4!ls!"
 
 #. Resource IDs: (IDS_REPOBROWSE_INFOFILE)
 #, c-format
@@ -148,6 +152,8 @@ msgid ""
 "%1!ls!\r\n"
 "Revision %2!ls!, Author %3!ls!, Size %4!ls!, Date %5!ls!"
 msgstr ""
+"%1!ls!\r\n"
+"מהדורה %2!ls!, יוצר %3!ls!, גודל %4!ls!, תאריך %5!ls!"
 
 #. Resource IDs: (IDS_REPOBROWSE_INFO)
 #, c-format
@@ -155,6 +161,8 @@ msgid ""
 "%1!ls!\r\n"
 "Showing %2!d! files and %3!d! folders, %4!d! items in total"
 msgstr ""
+"%1!ls!\r\n"
+"מציג %2!d! קבצים ו- %3!d! תיקיות, %4!d! פריטים בסה\"כ"
 
 #. Resource IDs: (61744)
 #, c-format
@@ -194,7 +202,7 @@ msgstr "%I64d ק״ב הועברו"
 #. Resource IDs: (62186)
 #, c-format
 msgid "%Ts [Recovered]"
-msgstr ""
+msgstr "%Ts [שוחזר]"
 
 #. Resource IDs: (61585, 61586)
 #, c-format
@@ -202,11 +210,13 @@ msgid ""
 "%Ts\n"
 "%Ts"
 msgstr ""
+"%Ts\n"
+"%Ts"
 
 #. Resource IDs: (IDS_MONITOR_NOTIFY_MULTITITLE)
 #, c-format
 msgid "%d projects have updates:"
-msgstr ""
+msgstr "ל %d פרויקטים יש עדכונים:"
 
 #. Resource IDs: (IDS_ALPHABUTTONTT)
 #, c-format
@@ -234,17 +244,17 @@ msgstr "%ls"
 #. Resource IDs: (IDS_REVGRAPH_DLGTITLEOFFLINE)
 #, c-format
 msgid "%ls (offline)"
-msgstr "%ls (בלתי מקוון)"
+msgstr "%ls (לא מקוון)"
 
 #. Resource IDs: (IDS_MENUIGNOREGLOBAL)
 #, c-format
 msgid "%ls (recursively)"
-msgstr ""
+msgstr "%ls (רֶקוּרְסִיבִי)"
 
 #. Resource IDs: (IDS_DIFF_MERGEDNAME)
 #, c-format
 msgid "%ls : Merged file"
-msgstr ""
+msgstr "%ls : קובץ ממוזג"
 
 #. Resource IDs: (IDS_DIFF_REMOTENAME)
 #, c-format
@@ -276,6 +286,8 @@ msgid ""
 "%ls\n"
 "Do you want to remove the %d files anyway?"
 msgstr ""
+"%ls\n"
+"האם ברצונך להסיר את %d הקבצים בכל זאת?"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK1)
 #, c-format
@@ -283,6 +295,8 @@ msgid ""
 "%ls\n"
 "Do you want to remove the file '%ls' anyway?"
 msgstr ""
+"%ls\n"
+"האם ברצונך להסיר את הקובץ '%ls' בכל זאת?"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK1_2)
 #, c-format
@@ -292,6 +306,9 @@ msgid ""
 "contains unversioned and/or modified file(s). Do you want to remove it "
 "anyway?"
 msgstr ""
+"%ls\n"
+"התיקיה %ls\n"
+"מכילה קובץ(ים) לא מנוהל(ים) ו/או שהשתנה(ו). האם ברצונך להסיר אותה בכל זאת?"
 
 #. Resource IDs: (IDS_ERR_FILE_NOTAFILE)
 #, c-format
@@ -5423,9 +5440,8 @@ msgid "Ignore Comments"
 msgstr ""
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "התעלמות משינוים ב&סיומות השורות"
+msgstr ""
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -6716,9 +6732,8 @@ msgid "Nothing is selected for commit!"
 msgstr "לא נבחר שום דבר למסירה!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "לא נבחר שום דבר למסירה!"
+msgstr ""
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"

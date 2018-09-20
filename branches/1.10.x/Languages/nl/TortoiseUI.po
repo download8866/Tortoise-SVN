@@ -27,7 +27,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-07-30 13:17+0000\n"
+"PO-Revision-Date: 2018-09-18 09:14+0000\n"
 "Last-Translator: mark van tilburg <markvantilburg@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "nl/)\n"
@@ -975,6 +975,8 @@ msgid ""
 "&Import\n"
 "The items are imported, creating a new revision for each item."
 msgstr ""
+"&Importeren\n"
+"De items worden geïmporteerd, met een nieuwe revisie voor elk item."
 
 #. Resource IDs: (Dialog IDD_RELOCATE: Control id 1562)
 msgid "&Include externals"
@@ -3128,9 +3130,9 @@ msgid "Commit"
 msgstr "Vastleggen"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "naar %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4697,9 +4699,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr "Exporteer bestanden (*.tsex)|*.tsex|Alle bestanden (*.*)|*.*||"
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "Bezig met exporteren van %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5871,9 +5873,8 @@ msgid "Ignore Comments"
 msgstr "Commentaar Negeren"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Negeer wijzigingen in &einde-regel-markeringen"
+msgstr "Wijzigingen in einde-regel-markeringen negeren"
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -5896,6 +5897,8 @@ msgid ""
 "Ignore comment changes\n"
 "Ignore Comments"
 msgstr ""
+"Commentaar wijzigingen negeren\n"
+"Commentaar negeren"
 
 #. Resource IDs: (ID_VIEW_IGNORECOMMENTS - Menu)
 msgid "Ignore comments"
@@ -6273,7 +6276,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_SETTINGSCLEAR_COL1)
 msgid "Kind"
-msgstr ""
+msgstr "Soort"
 
 #. Resource IDs: (cmdViewWrapLines_Keytip_RESID)
 msgid "L"
@@ -7292,9 +7295,8 @@ msgid "Nothing is selected for commit!"
 msgstr "Er is niets geselecteerd om vast te leggen"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "Er is niets geselecteerd om vast te leggen"
+msgstr ""
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"

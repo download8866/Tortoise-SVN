@@ -27,8 +27,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-03-06 07:04+0000\n"
-"Last-Translator: Arith Hsu <arithmandar@gmail.com>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
@@ -3130,9 +3130,9 @@ msgid "Commit"
 msgstr "送交"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "至 %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4684,9 +4684,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr "匯出檔 (*.tsex)|*.tsex|所有檔案 (*.*)|*.*||"
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "正在匯出 %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5843,9 +5843,8 @@ msgid "Ignore Comments"
 msgstr "忽略註解"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "忽略換行符號變更 (&E)"
+msgstr ""
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -7257,9 +7256,8 @@ msgid "Nothing is selected for commit!"
 msgstr "沒有選擇要送交的項目!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "沒有選擇要送交的項目!"
+msgstr ""
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"

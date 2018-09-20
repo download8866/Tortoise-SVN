@@ -12,7 +12,7 @@
 # Translators:
 # Kari Granö <kari.grano@gmail.com>, 2011-2017
 # Kari Granö <kari.grano@gmail.com>, 2013
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
+# luebbe <luebbe.opensource@gmail.com>, 2011
 # Lübbe  <luebbe.tortoisesvn@googlemail.com>, 2012
 # Tommi Niinimäki <xbluevirux@gmail.com>, 2017
 msgid ""
@@ -20,8 +20,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-17 01:34+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Finnish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "fi/)\n"
 "MIME-Version: 1.0\n"
@@ -3156,9 +3156,9 @@ msgid "Commit"
 msgstr "Toimita"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "%1!ls!:een"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4733,9 +4733,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr "Vie tiedostoja (*.tsex)|*.tsex|Kaikki tiedostot (*.*)|*.*||"
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "Viedään %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5911,9 +5911,8 @@ msgid "Ignore Comments"
 msgstr "Ohita kommentit"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Ohita &EOL-muutokset"
+msgstr ""
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -7345,9 +7344,8 @@ msgid "Nothing is selected for commit!"
 msgstr "Yhtään tiedostoa ei ole valittu toimitettavaksi!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "Yhtään tiedostoa ei ole valittu toimitettavaksi!"
+msgstr ""
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"
