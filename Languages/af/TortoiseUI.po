@@ -10,15 +10,15 @@
 # 
 # Authors:
 # Translators:
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2013
+# luebbe <luebbe.opensource@gmail.com>, 2013
 # Morne Gouws <webejame@gmail.com>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-17 01:34+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Afrikaans (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/af/)\n"
 "MIME-Version: 1.0\n"

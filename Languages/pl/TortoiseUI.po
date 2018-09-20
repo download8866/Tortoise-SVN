@@ -17,8 +17,8 @@
 # kkotowicz <kkotowicz@gmail.com>, 2011
 # kkotowicz <kkotowicz@gmail.com>, 2011
 # kkotowicz <kkotowicz@gmail.com>, 2011
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2013-2014
+# luebbe <luebbe.opensource@gmail.com>, 2011
+# luebbe <luebbe.opensource@gmail.com>, 2013-2014
 # Michał Lipok <michal@lipok.pl>, 2015
 # mkrawiecki <michal.krawiecki@erlkoenig.pl>, 2011
 msgid ""
@@ -26,8 +26,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-01-07 20:31+0000\n"
-"Last-Translator: Begina Felicysym <begina.felicysym@wp.eu>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "pl/)\n"
 "MIME-Version: 1.0\n"
@@ -3188,9 +3188,9 @@ msgid "Commit"
 msgstr "Zatwierdź zmiany"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "do %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4757,9 +4757,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr "Pliki eksportu (*.tsex)|*.tsex|Wszystkie pliki (*.*)|*.*||"
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "Eksportowanie %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5942,9 +5942,8 @@ msgid "Ignore Comments"
 msgstr "Ignoruj Komentarze"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Ignoruj różnice &EOL"
+msgstr ""
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -7376,9 +7375,8 @@ msgid "Nothing is selected for commit!"
 msgstr "Nie wybrano nic do zatwierdzenia!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "Nie wybrano nic do zatwierdzenia!"
+msgstr ""
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"

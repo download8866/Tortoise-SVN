@@ -21,9 +21,10 @@
 # igorruckert <igorruckert@yahoo.com.br>, 2011-2012
 # Jonas Ricardo Rossi Cardoso <jrrossicardoso@gmail.com>, 2015
 # Leandro Hermes Neto <leandro@leandrohermes.net>, 2015
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2012
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011-2012
+# luebbe <luebbe.opensource@gmail.com>, 2011
+# luebbe <luebbe.opensource@gmail.com>, 2012
+# luebbe <luebbe.opensource@gmail.com>, 2011-2012
+# lucas medeiros <freitasmlucas@hotmail.com>, 2018
 # Mairieli Wessel <mairieliw@alunos.utfpr.edu.br>, 2016
 # Marcelo Moro Brondani <mbrondani@inf.ufsm.br>, 2016
 # Matheus Macabu <mkbu95@gmail.com>, 2013
@@ -37,8 +38,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-17 11:43+0000\n"
-"Last-Translator: Rafael Heise <rmheise@gmail.com>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/luebbe/"
 "tortoisesvn/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -124,12 +125,12 @@ msgstr "%1!ld! minuto(s) e %2!ld! segundo(s)"
 #. Resource IDs: (IDS_LOG_DLGTITLEOFFLINE)
 #, c-format
 msgid "%1!ls! (offline)"
-msgstr "%1!ls! (desligado)"
+msgstr "%1!ls! (desconectado)"
 
 #. Resource IDs: (IDS_PROGRS_PATHATREV)
 #, c-format
 msgid "%1!ls! - at revision: %2!d!"
-msgstr "%1!ls! - na revisão: %2!d!"
+msgstr "%1!ls! - em revisão: %2!d!"
 
 #. Resource IDs: (IDS_DIFF_BASENAMEREV)
 #, c-format
@@ -3200,9 +3201,9 @@ msgid "Commit"
 msgstr "Submeter"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "para %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4786,9 +4787,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr "Exportar arquivos (*.tsex)|*.tsex|Todos os arquivos (*.*)|*.*||"
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "Exportando %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5411,7 +5412,7 @@ msgstr "Ir Para Linha"
 
 #. Resource IDs: (Dialog IDD_GOTODLG: Control id 130)
 msgid "Go to line"
-msgstr "Ir para linha"
+msgstr "Ir para Linha"
 
 #. Resource IDs: (cmdNavigateNextConflict)
 msgid ""
@@ -5976,9 +5977,8 @@ msgid "Ignore Comments"
 msgstr "Ignorar Comentários"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Ignorar alterações de &EOL"
+msgstr ""
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -7410,9 +7410,8 @@ msgid "Nothing is selected for commit!"
 msgstr "Nada foi selecionado para submissão!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "Nada foi selecionado para submissão!"
+msgstr ""
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"
@@ -12457,7 +12456,7 @@ msgid ""
 "work entirely from cache if 'offline'"
 msgstr ""
 "consultar o repositório primeiro se 'online' -\n"
-"trabalhar somente com cache se 'offline'"
+"trabalhar somente com cache se 'desconectado'"
 
 #. Resource IDs: (IDS_REVGRAPH_NODEWC_AT)
 msgid "at this revision"

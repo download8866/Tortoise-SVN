@@ -11,14 +11,15 @@
 # Authors:
 # Translators:
 # Ardit Dani <ardit.dani@gmail.com>, 2014,2016
-# hahaha <1mail2me@gmail.com>, 2013-2014
+# Skender Mustafi <1mail2me@gmail.com>, 2013-2014
+# Skender Mustafi <1mail2me@gmail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-17 01:34+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Albanian (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/sq/)\n"
 "MIME-Version: 1.0\n"
@@ -102,7 +103,7 @@ msgstr "%1!ld! minutë(a) dhe %2!ld! sekondë(a)"
 #. Resource IDs: (IDS_LOG_DLGTITLEOFFLINE)
 #, c-format
 msgid "%1!ls! (offline)"
-msgstr "%1!ls! (jasht rrjeti)"
+msgstr "%1!ls! (jashtë rrjeti)"
 
 #. Resource IDs: (IDS_PROGRS_PATHATREV)
 #, c-format
@@ -122,7 +123,7 @@ msgstr "%1!ls! në %2!ls!"
 #. Resource IDs: (IDS_SVN_PROGRESS_TOTALANDSPEED)
 #, c-format
 msgid "%1!ls!, %2!ls!"
-msgstr ""
+msgstr "%1!ls!, %2!ls!"
 
 #. Resource IDs: (IDS_PROC_EXPORTFOLDERNAME)
 #, c-format
@@ -141,7 +142,7 @@ msgid ""
 "Revision %2!ls!, Author %3!ls!, Date %4!ls!"
 msgstr ""
 "%1!ls!\n"
-"Rishikim %2!ls!, Autor %3!ls!, Datë %4!ls!"
+"Rishikim %2!ls!, Autor %3!ls!, Data %4!ls!"
 
 #. Resource IDs: (IDS_REPOBROWSE_INFOFILE)
 #, c-format
@@ -150,7 +151,7 @@ msgid ""
 "Revision %2!ls!, Author %3!ls!, Size %4!ls!, Date %5!ls!"
 msgstr ""
 "%1!ls!\n"
-"Rishikim %2!ls!, Autor %3!ls!, Masa %4!ls!, Datë %5!ls!"
+"Rishikim %2!ls!, Autori %3!ls!, Masa %4!ls!, Data %5!ls!"
 
 #. Resource IDs: (IDS_REPOBROWSE_INFO)
 #, c-format
@@ -158,6 +159,8 @@ msgid ""
 "%1!ls!\r\n"
 "Showing %2!d! files and %3!d! folders, %4!d! items in total"
 msgstr ""
+"%1!ls!\r\n"
+"Duke shfaqur %2!d! skeda dhe %3!d! dosje, %4!d! elemente në tërësi"
 
 #. Resource IDs: (61744)
 #, c-format
@@ -197,7 +200,7 @@ msgstr "%I64d kBajt të transferuara"
 #. Resource IDs: (62186)
 #, c-format
 msgid "%Ts [Recovered]"
-msgstr ""
+msgstr "%Ts [Rikthyer]"
 
 #. Resource IDs: (61585, 61586)
 #, c-format
@@ -211,7 +214,7 @@ msgstr ""
 #. Resource IDs: (IDS_MONITOR_NOTIFY_MULTITITLE)
 #, c-format
 msgid "%d projects have updates:"
-msgstr ""
+msgstr "%d projekte kanë përditësime:"
 
 #. Resource IDs: (IDS_ALPHABUTTONTT)
 #, c-format
@@ -239,22 +242,22 @@ msgstr "%ls"
 #. Resource IDs: (IDS_REVGRAPH_DLGTITLEOFFLINE)
 #, c-format
 msgid "%ls (offline)"
-msgstr "%ls (jashtë linje)"
+msgstr "%ls (jashtë rrjeti)"
 
 #. Resource IDs: (IDS_MENUIGNOREGLOBAL)
 #, c-format
 msgid "%ls (recursively)"
-msgstr ""
+msgstr "%ls (rekursiv)"
 
 #. Resource IDs: (IDS_DIFF_MERGEDNAME)
 #, c-format
 msgid "%ls : Merged file"
-msgstr ""
+msgstr "%ls : Skeda të bashkuara"
 
 #. Resource IDs: (IDS_DIFF_REMOTENAME)
 #, c-format
 msgid "%ls : Remote file"
-msgstr "%ls : Dokumente distancë"
+msgstr "%ls : Dokumente në distancë"
 
 #. Resource IDs: (IDS_DIFF_BASENAME)
 #, c-format
@@ -273,7 +276,7 @@ msgid ""
 "%ld failed hunk(s)"
 msgstr ""
 "%ls\n"
-"%ld copë(s) dështuar"
+"%ld copë(a) e dështuar"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK1_1)
 #, c-format
@@ -281,6 +284,8 @@ msgid ""
 "%ls\n"
 "Do you want to remove the %d files anyway?"
 msgstr ""
+"%ls\n"
+"A dëshironi t'i largoni %d skedarët dosido?"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK1)
 #, c-format
@@ -288,6 +293,8 @@ msgid ""
 "%ls\n"
 "Do you want to remove the file '%ls' anyway?"
 msgstr ""
+"%ls\n"
+"A dëshironi të largoni '%ls' dosido?"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK1_2)
 #, c-format
@@ -297,6 +304,10 @@ msgid ""
 "contains unversioned and/or modified file(s). Do you want to remove it "
 "anyway?"
 msgstr ""
+"%ls\n"
+"Dosja %ls\n"
+"përmban skedë(a) të ndryshme ose/dhe të ndryshuar. Dëshironi të e largoni "
+"dosido?"
 
 #. Resource IDs: (IDS_ERR_FILE_NOTAFILE)
 #, c-format
@@ -306,24 +317,28 @@ msgid ""
 "TortoiseMerge can't diff directories."
 msgstr ""
 "%ls\n"
-"është skedarë, jo dokument!\n"
-"TortoiseMerge mund ndrysh skedarë."
+"është doracak , jo skedarë!\n"
+"TortoiseMerge nuk mund të krahasojë doracakët."
 
 #. Resource IDs: (IDS_HOOKFAILED_TASK3)
 msgid ""
 "&Abort\n"
 "You can fix the reason the hook script failed first."
 msgstr ""
+"&Rreth\n"
+"Mund të rregulloni arsyen e përse skripti i kapjes dështoi fillimisht."
 
 #. Resource IDs: (ID_APP_ABOUT - Menu)
 msgid "&About TortoiseMerge..."
-msgstr ""
+msgstr "&Rreth TortoiseMerge..."
 
 #. Resource IDs: (IDS_SSL_ACCEPTTEMP_TASK)
 msgid ""
 "&Accept the certificate\n"
 "The certificate is accepted only this one time."
 msgstr ""
+"&Prano certifikatën\n"
+"Certifikata pranohet vetëm këtë herë."
 
 #. Resource IDs: (IDS_MENUADDIMMEDIATE)
 msgid "&Add"
@@ -331,13 +346,15 @@ msgstr "&Shto"
 
 #. Resource IDs: (Dialog IDD_REGEXFILTERS: Control id 1505)
 msgid "&Add Filter"
-msgstr ""
+msgstr "&Shto filtrues"
 
 #. Resource IDs: (IDS_WARN_ADDCASERENAMED_TASK4)
 msgid ""
 "&Add item\n"
 "This will lead to problems on Windows."
 msgstr ""
+"&Shto element\n"
+"Kjo do të paraqesë probleme në Windows."
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROGSADV: Control id 1098, IDS_MENUADD)
 msgid "&Add..."
@@ -353,7 +370,7 @@ msgstr "&Të gjitha"
 
 #. Resource IDs: (Dialog IDD_SETTINGSLOGCACHE: Control id 1471)
 msgid "&Allow ambiguous URLs"
-msgstr "&Lejo URLs paqartë"
+msgstr "&Lejo URL të paqarta"
 
 #. Resource IDs: (Dialog IDD_EDITPROPBUGTRAQ: Control id 1294, Dialog IDD_EDITPROPEOL: Control id 1294, Dialog IDD_EDITPROPERTYVALUE: Control id 1294, Dialog IDD_EDITPROPEXECUTABLE: Control id 1294, Dialog IDD_EDITPROPKEYWORDS: Control id 1294, Dialog IDD_EDITPROPLOCALHOOKS: Control id 1294, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 1294, Dialog IDD_EDITPROPMIMETYPE: Control id 1294, Dialog IDD_EDITPROPNEEDSLOCK: Control id 1294, Dialog IDD_EDITPROPTSVNLANG: Control id 1294, Dialog IDD_EDITPROPTSVNSIZES: Control id 1294, Dialog IDD_EDITPROPUSERBOOL: Control id 1294, Dialog IDD_EDITPROPUSERMULTILINE: Control id 1294, Dialog IDD_EDITPROPUSERSINGLELINE: Control id 1294, Dialog IDD_EDITPROPUSERSTATE: Control id 1294)
 msgid "&Apply property recursively"
@@ -361,7 +378,7 @@ msgstr "&Aplikoni pronën Rekursive"
 
 #. Resource IDs: (Dialog IDD_OPENDLG: Control id 1013)
 msgid "&Apply unified diff"
-msgstr "&Aplikoni ndrysh unifikuar"
+msgstr "&Aplikoni ndryshim të unifikuar"
 
 #. Resource IDs: (Dialog IDD_SETTINGSDIALOGS: Control id 65535)
 msgid "&Autoclose:"
@@ -369,7 +386,7 @@ msgstr "&Mbyll Automatikisht:"
 
 #. Resource IDs: (Dialog IDD_SETMAINPAGE: Control id 1015)
 msgid "&Backup original file"
-msgstr "&Ruaj rezervë dokument origjinal"
+msgstr "&Ruaj rezervë dokumentin origjinal"
 
 #. Resource IDs: (Dialog IDD_EDITPROPMIMETYPE: Control id 1559)
 msgid "&Binary"
@@ -377,11 +394,11 @@ msgstr "&Binar"
 
 #. Resource IDs: (IDS_FILEDIFF_POPBLAME, IDS_LOG_POPUP_BLAMEDIFF)
 msgid "&Blame changes"
-msgstr "&Fajëso ndryshimet"
+msgstr "&Ndryshimet e fajësimit"
 
 #. Resource IDs: (IDS_LOG_POPUP_BLAMEREVS)
 msgid "&Blame changes in revisions"
-msgstr ""
+msgstr "&Ndryshimet e fajësimit në versione"
 
 #. Resource IDs: (ID_BLAME_PREVIOUS_REVISION - Menu)
 msgid "&Blame previous revision"
@@ -2931,9 +2948,9 @@ msgid "Commit"
 msgstr "Parashtro"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "I parashtro:"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4410,9 +4427,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr ""
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "Duke eksportuar %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5513,9 +5530,8 @@ msgid "Ignore Comments"
 msgstr ""
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Injoro ndryshimet e hapësirave"
+msgstr ""
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"

@@ -15,7 +15,7 @@
 # Huseyin <hyagli@hotmail.com>, 2013
 # ibrahim YENER <jdavide222@hotmail.com>, 2014
 # Kaya Kucuk <kaya.kucuk@gmail.com>, 2018
-# Lübbe Onken <luebbe.opensource@gmail.com>, 2011
+# luebbe <luebbe.opensource@gmail.com>, 2011
 # Mehmet Keçeci <mk@mehmetkececi.com>, 2016
 # Muhammed Yasin Erdoğan <obsessio@gmail.com>, 2015
 # Muhammet Kara <muhammetk@gmail.com>, 2011-2012,2014
@@ -23,15 +23,15 @@
 # Murat DEMİRTAŞ <muratdemirtastr@gmail.com>, 2017
 # Vural Göze <turinhurinov@yahoo.com>, 2011
 # Vural Göze <turinhurinov@yahoo.com>, 2011
-# Vural Göze <turinhurinov@yahoo.com>, 2016-2017
+# Vural Göze <turinhurinov@yahoo.com>, 2016-2018
 # Vural Göze <turinhurinov@yahoo.com>, 2012-2013,2015
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-01-25 20:47+0000\n"
-"Last-Translator: Kaya Kucuk <kaya.kucuk@gmail.com>\n"
+"PO-Revision-Date: 2018-09-18 07:44+0000\n"
+"Last-Translator: Vural Göze <turinhurinov@yahoo.com>\n"
 "Language-Team: Turkish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "tr/)\n"
 "MIME-Version: 1.0\n"
@@ -516,18 +516,24 @@ msgid ""
 "&Cancel\n"
 "Go back and enter an issue number."
 msgstr ""
+"İptal Et\n"
+"Geri dön ve bir iş numarası gir."
 
 #. Resource IDs: (IDS_WARN_FOLDERNOTEMPTY_TASK4)
 msgid ""
 "&Cancel\n"
 "Go back and select a different folder."
 msgstr ""
+"İptal Et\n"
+"Geri dön ve farklı bir klasör seç."
 
 #. Resource IDs: (IDS_WARN_NOVALIDPATH_TASK4)
 msgid ""
 "&Cancel\n"
 "I will enter a different path/URL."
 msgstr ""
+"İptal Et\n"
+"Başka bir yol/URL gireceğim."
 
 #. Resource IDs: (IDS_WARN_RELOCATEREALLY_TASK4)
 msgid ""
@@ -574,12 +580,16 @@ msgid ""
 "&Cancel\n"
 "The folder is not exported."
 msgstr ""
+"İptal Et\n"
+"Klasör dışa aktarılmadı."
 
 #. Resource IDs: (IDS_REPOBROWSE_MULTIIMPORT_TASK4)
 msgid ""
 "&Cancel\n"
 "The items are not imported."
 msgstr ""
+"İptal Et\n"
+"Öğeler içe aktarılmadı."
 
 #. Resource IDs: (IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK4)
 msgid ""
@@ -592,12 +602,16 @@ msgid ""
 "&Cancel\n"
 "The target file is left as is"
 msgstr ""
+"İptal Et\n"
+"Hedef dosyayı olduğu gibi bırak"
 
 #. Resource IDs: (IDS_COMMITDLG_WARNUNVERSIONEDFOLDER_TASK4)
 msgid ""
 "&Cancel\n"
 "You have to add the folder manually."
 msgstr ""
+"İptal Et\n"
+"Klasörü manuel olarak eklemelisiniz."
 
 #. Resource IDs: (IDS_DROPEXT_UPDATE_TASK4)
 msgid ""
@@ -610,6 +624,8 @@ msgid ""
 "&Cancel\n"
 "keep the current format."
 msgstr ""
+"İptal Et\n"
+"mevcut formatı kullanmaya devam et."
 
 #. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1606)
 msgid "&Choose items..."
@@ -724,6 +740,8 @@ msgid ""
 "&Delete\n"
 "Remove the cache files."
 msgstr ""
+"Sil\n"
+"Önbellek dosyalarını sil."
 
 #. Resource IDs: (IDS_MENUDIFF)
 msgid "&Diff"
@@ -915,7 +933,7 @@ msgstr "&Gizle gözardı edilen öğeleri"
 
 #. Resource IDs: (cmdShowFileList_LabelTitle_RESID)
 msgid "&Hide/Show the patch file list"
-msgstr ""
+msgstr "Yama dosyası listesini Göster/Gizle"
 
 #. Resource IDs: (Dialog IDD_SETOVERLAYICONS: Control id 1170)
 msgid "&Icon Set:"
@@ -1152,25 +1170,31 @@ msgstr "&Diğer"
 
 #. Resource IDs: (ID_VIEW_OVERLAPIMAGES - Menu)
 msgid "&Overlay images\t(O)"
-msgstr ""
+msgstr "&Kaplama simgeleri"
 
 #. Resource IDs: (IDS_PROC_OVERWRITEEXPORT_TASK3)
 msgid ""
 "&Overwrite\n"
 "Replace the target folder."
 msgstr ""
+"Üzerine Yaz\n"
+"Hedef klasör ile değiştirilir."
 
 #. Resource IDs: (IDS_PROC_REPLACEEXISTING_TASK3)
 msgid ""
 "&Overwrite\n"
 "The target file gets replaced"
 msgstr ""
+"Üzerine yaz\n"
+"Hedef dosyanın üzerine yazılır"
 
 #. Resource IDs: (IDS_PROC_OVERWRITE_CONFIRM_TASK3)
 msgid ""
 "&Overwrite\n"
 "The target file is replaced."
 msgstr ""
+"Üzerine yaz\n"
+"Hedef dosya değiştirilir."
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROXY: Control id 1411, Dialog IDD_SIMPLEPROMPT: Control id 65535)
 msgid "&Password:"
@@ -1226,7 +1250,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_MERGE_WCDIRTYASK_TASK3)
 msgid "&Proceed with the merge."
-msgstr ""
+msgstr "Birleştirmeye devam et."
 
 #. Resource IDs: (IDS_COMMITDLG_WARNNOISSUE_TASK3)
 msgid ""
@@ -1259,6 +1283,8 @@ msgid ""
 "&Reject the certificate\n"
 "Cancel the connection."
 msgstr ""
+"Sertifikayı reddet.\n"
+"Bağlantıyı iptal et."
 
 #. Resource IDs: (IDS_WARN_RELOCATEREALLY_TASK3)
 msgid ""
@@ -1291,6 +1317,8 @@ msgid ""
 "&Remove\n"
 "Force the removal"
 msgstr ""
+"Kaldır\n"
+"Kaldırmaya zorla"
 
 #. Resource IDs: (IDS_EDITPROPS_RECURSIVEREMOVE_TASK4)
 msgid ""
@@ -1332,6 +1360,8 @@ msgid ""
 "&Resolve\n"
 "The item is marked as resolved."
 msgstr ""
+"Çözümle\n"
+"Öğe çözümlenmiş olarak işaretlenir."
 
 #. Resource IDs: (Dialog IDD_SETTINGSLOGCACHE: Control id 1488)
 msgid "&Restore defaults"
@@ -1571,6 +1601,8 @@ msgid ""
 "&Update\n"
 "Update the file and try locking again."
 msgstr ""
+"Güncelle\n"
+"Dosyayı güncelle ve yeniden kilitlemeyi dene."
 
 #. Resource IDs: (IDS_MSG_NEEDSUPDATE_TASK3)
 msgid ""
@@ -1962,6 +1994,8 @@ msgid ""
 "Ad&just case\n"
 "The file is not added."
 msgstr ""
+"Durumu ayarla\n"
+"Dosya eklenmez."
 
 #. Resource IDs: (Dialog IDD_ADD: Control id 155, IDS_PROGRS_CMD_ADD, IDS_PROGRS_TITLE_ADD, IDS_STATUSLIST_CONTEXT_ADD)
 msgid "Add"
@@ -2681,6 +2715,8 @@ msgid ""
 "Cancel\n"
 "You can enter another password and try again"
 msgstr ""
+"İptal Et\n"
+"Farklı bir şifre girerek yeniden deneyebilirsiniz."
 
 #. Resource IDs: (IDS_BLAME_PROGRESSCANCEL)
 msgid "Cancelling TortoiseSVN Blame..."
@@ -2826,6 +2862,8 @@ msgid ""
 "Check&out\n"
 "Checkout into the non empty folder."
 msgstr ""
+"Çıkar(al)\n"
+"Boş olmayan bir klasöre al."
 
 #. Resource IDs: (IDS_HOOKTYPE_CHECKCOMMIT)
 msgid "Check-Commit Hook"
@@ -3103,9 +3141,9 @@ msgid "Commit"
 msgstr "Teslim et"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "buraya %1!ls!"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -3780,7 +3818,7 @@ msgstr "Varsayılan dizin yapısı başarıyla oluşturuldu!"
 
 #. Resource IDs: (Dialog IDD_MONITOROPTIONS: Control id 65535)
 msgid "Default monitor interval in minutes:"
-msgstr ""
+msgstr "Varsayılan İzleme sıklığı (dakika):"
 
 #. Resource IDs: (Dialog IDD_SETTINGSDIALOGS: Control id 1515)
 msgid "Default path:"
@@ -3937,11 +3975,11 @@ msgstr "Dosya Fark Görüntüleyicisi"
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROGSMERGE: Control id 193)
 msgid "Diff Viewer::Merge Tool"
-msgstr ""
+msgstr "Dosya Fark Görüntüleyicisi:Birleştirme Aracı"
 
 #. Resource IDs: (Dialog IDD_SETTINGSUDIFF: Control id 65535)
 msgid "Diff added lines"
-msgstr ""
+msgstr "Eklenen satırları karşılaştır"
 
 #. Resource IDs: (Dialog IDD_SETTINGSUDIFF: Control id 65535)
 msgid "Diff command"
@@ -3961,7 +3999,7 @@ msgstr "Fark başlığı"
 
 #. Resource IDs: (IDS_MENUDIFFLATER)
 msgid "Diff later"
-msgstr ""
+msgstr "Sonra karşılaştır"
 
 #. Resource IDs: (Dialog IDD_BLAME: Control id 1533)
 msgid "Diff options"
@@ -3982,7 +4020,7 @@ msgstr "URL'ye göre karşılaştır"
 #. Resource IDs: (IDS_MENUDIFFNOW)
 #, c-format
 msgid "Diff with \"%ls\""
-msgstr ""
+msgstr "\"%ls\" ile karşılaştır"
 
 #. Resource IDs: (Dialog IDD_DIFFFILES: Control id 1302)
 msgid "Difference between"
@@ -4157,7 +4195,7 @@ msgstr ""
 #. Resource IDs: (IDS_MONITOR_DELETE_TASK2)
 #, c-format
 msgid "Do you want to remove the monitored project '%ls'?"
-msgstr ""
+msgstr "İzlenen projeyi silmek istiyor musunuz '%ls'?"
 
 #. Resource IDs: (IDS_EDITPROPS_RECURSIVEREMOVEQUESTION)
 #, c-format
@@ -4399,7 +4437,7 @@ msgstr "Düzenlemeyi etkinleştir"
 
 #. Resource IDs: (Dialog IDD_SETMAINPAGE: Control id 1510)
 msgid "Enable EditorConfig"
-msgstr ""
+msgstr "EditorConfig'i etkinleştir"
 
 #. Resource IDs: (Dialog IDD_SETTINGSLOOKANDFEEL: Control id 1648)
 msgid "Enable drag context menu"
@@ -4658,9 +4696,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr ""
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "Dışa aktarılıyor %1!ls!"
+msgstr "Şuradan dışa aktar %1!ls!"
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5063,7 +5101,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_EDITPROPS_PROG_FINDHEADTITLE)
 msgid "Find HEAD revisions"
-msgstr ""
+msgstr "BAŞ revizyonları bul"
 
 #. Resource IDs: (cmdFind)
 msgid ""
@@ -5076,7 +5114,7 @@ msgstr ""
 #. Resource IDs: (IDS_FIND_NOTFOUND)
 #, c-format
 msgid "Find: Can't find the text \"%ls\""
-msgstr ""
+msgstr "Ara: Metin bulunamadı \"%ls\""
 
 #. Resource IDs: (IDS_FIND_TOPREACHED)
 msgid ""
@@ -5102,10 +5140,14 @@ msgstr "Boyu sığdır"
 #. Resource IDs: (ID_VIEW_FITIMAGEHEIGHTS - Menu)
 msgid "Fit image &heights\t(H)"
 msgstr ""
+"Re&sim yüksekliklerini sığdır\n"
+"(H)"
 
 #. Resource IDs: (ID_VIEW_FITIMAGEWIDTHS - Menu)
 msgid "Fit image &widths\t(W)"
 msgstr ""
+"Resim genişliklerini sığdır\n"
+"(W)"
 
 #. Resource IDs: (ID_VIEW_ZOOMWIDTH - Menu)
 msgid "Fit width"
@@ -5319,6 +5361,8 @@ msgid ""
 "Go to the previous inline difference\n"
 "Previous inline difference"
 msgstr ""
+"Bir önceki farklılığa git\n"
+"Önceki satıriçi farklılık"
 
 #. Resource IDs: (ID_EDIT_GOTOLINE - Menu, cmdGotoLine_LabelTitle_RESID)
 msgid "Goto Line"
@@ -5355,7 +5399,7 @@ msgstr "BAŞ düğüm"
 #. Resource IDs: (IDS_REPOBROWSE_TT_HEADREV)
 #, c-format
 msgid "HEAD revision is %ls"
-msgstr ""
+msgstr "BAŞ revizyon %ls"
 
 #. Resource IDs: (Dialog IDD_EDITPROPKEYWORDS: Control id 1595)
 msgid "Header"
@@ -5830,9 +5874,8 @@ msgid "Ignore Comments"
 msgstr "Yorumları Yoksay"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Satır &sonu karakteri değişikliklerini önemseme"
+msgstr "Satır sonu karakteri değişikliklerini önemseme"
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -5855,6 +5898,8 @@ msgid ""
 "Ignore comment changes\n"
 "Ignore Comments"
 msgstr ""
+"Açıklama değişikliklerini yoksay\n"
+"Açıklamaları Yoksay"
 
 #. Resource IDs: (ID_VIEW_IGNORECOMMENTS - Menu)
 msgid "Ignore comments"
@@ -5972,7 +6017,7 @@ msgstr ""
 #. Resource IDs: (IDS_DROPDESC_IMPORT)
 #, c-format
 msgid "Import to %1"
-msgstr ""
+msgstr "Şuraya içe aktar %1"
 
 #. Resource IDs: (IDS_MSG_IMPORTEDSTRUCTURE)
 msgid "Imported folder structure"
@@ -6674,7 +6719,7 @@ msgstr "Birleştirme &derinliği"
 
 #. Resource IDs: (ID_NEW_MERGELOGTEMPLATES - Menu)
 msgid "Merge Log &Templates"
-msgstr ""
+msgstr "Birleştirme Günlüğü Şablonları "
 
 #. Resource IDs: (Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 345)
 msgid "Merge Log Templates"
@@ -7258,9 +7303,8 @@ msgid "Nothing is selected for commit!"
 msgstr "Teslim edilecek öğe seçilmedi!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "Teslim edilecek öğe seçilmedi!"
+msgstr "Hiçbir şey rafa kaldırılmadı."
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"
@@ -7500,6 +7544,8 @@ msgstr "Seçenek"
 #. Resource IDs: (ID_VIEW_ORININALSIZE - Menu)
 msgid "Ori&ginal size\t(S)"
 msgstr ""
+"Öz&gün boyutu\n"
+"(S)"
 
 #. Resource IDs: (IDS_STATGRAPH_OTHERGROUP)
 msgid "Others"
@@ -7530,6 +7576,8 @@ msgid ""
 "Overwrite\n"
 "The settings are overwritten"
 msgstr ""
+"Üzerine Yaz\n"
+"Ayarların üzerine yazılır"
 
 #. Resource IDs: (cmdNavigatePreviousConflict_Keytip_RESID)
 msgid "PC"
@@ -7541,7 +7589,7 @@ msgstr "PD"
 
 #. Resource IDs: (cmdNavigatePreviousInlineDiff_Keytip_RESID)
 msgid "PI"
-msgstr ""
+msgstr "PI"
 
 #. Resource IDs: (65535 - PopupMenu)
 msgid "POPUP"
@@ -7930,7 +7978,7 @@ msgstr "Ayar durumu:"
 
 #. Resource IDs: (IDS_EDITCONFLICT_PROP_DIFF)
 msgid "Property diff:\n"
-msgstr ""
+msgstr "Özellik farkları:\n"
 
 #. Resource IDs: (Dialog IDD_EDITPROPERTYVALUE: Control id 1292)
 msgid "Property name:"
@@ -8737,7 +8785,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_DROPEXTERNAL)
 msgid "SVN Add as &external here"
-msgstr ""
+msgstr "SVN harici olarak EKLE"
 
 #. Resource IDs: (IDS_COLTITLEAUTHOR)
 msgid "SVN Author"
@@ -8761,7 +8809,7 @@ msgstr "SVN Tüm elemanları buraya Dışa Aktar"
 
 #. Resource IDs: (IDS_DROPEXPORTCHANGEDMENU)
 msgid "SVN Export changed items here"
-msgstr ""
+msgstr "SVN Değişen öğeleri buraya Dışa Aktar"
 
 #. Resource IDs: (IDS_DROPEXPORTMENU)
 msgid "SVN Export versioned items here"
@@ -8839,7 +8887,7 @@ msgstr "Kaydet"
 
 #. Resource IDs: (cmdSaveAs_LabelTitle_RESID)
 msgid "Save &as"
-msgstr ""
+msgstr "Farklı kaydet"
 
 #. Resource IDs: (IDS_REPOBROWSE_SAVEAS, ID_FILE_SAVE_AS - Menu)
 msgid "Save &as..."
@@ -9244,11 +9292,11 @@ msgstr "Kabuk Simge Önbelleği tekrar oluşturuldu!"
 
 #. Resource IDs: (Dialog IDD_SHELVE: Control id 205)
 msgid "Shelve"
-msgstr ""
+msgstr "Rafa kaldır"
 
 #. Resource IDs: (IDS_MENUSHELVE)
 msgid "Shelve..."
-msgstr ""
+msgstr "Rafa kaldır..."
 
 #. Resource IDs: (32822)
 msgid ""
@@ -9303,11 +9351,11 @@ msgstr "&Değişiklikeri göster..."
 
 #. Resource IDs: (Dialog IDD_SETTINGSDIALOGS3: Control id 1480)
 msgid "Show &externals"
-msgstr ""
+msgstr "Haricileri göster"
 
 #. Resource IDs: (Dialog IDD_SETTINGSDIALOGS3: Control id 1529)
 msgid "Show &locks"
-msgstr ""
+msgstr "Kilitleri göster"
 
 #. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1228, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1228, Dialog IDD_EXPORT: Control id 1228, Dialog IDD_MERGEWIZARD_REVRANGE: Control id 1420, Dialog IDD_MERGEWIZARD_TREE: Control id 1031, Dialog IDD_PROPPAGE: Control id 1016, Dialog IDD_SWITCH: Control id 1132, Dialog IDD_UPDATE: Control id 1132, Dialog IDD_URLDIFF: Control id 1132, IDS_MENULOG, IDS_REPOBROWSE_SHOWLOG, ID_SHOWLOG - Menu)
 msgid "Show &log"
@@ -9377,7 +9425,7 @@ msgstr "Değişiklikleri &birleştirilmiş karşılaştırma dosyası olarak gö
 
 #. Resource IDs: (IDS_HEADER_DIFFLEFTTOBASE, IDS_HEADER_DIFFRIGHTTOBASE)
 msgid "Show diff separately"
-msgstr ""
+msgstr "Farkları ayrı ayrı göster"
 
 #. Resource IDs: (IDS_LOG_POPUP_GNUDIFF)
 msgid "Show differences as &unified diff"
@@ -9587,6 +9635,8 @@ msgid ""
 "Skip\n"
 "The file is left where it is."
 msgstr ""
+"Atla\n"
+"Dosya olduğu yerde bırakılır."
 
 #. Resource IDs: (IDS_SVNACTION_SKIP)
 msgid "Skipped"
@@ -9745,11 +9795,11 @@ msgstr "Kütük düzenleyicisini başlat"
 
 #. Resource IDs: (Dialog IDD_MONITOROPTIONS: Control id 1562)
 msgid "Start with &Windows"
-msgstr ""
+msgstr "Windows ile başla"
 
 #. Resource IDs: (IDS_PROGRS_STARTING_EXTERNALS)
 msgid "Starting externals..."
-msgstr ""
+msgstr "Hariciler başlatılıyor..."
 
 #. Resource IDs: (IDS_MENUDESCDIFFNOW)
 msgid ""
@@ -9916,7 +9966,7 @@ msgstr ""
 
 #. Resource IDs: (Dialog IDD_COLLABORATORSETTINGS: Control id 65535)
 msgid "Subversion passwor&d"
-msgstr ""
+msgstr "Subversion şifresi"
 
 #. Resource IDs: (IDS_PROC_REPOCREATEERR)
 msgid ""
@@ -10929,7 +10979,7 @@ msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSUDIFF: Control id 371)
 msgid "TortoiseUDiff"
-msgstr ""
+msgstr "TortoiseUDiff"
 
 #. Resource IDs: (Dialog IDD_STATGRAPH: Control id 1162)
 msgid "Total commits analyzed:"
@@ -11126,7 +11176,7 @@ msgstr "Baş revizyonlarının birleştirilmiş kar&şılaştırma dosyası"
 
 #. Resource IDs: (IDS_MENUUNIDIFF)
 msgid "Unified Diff"
-msgstr ""
+msgstr "Birleştirilmiş Karşılaştırma"
 
 #. Resource IDs: (IDS_ERR_SSL_UNKNOWNCA)
 #, c-format
@@ -11542,7 +11592,7 @@ msgstr "Kullanıcı adı:"
 
 #. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535)
 msgid "Users to ignore:"
-msgstr ""
+msgstr "Yoksayılacak kullanıcılar:"
 
 #. Resource IDs: (IDS_SETTINGS_ONLYNONELEVATED_TT)
 msgid "Uses the status cache type 'none' for elevated processes"
@@ -11754,7 +11804,7 @@ msgstr "Çalışan kopya: %ls\n"
 
 #. Resource IDs: (cmdViewWrapLines_LabelTitle_RESID)
 msgid "Wrap Lines"
-msgstr ""
+msgstr "Satırları ayır"
 
 #. Resource IDs: (ID_VIEW_WRAPLONGLINES - Menu)
 msgid "Wrap long lines"
@@ -11931,6 +11981,8 @@ msgstr "Z"
 #. Resource IDs: (ID_VIEW_ZOOMOUT - Menu)
 msgid "Zoo&m out\t(-)"
 msgstr ""
+"Uzaklaş \n"
+"(-)"
 
 #. Resource IDs: (58117)
 msgid "Zoom &In"
@@ -11956,6 +12008,8 @@ msgstr "100% Tamamını göster"
 #. Resource IDs: (ID_VIEW_ZOOMIN - Menu)
 msgid "Zoom i&n\t(+)"
 msgstr ""
+"Yaklaş\n"
+"(+)"
 
 #. Resource IDs: (32772)
 msgid "Zoom in"

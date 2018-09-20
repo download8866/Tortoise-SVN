@@ -34,7 +34,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-02-26 08:06+0000\n"
+"PO-Revision-Date: 2018-09-20 10:29+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: German (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "de/)\n"
@@ -3197,9 +3197,9 @@ msgid "Commit"
 msgstr "Übertragen"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
-#, fuzzy, c-format
+#, c-format
 msgid "Commit to %1!ls!"
-msgstr "nach %1!ls!"
+msgstr "Nach %1!ls! übertragen"
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -4776,9 +4776,9 @@ msgid "Export files (*.tsex)|*.tsex|All Files (*.*)|*.*||"
 msgstr "Exportdateien (*.tsex)|*.tsex|Alle Dateien (*.*)|*.*||"
 
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
-#, fuzzy, c-format
+#, c-format
 msgid "Export from %1!ls!"
-msgstr "Exportiere %1!ls!"
+msgstr "Von %1!ls! exportieren"
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -5967,9 +5967,8 @@ msgid "Ignore Comments"
 msgstr "Kommentare ignorieren"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
-#, fuzzy
 msgid "Ignore EOL changes"
-msgstr "Ignoriere &Zeilenumbrüche"
+msgstr "Ignoriere Änderungen an Zeilenenden"
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -7418,9 +7417,8 @@ msgid "Nothing is selected for commit!"
 msgstr "Es ist nichts zum Übertragen ausgewählt!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
-#, fuzzy
 msgid "Nothing is shelved!"
-msgstr "Es ist nichts zum Übertragen ausgewählt!"
+msgstr "Es wurde nichts zurückgestellt"
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"
@@ -8145,7 +8143,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_MENUDESCSHELVE)
 msgid "Puts all changes you made onto a shelf"
-msgstr "Stellt ihre sämtlichen Änderungen zurück"
+msgstr "Stellt ihre sämtlichen Änderungen in ein Regal zurück"
 
 #. Resource IDs: (cmdExit)
 msgid ""
