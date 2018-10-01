@@ -1864,7 +1864,7 @@ msgid ""
 "ActiveX objects cannot be saved while exiting Windows!\n"
 "Discard all changes to %1?"
 msgstr ""
-"ActiveX objektai negali būti išsaugoti, kol Windows išsijunginėja!⏎\n"
+"ActiveX objektai negali būti išsaugoti, kol Windows išsijunginėja!\n"
 "Atšaukti visus pakeitimus į %1?"
 
 #. Resource IDs: (IDS_WARN_ADDCASERENAMED_TASK3)
@@ -1980,7 +1980,7 @@ msgid ""
 "Adjust the settings\n"
 "Settings"
 msgstr ""
-"Pritaikyti nustatymus⏎\n"
+"Pritaikyti nustatymus\n"
 "Nustatymai"
 
 #. Resource IDs: (IDS_EDITPROPS_ADJUST_TO_HEAD)
@@ -2331,7 +2331,7 @@ msgid ""
 "Bitmap\n"
 "a bitmap"
 msgstr ""
-"Vaizdas⏎\n"
+"Vaizdas\n"
 "vaizdas"
 
 #. Resource IDs: (Dialog IDD_BLAME: Control id 162)
@@ -2367,7 +2367,7 @@ msgid ""
 "Both /logmsg and /logmsgfile were specified!\n"
 "Only one of those can be specified."
 msgstr ""
-"/logmsg ir /logmsgfile buvo nurodyti!⏎\n"
+"/logmsg ir /logmsgfile buvo nurodyti!\n"
 "Gali būti nurodytas tik vienas iš jų."
 
 #. Resource IDs: (IDS_ERR_PATCHPATHS)
@@ -2495,9 +2495,9 @@ msgid ""
 "to\n"
 "%2!ls!"
 msgstr ""
-"Negali kopijuoti ⏎\n"
-"%1!ls!⏎\n"
-"į⏎\n"
+"Negali kopijuoti \n"
+"%1!ls!\n"
+"į\n"
 "%2!ls!"
 
 #. Resource IDs: (2, Dialog IDD_BLAME: Control id 2, Dialog IDD_BUGTRAQREGEXTESTER: Control id 2, Dialog IDD_CHECKOUT: Control id 2, Dialog IDD_CLEANUP: Control id 2, Dialog IDD_COLLABORATORSETTINGS: Control id 2, Dialog IDD_COMMITDLG: Control id 2, Dialog IDD_COPY: Control id 2, Dialog IDD_CREATECHANGELIST: Control id 2, Dialog IDD_CREATEPATCH: Control id 2, Dialog IDD_DELUNVERSIONED: Control id 2, Dialog IDD_DIFFOPTIONS: Control id 2, Dialog IDD_EDITPROPBUGTRAQ: Control id 2, Dialog IDD_EDITPROPEOL: Control id 2, Dialog IDD_EDITPROPERTYVALUE: Control id 2, Dialog IDD_EDITPROPEXECUTABLE: Control id 2, Dialog IDD_EDITPROPEXTERNALS: Control id 2, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 2, Dialog IDD_EDITPROPKEYWORDS: Control id 2, Dialog IDD_EDITPROPLOCALHOOKS: Control id 2, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 2, Dialog IDD_EDITPROPMIMETYPE: Control id 2, Dialog IDD_EDITPROPNEEDSLOCK: Control id 2, Dialog IDD_EDITPROPTSVNLANG: Control id 2, Dialog IDD_EDITPROPTSVNSIZES: Control id 2, Dialog IDD_EDITPROPUSERBOOL: Control id 2, Dialog IDD_EDITPROPUSERMULTILINE: Control id 2, Dialog IDD_EDITPROPUSERSINGLELINE: Control id 2, Dialog IDD_EDITPROPUSERSTATE: Control id 2, Dialog IDD_ENCODING: Control id 2, Dialog IDD_EXPORT: Control id 2, Dialog IDD_FIND: Control id 2, Dialog IDD_GOTO: Control id 2, Dialog IDD_GOTODLG: Control id 2, Dialog IDD_HISTORYDLG: Control id 2, Dialog IDD_IMPORT: Control id 2, Dialog IDD_INPUTDLG: Control id 2, Dialog IDD_INPUTLOGDLG: Control id 2, Dialog IDD_LOCK: Control id 2, Dialog IDD_LOGMESSAGE: Control id 1383, Dialog IDD_MERGEALL: Control id 2, Dialog IDD_MONITOROPTIONS: Control id 2, Dialog IDD_MONITORPROJECT: Control id 2, Dialog IDD_OPEN: Control id 2, Dialog IDD_OPENDLG: Control id 2, Dialog IDD_PASSWORD: Control id 2, Dialog IDD_PROMPT: Control id 2, Dialog IDD_REGEXFILTER: Control id 2, Dialog IDD_REGEXFILTERS: Control id 2, Dialog IDD_RELOCATE: Control id 2, Dialog IDD_RENAME: Control id 2, Dialog IDD_REPOSITORY_BROWSER: Control id 2, Dialog IDD_RESOLVE: Control id 2, Dialog IDD_REVERT: Control id 2, Dialog IDD_REVGRAPHFILTER: Control id 2, Dialog IDD_REVISION: Control id 2, Dialog IDD_REVISIONRANGE: Control id 2, Dialog IDD_SETTINGSBUGTRAQADV: Control id 2, Dialog IDD_SETTINGSHOOKCONFIG: Control id 2, Dialog IDD_SETTINGSPROGSADV: Control id 2, Dialog IDD_SETTINGS_CLEARAUTH: Control id 2, Dialog IDD_SHELVE: Control id 2, Dialog IDD_SIMPLEPROMPT: Control id 2, Dialog IDD_SVNPROGRESS: Control id 2, Dialog IDD_SWITCH: Control id 2, Dialog IDD_TOOLASSOC: Control id 2, Dialog IDD_UNLOCK: Control id 2, Dialog IDD_UNSHELVE: Control id 2, Dialog IDD_UPDATE: Control id 2, Dialog IDD_URL: Control id 2, Dialog IDD_URLDIFF: Control id 2, IDS_PROPPAGE_CANCEL)
