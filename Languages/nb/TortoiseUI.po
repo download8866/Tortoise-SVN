@@ -4431,7 +4431,7 @@ msgid ""
 "Edit property '%1!S!' on\r\n"
 "%2!ls!"
 msgstr ""
-"Rediger egenskap '%1!S!' på↩\n"
+"Rediger egenskap '%1!S!' på\r\n"
 "%2!s!"
 
 #. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1382, Dialog IDD_SETTINGSHOOKS: Control id 1331)
@@ -6712,7 +6712,7 @@ msgid ""
 "Marks the conflict as resolved.\r\n"
 "Note: this does not resolve the conflict, only marks it as resolved!"
 msgstr ""
-"Markerer konflikten som løst.↩\n"
+"Markerer konflikten som løst.\r\n"
 "Merk: dette løser ikke konflikgten, bare markerer den som løst!"
 
 #. Resource IDs: (IDS_MERGEWIZARD_OPTIONS_RECORDONLY_TT)
@@ -8403,7 +8403,7 @@ msgid ""
 "Remove property '%1!S!' from\r\n"
 "%2!ls!"
 msgstr ""
-"Fjern egenskap '%1!S!' fra↩\n"
+"Fjern egenskap '%1!S!' fra\r\n"
 "%2!s!"
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHE_DELETE)
@@ -9339,7 +9339,7 @@ msgid ""
 "Set property '%1!S!' on\r\n"
 "%2!ls!"
 msgstr ""
-"Sett egenskap '%1!S!' på↩\n"
+"Sett egenskap '%1!S!' på\r\n"
 "%2!s!"
 
 #. Resource IDs: (IDS_SETPROPTITLE)
@@ -10431,7 +10431,7 @@ msgid ""
 "The item '%ls' has property conflicts:\r\n"
 "%ls"
 msgstr ""
-"Elementet '%ls' har egenskapskonflikter:↩\n"
+"Elementet '%ls' har egenskapskonflikter:\r\n"
 "%ls"
 
 #. Resource IDs: (IDS_ERR_PATCH_NOEQUATIONCHARLINE)
@@ -11105,7 +11105,7 @@ msgid ""
 "TortoiseSVN Project Monitor\r\n"
 "%d new commit in %d project"
 msgstr ""
-"TortoiseSVN Prosjektovervåker↩\n"
+"TortoiseSVN Prosjektovervåker\r\n"
 "%d ny innsending i %d prosjekt"
 
 #. Resource IDs: (IDS_MONITOR_NEWCOMMITS)
@@ -11114,7 +11114,7 @@ msgid ""
 "TortoiseSVN Project Monitor\r\n"
 "%d new commits in %d projects"
 msgstr ""
-"TortoiseSVN Prosjektovervåker↩\n"
+"TortoiseSVN Prosjektovervåker\r\n"
 "%d nye innsendinger i %d prosjekter"
 
 #. Resource IDs: (IDS_COPY_COMMITMSG)

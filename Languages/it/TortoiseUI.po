@@ -6365,7 +6365,7 @@ msgid ""
 "Keep resolving\n"
 "Jump to first unresolved conflict"
 msgstr ""
-"Continua a risolvere⏎\n"
+"Continua a risolvere\n"
 "Salta al primo conflitto non risolto"
 
 #. Resource IDs: (IDS_SETTINGSCLEAR_COL1)
@@ -8473,7 +8473,7 @@ msgid ""
 "Remove property '%1!S!' from\r\n"
 "%2!ls!"
 msgstr ""
-"Rimuovi la proprietà %1!S!' da↩\n"
+"Rimuovi la proprietà %1!S!' da\r\n"
 "%2!ls!"
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHE_DELETE)
@@ -9384,7 +9384,7 @@ msgid ""
 "Select what file you want to save as\n"
 "Note: There is unresolved conflict!"
 msgstr ""
-"Seleziona quale file vuoi salvare come⏎\n"
+"Seleziona quale file vuoi salvare come\n"
 "Nota: E' presente un conflitto non risolto!"
 
 #. Resource IDs: (Dialog IDD_SETTINGSREVGRAPHCOLORS: Control id 65535)
@@ -10531,7 +10531,7 @@ msgid ""
 "The item '%ls' has property conflicts:\r\n"
 "%ls"
 msgstr ""
-"L'elemento '%ls' ha conflitti di proprietà:↩\n"
+"L'elemento '%ls' ha conflitti di proprietà:\r\n"
 "%ls"
 
 #. Resource IDs: (IDS_ERR_PATCH_NOEQUATIONCHARLINE)
@@ -11180,9 +11180,9 @@ msgid ""
 "apr %d.%d.%d\r\n"
 "apr-util %d.%d.%d"
 msgstr ""
-"TortoiseMerge %d.%d.%d, Build %d - %ls, %ls↩⏎\n"
-"libsvn_diff %d.%d.%d, %ls↩⏎\n"
-"apr %d.%d.%d↩⏎\n"
+"TortoiseMerge %d.%d.%d, Build %d - %ls, %ls\r\n"
+"libsvn_diff %d.%d.%d, %ls\r\n"
+"apr %d.%d.%d\r\n"
 "apr-util %d.%d.%d"
 
 #. Resource IDs: (Dialog IDD_SETTINGSMAIN: Control id 65535, IDS_APPNAME)

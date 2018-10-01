@@ -19,8 +19,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-17 01:34+0000\n"
-"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Tamil (India) (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/ta_IN/)\n"
 "MIME-Version: 1.0\n"
@@ -781,7 +781,7 @@ msgstr "&தேடு"
 
 #. Resource IDs: (ID_EDIT_FIND - Menu)
 msgid "&Find...\t(Ctrl+F)"
-msgstr "&தேடு...⇥(Ctrl+F)"
+msgstr "&தேடு...\t(Ctrl+F)"
 
 #. Resource IDs: (ID_VIEW_FITIMAGESINWINDOW - Menu)
 msgid "&Fit images in window\t(F)"
@@ -882,7 +882,7 @@ msgstr ""
 
 #. Resource IDs: (ID_VIEW_IMAGEINFO - Menu)
 msgid "&Image info\t(I)"
-msgstr "&உருவக தகவல்⇥(I)"
+msgstr "&உருவக தகவல்\t(I)"
 
 #. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1461, IDS_MENUIMPORT)
 msgid "&Import..."
@@ -1078,7 +1078,7 @@ msgstr "&திற"
 
 #. Resource IDs: (ID_FILE_OPEN - Menu)
 msgid "&Open\t(Ctrl+O)"
-msgstr "&திற⇥(Ctrl+O)"
+msgstr "&திற\t(Ctrl+O)"
 
 #. Resource IDs: (Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1602)
 msgid "&Operative:"
