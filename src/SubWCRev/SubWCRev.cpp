@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 #include "stdafx.h"
 #include "SmartHandle.h"
 #include "../Utils/CrashReport.h"
-#include "../Utils/PathUtils.h"
 
 #include <iostream>
 #include <tchar.h>
@@ -94,9 +93,9 @@ $WCREV$         Highest committed revision number\n\
 $WCREV&$        Highest committed revision number ANDed with the number\n\
                 after the &\n\
 $WCREV+$        Highest committed revision number added with the number\n\
-                after the +\n\
+                after the &\n\
 $WCREV-$        Highest committed revision number subtracted with the\n\
-                number after the -\n\
+                number after the &\n\
 $WCDATE$        Date of highest committed revision\n\
 $WCDATE=$       Like $WCDATE$ with an added strftime format after the =\n\
 $WCRANGE$       Update revision range\n\
@@ -856,17 +855,43 @@ int _tmain(int argc, _TCHAR* argv[])
         }
     }
     wc = wcfullPath.get();
-    std::wstring dstfullPath;
+    std::unique_ptr<TCHAR[]> dstfullPath = nullptr;
     if (dst)
     {
-        dstfullPath = CPathUtils::GetLongPathname(dst);
-        dst = dstfullPath.c_str();
+        reqLen = GetFullPathName(dst, 0, NULL, NULL);
+        dstfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
+        GetFullPathName(dst, reqLen, dstfullPath.get(), NULL);
+        shortlen = GetShortPathName(dstfullPath.get(), NULL, 0);
+        if (shortlen)
+        {
+            auto shortPath = std::make_unique<TCHAR[]>(shortlen + 1);
+            if (GetShortPathName(dstfullPath.get(), shortPath.get(), shortlen+1))
+            {
+                reqLen = GetLongPathName(shortPath.get(), NULL, 0);
+                dstfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
+                GetLongPathName(shortPath.get(), dstfullPath.get(), reqLen);
+            }
+        }
+        dst = dstfullPath.get();
     }
-    std::wstring srcfullPath;
+    std::unique_ptr<TCHAR[]> srcfullPath = nullptr;
     if (src)
     {
-        srcfullPath = CPathUtils::GetLongPathname(src);
-        src = srcfullPath.c_str();
+        reqLen = GetFullPathName(src, 0, NULL, NULL);
+        srcfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
+        GetFullPathName(src, reqLen, srcfullPath.get(), NULL);
+        shortlen = GetShortPathName(srcfullPath.get(), NULL, 0);
+        if (shortlen)
+        {
+            auto shortPath = std::make_unique<TCHAR[]>(shortlen + 1);
+            if (GetShortPathName(srcfullPath.get(), shortPath.get(), shortlen+1))
+            {
+                reqLen = GetLongPathName(shortPath.get(), NULL, 0);
+                srcfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
+                GetLongPathName(shortPath.get(), srcfullPath.get(), reqLen);
+            }
+        }
+        src = srcfullPath.get();
     }
 
     if (!PathFileExists(wc))

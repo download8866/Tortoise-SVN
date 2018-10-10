@@ -6,9 +6,6 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdexcept>
-#include <string_view>
-#include <vector>
-#include <memory>
 
 #include "Platform.h"
 
@@ -29,7 +26,7 @@ FontAlias::~FontAlias() {
 	// ~Font will not release the actual font resource since it is now 0
 }
 
-void FontAlias::MakeAlias(const Font &fontOrigin) {
+void FontAlias::MakeAlias(Font &fontOrigin) {
 	SetID(fontOrigin.GetID());
 }
 

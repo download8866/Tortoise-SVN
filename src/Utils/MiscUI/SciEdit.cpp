@@ -26,7 +26,6 @@
 #include "registry.h"
 #include "SciEdit.h"
 #include "OnOutOfScope.h"
-#include "LoadIconEx.h"
 
 
 void CSciEditContextMenuInterface::InsertMenuItems(CMenu&, int&) {return;}
@@ -169,6 +168,8 @@ void CSciEdit::Init(LONG lLanguage)
     //Set the default windows colors for edit controls
     Call(SCI_STYLESETFORE, STYLE_DEFAULT, ::GetSysColor(COLOR_WINDOWTEXT));
     Call(SCI_STYLESETBACK, STYLE_DEFAULT, ::GetSysColor(COLOR_WINDOW));
+    Call(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
+    Call(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
     Call(SCI_SETCARETFORE, ::GetSysColor(COLOR_WINDOWTEXT));
     Call(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_PERFORMED_UNDO | SC_PERFORMED_REDO);
     Call(SCI_INDICSETSTYLE, INDIC_MISSPELLED, INDIC_SQUIGGLE);
@@ -280,35 +281,6 @@ void CSciEdit::Init(LONG lLanguage)
         // now enable D2D
         Call(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITERETAIN);
         Call(SCI_SETBUFFEREDDRAW, 0);
-        CRegStdDWORD useBiDi(L"Software\\TortoiseSVN\\ScintillaBidirectional", FALSE);
-        if (DWORD(useBiDi))
-        {
-            // enable bidirectional mode
-            // note: bidirectional mode requires d2d, and to make selections
-            // work properly, the SCI_SETSELALPHA needs to be enabled.
-            // See here for why:
-            // https://groups.google.com/d/msg/scintilla-interest/0EnDpY9Tsbw/ohCgEZqqBwAJ
-            // "For now, only translucent background selection works properly in bidirectional mode"
-            //
-            // note2: bidirectional mode is only required when editing.
-            // Scintilla will show bidirectional text just fine even if bidirectional mode is not enabled.
-            // And the cost of enabling bidirectional mode is ok since we're dealing here with
-            // commit messages, not whole books.
-            Call(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_WINDOWTEXT));
-            Call(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
-            Call(SCI_SETSELALPHA, 128);
-            Call(SCI_SETBIDIRECTIONAL, SC_BIDIRECTIONAL_L2R);
-        }
-        else
-        {
-            Call(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
-            Call(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
-        }
-    }
-    else
-    {
-        Call(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
-        Call(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
     }
 }
 
@@ -344,7 +316,7 @@ void CSciEdit::SetIcon(const std::map<int, UINT> &icons)
     Call(SCI_RGBAIMAGESETHEIGHT, iconHeight);
     for (auto icon : icons)
     {
-        auto hIcon = LoadIconEx(AfxGetInstanceHandle(), MAKEINTRESOURCE(icon.second), iconWidth, iconHeight);
+        auto hIcon = (HICON)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(icon.second), IMAGE_ICON, iconWidth, iconHeight, LR_DEFAULTCOLOR);
         auto bytes = Icon2Image(hIcon);
         DestroyIcon(hIcon);
         Call(SCI_REGISTERRGBAIMAGE, icon.first, (LPARAM)bytes.get());
@@ -491,10 +463,6 @@ CStringA CSciEdit::StringForControl(const CString& text)
 
 void CSciEdit::SetText(const CString& sText)
 {
-    auto readonly = m_bReadOnly;
-    OnOutOfScope(SetReadOnly(readonly));
-    SetReadOnly(false);
-
     CStringA sTextA = StringForControl(sText);
     Call(SCI_SETTEXT, 0, (LPARAM)(LPCSTR)sTextA);
 
@@ -512,10 +480,6 @@ void CSciEdit::SetText(const CString& sText)
 
 void CSciEdit::InsertText(const CString& sText, bool bNewLine)
 {
-    auto readonly = m_bReadOnly;
-    OnOutOfScope(SetReadOnly(readonly));
-    SetReadOnly(false);
-
     CStringA sTextA = StringForControl(sText);
     Call(SCI_REPLACESEL, 0, (LPARAM)(LPCSTR)sTextA);
     if (bNewLine)
@@ -611,8 +575,6 @@ void CSciEdit::SetAutoCompletionList(std::map<CString, int>&& list, TCHAR separa
 // Returns TRUE if sWord has spelling errors.
 BOOL CSciEdit::CheckWordSpelling(const CString& sWord)
 {
-    if (m_bReadOnly)
-        return FALSE;
     if (m_SpellChecker)
     {
         IEnumSpellingErrorPtr enumSpellingError = nullptr;
@@ -713,8 +675,6 @@ BOOL CSciEdit::IsMisspelled(const CString& sWord)
 void CSciEdit::CheckSpelling(Sci_Position startpos, Sci_Position endpos)
 {
     if ((pChecker == NULL) && (m_SpellChecker == nullptr))
-        return;
-    if (m_bReadOnly)
         return;
 
     Sci_TextRange textrange;
@@ -1869,10 +1829,4 @@ void CSciEdit::RestyleBugIDs()
     Call(SCI_SETSTYLING, endstylepos, STYLE_DEFAULT);
     // style the bug IDs
     MarkEnteredBugID(0, endstylepos);
-}
-
-void CSciEdit::SetReadOnly(bool bReadOnly)
-{
-    m_bReadOnly = bReadOnly;
-    Call(SCI_SETREADONLY, m_bReadOnly);
 }

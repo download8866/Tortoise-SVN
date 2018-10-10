@@ -14,12 +14,12 @@ namespace Scintilla {
  * Hold a pixmap in XPM format.
  */
 class XPM {
-	int height=1;
-	int width=1;
-	int nColours=1;
+	int height;
+	int width;
+	int nColours;
 	std::vector<unsigned char> pixels;
 	ColourDesired colourCodeTable[256];
-	char codeTransparent=' ';
+	char codeTransparent;
 	ColourDesired ColourFromCode(int ch) const;
 	void FillRun(Surface *surface, int code, int startX, int y, int x) const;
 public:

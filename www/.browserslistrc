@@ -1,8 +1,0 @@
-# https://github.com/ai/browserslist#browserslist
-
-last 2 major versions
-> 1%
-Edge >= 12
-Explorer >= 9
-Firefox ESR
-not dead

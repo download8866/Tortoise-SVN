@@ -9,8 +9,6 @@
 #include <cmath>
 
 #include <stdexcept>
-#include <string>
-#include <string_view>
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -20,6 +18,7 @@
 
 #include "Scintilla.h"
 
+#include "StringCopy.h"
 #include "IntegerRectangle.h"
 #include "XPM.h"
 #include "LineMarker.h"
@@ -186,7 +185,7 @@ void LineMarker::Draw(Surface *surface, PRectangle &rcWhole, Font &fontForCharac
     		Point::FromInts(centreX - dimOn4, centreY + dimOn2),
     		Point::FromInts(centreX + dimOn2 - dimOn4, centreY),
 		};
-		surface->Polygon(pts, std::size(pts), fore, back);
+		surface->Polygon(pts, ELEMENTS(pts), fore, back);
 
 	} else if (markType == SC_MARK_ARROWDOWN) {
 		Point pts[] = {
@@ -194,7 +193,7 @@ void LineMarker::Draw(Surface *surface, PRectangle &rcWhole, Font &fontForCharac
     		Point::FromInts(centreX + dimOn2, centreY - dimOn4),
     		Point::FromInts(centreX, centreY + dimOn2 - dimOn4),
 		};
-		surface->Polygon(pts, std::size(pts), fore, back);
+		surface->Polygon(pts, ELEMENTS(pts), fore, back);
 
 	} else if (markType == SC_MARK_PLUS) {
 		Point pts[] = {
@@ -211,7 +210,7 @@ void LineMarker::Draw(Surface *surface, PRectangle &rcWhole, Font &fontForCharac
     		Point::FromInts(centreX - 1, centreY + 1),
     		Point::FromInts(centreX - armSize, centreY + 1),
 		};
-		surface->Polygon(pts, std::size(pts), fore, back);
+		surface->Polygon(pts, ELEMENTS(pts), fore, back);
 
 	} else if (markType == SC_MARK_MINUS) {
 		Point pts[] = {
@@ -220,7 +219,7 @@ void LineMarker::Draw(Surface *surface, PRectangle &rcWhole, Font &fontForCharac
     		Point::FromInts(centreX + armSize, centreY +1),
     		Point::FromInts(centreX - armSize, centreY + 1),
 		};
-		surface->Polygon(pts, std::size(pts), fore, back);
+		surface->Polygon(pts, ELEMENTS(pts), fore, back);
 
 	} else if (markType == SC_MARK_SMALLRECT) {
 		PRectangle rcSmall;
@@ -378,13 +377,14 @@ void LineMarker::Draw(Surface *surface, PRectangle &rcWhole, Font &fontForCharac
 		DrawMinus(surface, centreX, centreY, blobSize, colourTail);
 
 	} else if (markType >= SC_MARK_CHARACTER) {
-		std::string character(1, static_cast<char>(markType - SC_MARK_CHARACTER));
-		const XYPOSITION width = surface->WidthText(fontForCharacter, character);
+		char character[1];
+		character[0] = static_cast<char>(markType - SC_MARK_CHARACTER);
+		const XYPOSITION width = surface->WidthText(fontForCharacter, character, 1);
 		PRectangle rcText = rc;
 		rcText.left += (rc.Width() - width) / 2;
 		rcText.right = rc.left + width;
 		surface->DrawTextClipped(rcText, fontForCharacter, rcText.bottom - 2,
-			character, fore, back);
+			character, 1, fore, back);
 
 	} else if (markType == SC_MARK_DOTDOTDOT) {
 		XYPOSITION right = static_cast<XYPOSITION>(centreX - 6);
@@ -415,7 +415,7 @@ void LineMarker::Draw(Surface *surface, PRectangle &rcWhole, Font &fontForCharac
 			Point::FromInts(centreX, centreY + dimOn4),
 			Point::FromInts(centreX, centreY + dimOn2),
 		};
-		surface->Polygon(pts, std::size(pts), fore, back);
+		surface->Polygon(pts, ELEMENTS(pts), fore, back);
 	} else if (markType == SC_MARK_LEFTRECT) {
 		PRectangle rcLeft = rcWhole;
 		rcLeft.right = rcLeft.left + 4;
@@ -429,7 +429,7 @@ void LineMarker::Draw(Surface *surface, PRectangle &rcWhole, Font &fontForCharac
 			Point::FromInts(ircWhole.right - 3, centreY + halfHeight),
 			Point::FromInts(ircWhole.left, centreY + halfHeight),
 		};
-		surface->Polygon(pts, std::size(pts), fore, back);
+		surface->Polygon(pts, ELEMENTS(pts), fore, back);
 	} else { // SC_MARK_FULLRECT
 		surface->FillRectangle(rcWhole, back);
 	}

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010-2014, 2018 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -160,31 +160,31 @@ void CSetOverlayIcons::ShowIconSet(bool bSmallIcons)
     CImageList * pImageList = bSmallIcons ? &m_ImageList : &m_ImageListBig;
     int iconWidth = (bSmallIcons ? smallIconWidth : normalIconWidth);
     int iconHeight = (bSmallIcons ? smallIconHeight : normalIconHeight);
-    auto hNormalOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\NormalIcon.ico", iconWidth, iconHeight);
+    HICON hNormalOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\NormalIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hNormalOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 1));
-    auto hModifiedOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\ModifiedIcon.ico", iconWidth, iconHeight);
+    HICON hModifiedOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\ModifiedIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hModifiedOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 2));
-    auto hConflictedOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\ConflictIcon.ico", iconWidth, iconHeight);
+    HICON hConflictedOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\ConflictIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hConflictedOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 3));
-    auto hReadOnlyOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\ReadOnlyIcon.ico", iconWidth, iconHeight);
+    HICON hReadOnlyOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\ReadOnlyIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hReadOnlyOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 4));
-    auto hDeletedOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\DeletedIcon.ico", iconWidth, iconHeight);
+    HICON hDeletedOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\DeletedIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hDeletedOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 5));
-    auto hLockedOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\LockedIcon.ico", iconWidth, iconHeight);
+    HICON hLockedOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\LockedIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hLockedOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 6));
-    auto hAddedOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\AddedIcon.ico", iconWidth, iconHeight);
+    HICON hAddedOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\AddedIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hAddedOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 7));
-    auto hIgnoredOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\IgnoredIcon.ico", iconWidth, iconHeight);
+    HICON hIgnoredOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\IgnoredIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hIgnoredOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 8));
-    auto hUnversionedOverlay = LoadIconEx(nullptr, sIconSetPath + L"\\UnversionedIcon.ico", iconWidth, iconHeight);
+    HICON hUnversionedOverlay = (HICON)LoadImage(nullptr, sIconSetPath + L"\\UnversionedIcon.ico", IMAGE_ICON, iconWidth, iconHeight, LR_LOADFROMFILE);
     index = pImageList->Add(hUnversionedOverlay);
     VERIFY(pImageList->SetOverlayImage(index, 9));
 

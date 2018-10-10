@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -153,7 +153,7 @@ BOOL CFileDiffDlg::OnInitDialog()
 
     int iconWidth = GetSystemMetrics(SM_CXSMICON);
     int iconHeight = GetSystemMetrics(SM_CYSMICON);
-    m_SwitchButton.SetImage(CCommonAppUtils::LoadIconEx(IDI_SWITCHLEFTRIGHT, iconWidth, iconHeight));
+    m_SwitchButton.SetImage(CCommonAppUtils::LoadIconEx(IDI_SWITCHLEFTRIGHT, iconWidth, iconHeight, LR_DEFAULTCOLOR));
     m_SwitchButton.Invalidate();
 
     m_cFilter.SetCancelBitmaps(IDI_CANCELNORMAL, IDI_CANCELPRESSED, 14, 14);
@@ -766,16 +766,12 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
         break;
     case ID_UNIFIEDDIFF:
         {
-            bool prettyprint = true;
             CString options;
             if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
             {
                 CDiffOptionsDlg dlg(this);
                 if (dlg.DoModal() == IDOK)
-                {
                     options = dlg.GetDiffOptionsString();
-                    prettyprint = dlg.GetPrettyPrint();
-                }
                 else
                     break;
             }
@@ -803,11 +799,11 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
                     progDlg.SetProgress(i+1, urls1.GetCount());
                     if (bDoPegDiff)
                     {
-                        PegDiff(url1, m_peg, m_rev1, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, false, true, true, false, true, false, prettyprint, options, true, diffFile);
+                        PegDiff(url1, m_peg, m_rev1, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, false, true, true, false, true, false, options, true, diffFile);
                     }
                     else
                     {
-                        Diff(url1, m_rev1, url2, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, false, true, true, false, true, false, prettyprint, options, true, diffFile);
+                        Diff(url1, m_rev1, url2, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, false, true, true, false, true, false, options, true, diffFile);
                     }
                     if (progDlg.HasUserCancelled() || m_bCancelled)
                         break;

@@ -7,7 +7,7 @@
   "homepage": "https://tortoisesvn.net/",
   "repository": {
     "type": "svn",
-    "url": "https://osdn.net/projects/tortoisesvn/scm/svn/tree/head/trunk/www/"
+    "url": "https://svn.code.sf.net/p/tortoisesvn/code/trunk/www"
   },
   "bugs": {
     "url": "https://tortoisesvn.net/reportbug.html"
@@ -17,29 +17,28 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "autoprefixer": "^9.1.5",
-    "grunt": "^1.0.3",
-    "grunt-contrib-clean": "^2.0.0",
+    "grunt": "^1.0.1",
+    "grunt-autoprefixer": "^3.0.4",
+    "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-connect": "^2.0.0",
+    "grunt-contrib-connect": "^1.0.2",
     "grunt-contrib-csslint": "^2.0.0",
-    "grunt-contrib-cssmin": "^3.0.0",
-    "grunt-contrib-htmlmin": "^3.0.0",
+    "grunt-contrib-cssmin": "^2.2.1",
+    "grunt-contrib-htmlmin": "^2.4.0",
     "grunt-contrib-jshint": "^1.1.0",
-    "grunt-contrib-uglify": "^4.0.0",
-    "grunt-contrib-watch": "^1.1.0",
+    "grunt-contrib-uglify": "^3.3.0",
+    "grunt-contrib-watch": "^1.0.0",
     "grunt-filerev": "^2.3.1",
-    "grunt-html": "^9.3.0",
-    "grunt-jekyll": "^0.4.7",
+    "grunt-html": "^8.6.1",
+    "grunt-jekyll": "^0.4.6",
     "grunt-link-checker": "^0.2.0",
-    "grunt-postcss": "^0.9.0",
-    "grunt-purgecss": "^1.0.0",
     "grunt-svgmin": "^5.0.0",
+    "grunt-uncss": "^0.8.0",
     "grunt-usemin": "^3.1.1",
-    "load-grunt-tasks": "^4.0.0",
+    "load-grunt-tasks": "^3.5.2",
     "time-grunt": "^1.4.0"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=8"
   }
 }

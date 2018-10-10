@@ -1127,9 +1127,6 @@
     <ClCompile Include="UnshelveDlg.cpp">
       <Filter>Commands\%28Un%29Shelve</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utils\LoadIconEx.cpp">
-      <Filter>Utils\General</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppUtils.h">
@@ -2155,12 +2152,6 @@
     <ClInclude Include="UnshelveDlg.h">
       <Filter>Commands\%28Un%29Shelve</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utils\DPIAware.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\LoadIconEx.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\actionadded.ico">
@@ -2624,9 +2615,6 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\Resources\library-win10.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_clearerrors.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

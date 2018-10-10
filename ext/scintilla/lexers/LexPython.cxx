@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <algorithm>
 
 #include "ILexer.h"
 #include "Scintilla.h"
@@ -930,7 +929,7 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 		}
 
 		const int levelAfterComments = ((lineNext < docLines) ? indentNext & SC_FOLDLEVELNUMBERMASK : minCommentLevel);
-		const int levelBeforeComments = std::max(indentCurrentLevel, levelAfterComments);
+		const int levelBeforeComments = Maximum(indentCurrentLevel, levelAfterComments);
 
 		// Now set all the indent levels on the lines we skipped
 		// Do this from end to start.  Once we encounter one line

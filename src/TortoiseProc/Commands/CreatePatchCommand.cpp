@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2016, 2018 - TortoiseSVN
+// Copyright (C) 2007-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@
 bool CreatePatchCommand::Execute()
 {
     bool bRet = false;
-    auto savepath = CPathUtils::GetLongPathname(parser.GetVal(L"savepath"));
+    CString savepath = CPathUtils::GetLongPathname(parser.GetVal(L"savepath"));
     CCreatePatch dlg;
     dlg.m_pathList = pathList;
     if (parser.HasKey(L"noui")||(dlg.DoModal()==IDOK))
@@ -56,14 +56,14 @@ bool CreatePatchCommand::Execute()
             else
                 return false;
         }
-        bRet = CreatePatch(pathList.GetCommonRoot(), dlg.m_pathList, dlg.m_bPrettyPrint, dlg.m_diffOptions, CTSVNPath(savepath.c_str()));
+        bRet = CreatePatch(pathList.GetCommonRoot(), dlg.m_pathList, dlg.m_diffOptions, CTSVNPath(savepath));
         SVN svn;
         svn.Revert(dlg.m_filesToRevert, CStringArray(), false, false, false);
     }
     return bRet;
 }
 
-bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& paths, bool prettyprint, const CString& diffoptions, const CTSVNPath& cmdLineSavePath)
+bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& paths, const CString& diffoptions, const CTSVNPath& cmdLineSavePath)
 {
     CTSVNPath savePath;
     BOOL gitFormat = false;
@@ -215,7 +215,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
     for (int fileindex = 0; fileindex < paths.GetCount(); ++fileindex)
     {
         svn_depth_t depth = paths[fileindex].IsDirectory() ? svn_depth_empty : svn_depth_files;
-        if (!svn.CreatePatch(paths[fileindex], SVNRev::REV_BASE, paths[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, false, false, false, true, false, !!gitFormat, !!ignoreproperties, false, prettyprint, diffoptions, true, tempPatchFilePath))
+        if (!svn.CreatePatch(paths[fileindex], SVNRev::REV_BASE, paths[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, false, false, false, true, false, !!gitFormat, !!ignoreproperties, false, diffoptions, true, tempPatchFilePath))
         {
             progDlg.Stop();
             svn.ShowErrorDialog(GetExplorerHWND(), paths[fileindex]);

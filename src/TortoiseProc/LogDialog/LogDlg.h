@@ -1,4 +1,4 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2018 - TortoiseSVN
 
@@ -223,7 +223,6 @@ protected:
     afx_msg void OnMonitorRemoveProject();
     afx_msg void OnMonitorOptions();
     afx_msg void OnMonitorMarkAllAsRead();
-    afx_msg void OnMonitorClearErrors();
     afx_msg void OnMonitorUpdateAll();
     afx_msg void OnMonitorThreadFinished();
     afx_msg void OnTvnSelchangedProjtree(NMHDR *pNMHDR, LRESULT *pResult);
@@ -265,7 +264,6 @@ private:
     void SetFilterCueText();
     void CopySelectionToClipBoard();
     void CopySelectionToClipBoard(bool bIncludeChangedList);
-    void CopySelectionToClipBoardRev();
     void CopyCommaSeparatedRevisionsToClipboard();
     void CopyChangedSelectionToClipBoard();
     void CopyCommaSeparatedAuthorsToClipboard();
@@ -372,7 +370,6 @@ private:
     void ExecuteExportTreeChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteSaveAsChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteShowPropertiesChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
-    void ExecuteCompareChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex, bool ignoreprops);
     void ExecuteGnuDiff1ChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteBlameDiffChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
@@ -447,8 +444,8 @@ public:
     ProjectProperties   m_ProjectProperties;
     WORD                m_wParam;
 private:
-    CFont               m_unreadFont;
-    CFont               m_wcRevFont;
+    CFont               m_boldFont;
+    CFont               m_boldItalicFont;
     CString             m_sRelativeRoot;
     CString             m_sRepositoryRoot;
     CString             m_sURL;

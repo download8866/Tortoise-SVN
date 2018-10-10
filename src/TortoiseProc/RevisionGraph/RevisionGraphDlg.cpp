@@ -43,20 +43,6 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace Gdiplus;
 
-struct CToolBarData
-{
-    WORD wVersion;
-    WORD wWidth;
-    WORD wHeight;
-    WORD wItemCount;
-    //WORD aItems[wItemCount]
-
-    WORD* items()
-    {
-        return (WORD*)(this + 1);
-    }
-};
-
 IMPLEMENT_DYNAMIC(CRevisionGraphDlg, CResizableStandAloneDialog)
 CRevisionGraphDlg::CRevisionGraphDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CRevisionGraphDlg::IDD, pParent)
@@ -141,34 +127,7 @@ BOOL CRevisionGraphDlg::InitializeToolbar()
     // set up the toolbar
     // add the tool bar to the dialog
     m_ToolBar.CreateEx(this, TBSTYLE_FLAT | TBSTYLE_WRAPABLE | TBSTYLE_TRANSPARENT | CBRS_SIZE_DYNAMIC);
-
-    // LoadToolBar() asserts in debug mode because the bitmap
-    // fails to load. That's not a problem because we load the bitmap
-    // further down manually.
-    // but the assertion is ugly, so we load the button resource here
-    // manually as well and call SetButtons().
-    HINSTANCE hInst = AfxFindResourceHandle(MAKEINTRESOURCE(IDR_REVGRAPHBAR), RT_TOOLBAR);
-    HRSRC hRsrc = ::FindResource(hInst, MAKEINTRESOURCE(IDR_REVGRAPHBAR), RT_TOOLBAR);
-    if (hRsrc == NULL)
-        return FALSE;
-
-    HGLOBAL hGlobal = LoadResource(hInst, hRsrc);
-    if (hGlobal == NULL)
-        return FALSE;
-
-    auto pData = (CToolBarData*)LockResource(hGlobal);
-    if (pData == NULL)
-        return FALSE;
-    ASSERT(pData->wVersion == 1);
-
-    auto pItems = std::make_unique<UINT[]>(pData->wItemCount);
-    for (int i = 0; i < pData->wItemCount; i++)
-        pItems[i] = pData->items()[i];
-    m_ToolBar.SetButtons(pItems.get(), pData->wItemCount);
-
-    UnlockResource(hGlobal);
-    FreeResource(hGlobal);
-
+    m_ToolBar.LoadToolBar(IDR_REVGRAPHBAR);
     m_ToolBar.ShowWindow(SW_SHOW);
     m_ToolBar.SetBarStyle(CBRS_ALIGN_TOP | CBRS_TOOLTIPS | CBRS_FLYBY);
 
@@ -661,7 +620,7 @@ BOOL CRevisionGraphDlg::OnToggleRedrawOption (UINT controlID)
 void CRevisionGraphDlg::StartWorkerThread()
 {
     if (!m_Graph.IsUpdateJobRunning())
-        m_Graph.updateJob = std::make_unique<CFuture<bool>>(this, &CRevisionGraphDlg::UpdateData);
+        m_Graph.updateJob.reset (new CFuture<bool>(this, &CRevisionGraphDlg::UpdateData));
 }
 
 void CRevisionGraphDlg::OnCancel()

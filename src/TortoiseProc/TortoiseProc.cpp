@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -331,7 +331,7 @@ BOOL CTortoiseProcApp::InitInstance()
         g_sGroupingUUID = parser.GetVal(L"groupuuid");
     if ( parser.HasKey(L"pathfile") )
     {
-        CString sPathfileArgument = CPathUtils::GetLongPathname(parser.GetVal(L"pathfile")).c_str();
+        CString sPathfileArgument = CPathUtils::GetLongPathname(parser.GetVal(L"pathfile"));
         if (sPathfileArgument.IsEmpty())
         {
             TaskDialog(GetExplorerHWND(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_INVALIDPARAMS), MAKEINTRESOURCE(IDS_ERR_NOPATH), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
@@ -353,7 +353,7 @@ BOOL CTortoiseProcApp::InitInstance()
     }
     else
     {
-        CString sPathArgument = CPathUtils::GetLongPathname(parser.GetVal(L"path")).c_str();
+        CString sPathArgument = CPathUtils::GetLongPathname(parser.GetVal(L"path"));
         if (parser.HasKey(L"expaths"))
         {
             // an /expaths param means we're started via the buttons in our Win7 library
@@ -442,7 +442,7 @@ BOOL CTortoiseProcApp::InitInstance()
             if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
             {
                 sOrigCWD = originalCurrentDirectory.get();
-                sOrigCWD = CPathUtils::GetLongPathname((LPCWSTR)sOrigCWD).c_str();
+                sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
             }
         }
         TCHAR pathbuf[MAX_PATH] = { 0 };

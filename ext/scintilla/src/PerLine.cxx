@@ -10,7 +10,6 @@
 #include <cstring>
 
 #include <stdexcept>
-#include <string_view>
 #include <vector>
 #include <forward_list>
 #include <algorithm>
@@ -61,7 +60,7 @@ bool MarkerHandleSet::InsertHandle(int handle, int markerNum) {
 }
 
 void MarkerHandleSet::RemoveHandle(int handle) {
-	mhList.remove_if([handle](const MarkerHandleNumber &mhn) { return mhn.handle == handle; });
+	mhList.remove_if([=](const MarkerHandleNumber &mhn) { return mhn.handle == handle; });
 }
 
 bool MarkerHandleSet::RemoveNumber(int markerNum, bool all) {
@@ -285,7 +284,7 @@ Sci::Line LineState::GetMaxLineState() const {
 	return static_cast<Sci::Line>(lineStates.Length());
 }
 
-static int NumberLines(const char *text) noexcept {
+static int NumberLines(const char *text) {
 	if (text) {
 		int newLines = 0;
 		while (*text) {

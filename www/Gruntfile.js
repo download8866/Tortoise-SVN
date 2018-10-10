@@ -68,6 +68,7 @@ module.exports = function(grunt) {
                 src: ['<%= dirs.src %>/assets/js/vendor/plugins.js',
                       '<%= dirs.src %>/assets/js/no-js-class.js',
                       '<%= dirs.src %>/assets/js/onLoad.js',
+                      '<%= dirs.src %>/assets/js/sf-accel.js',
                       '<%= dirs.src %>/assets/js/google-analytics.js'
                 ],
                 dest: '<%= dirs.dest %>/assets/js/main.js'
@@ -80,28 +81,35 @@ module.exports = function(grunt) {
             }
         },
 
-        postcss: {
+        autoprefixer: {
             options: {
-                processors: [
-                    require('autoprefixer')() // add vendor prefixes
+                browsers: [
+                    'last 2 versions',
+                    '> 1%',
+                    'Edge >= 12',
+                    'Explorer >= 9',
+                    'Firefox ESR'
                 ]
             },
-            dist: {
-                src: '<%= concat.css.dest %>'
+            pack: {
+                src: '<%= concat.css.dest %>',
+                dest: '<%= concat.css.dest %>'
             }
         },
 
-        purgecss: {
+        uncss: {
+            options: {
+                htmlroot: '<%= dirs.dest %>',
+                ignore: [
+                    /(#|\.)baguetteBox(-[a-zA-Z]+)?/,
+                    /\.no\-js/
+                ],
+                ignoreSheets: [/fonts.googleapis/, /www.google.com/, /pagead2.googlesyndication.com/],
+                stylesheets: ['/assets/css/pack.css']
+            },
             dist: {
-                options: {
-                    content: [
-                        '<%= dirs.dest %>/**/*.html',
-                        '<%= dirs.dest %>/assets/js/**/*.js'
-                    ]
-                },
-                files: {
-                    '<%= concat.css.dest %>': ['<%= concat.css.dest %>']
-                }
+                src: '<%= dirs.dest %>/**/*.html',
+                dest: '<%= concat.css.dest %>'
             }
         },
 
@@ -115,7 +123,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    '<%= concat.css.dest %>': '<%= concat.css.dest %>'
+                    '<%= uncss.dist.dest %>': '<%= concat.css.dest %>'
                 }
             }
         },
@@ -171,44 +179,15 @@ module.exports = function(grunt) {
 
         svgmin: {
             options: {
-                multipass: true,
-                plugins: [
-                    { cleanupAttrs: true },
-                    { cleanupEnableBackground: true },
-                    { cleanupIDs: true },
-                    { cleanupListOfValues: true },
-                    { cleanupNumericValues: true },
-                    { collapseGroups: true },
-                    { convertColors: true },
-                    { convertPathData: true },
-                    { convertShapeToPath: true },
-                    { convertStyleToAttrs: true },
-                    { convertTransform: true },
-                    { inlineStyles: true },
-                    { mergePaths: true },
-                    { minifyStyles: true },
-                    { moveElemsAttrsToGroup: true },
-                    { moveGroupAttrsToElems: true },
-                    { removeComments: true },
-                    { removeDesc: true },
-                    { removeDoctype: true },
-                    { removeEditorsNSData: true },
-                    { removeEmptyAttrs: true },
-                    { removeEmptyContainers: true },
-                    { removeEmptyText: true },
-                    { removeHiddenElems: true },
-                    { removeMetadata: true },
-                    { removeNonInheritableGroupAttrs: true },
-                    { removeTitle: true },
-                    { removeUnknownsAndDefaults: true },
-                    { removeUnusedNS: true },
-                    { removeUselessDefs: true },
-                    { removeUselessStrokeAndFill: true },
-                    { removeViewBox: false },
-                    { removeXMLNS: false },
-                    { removeXMLProcInst: true },
-                    { sortAttrs: true }
-                ]
+                plugins: [{
+                    removeViewBox: false
+                }, {
+                    removeUselessStrokeAndFill: false
+                }, {
+                    removeEmptyAttrs: false
+                }, {
+                    removeTitle: false
+                }]
             },
             dist: {
                 expand: true,
@@ -270,9 +249,6 @@ module.exports = function(grunt) {
         },
 
         htmllint: {
-            options: {
-                ignore: /This document appears to be written in./
-            },
             src: '<%= dirs.dest %>/**/*.html'
         },
 
@@ -313,8 +289,8 @@ module.exports = function(grunt) {
         'jekyll',
         'useminPrepare',
         'concat',
-        'postcss',
-        'purgecss',
+        'autoprefixer',
+        'uncss',
         'cssmin',
         'uglify',
         'filerev',
@@ -336,7 +312,7 @@ module.exports = function(grunt) {
         'jekyll',
         'useminPrepare',
         'concat',
-        'postcss',
+        'autoprefixer',
         'filerev',
         'usemin'
     ]);

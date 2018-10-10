@@ -1,5 +1,5 @@
 /*
- * Copyright 1995-2018 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 1995-2016 The OpenSSL Project Authors. All Rights Reserved.
  *
  * Licensed under the OpenSSL license (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -62,7 +62,7 @@ static int rsa_ossl_public_encrypt(int flen, const unsigned char *from,
                                   unsigned char *to, RSA *rsa, int padding)
 {
     BIGNUM *f, *ret;
-    int i, num = 0, r = -1;
+    int i, j, k, num = 0, r = -1;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
 
@@ -136,10 +136,15 @@ static int rsa_ossl_public_encrypt(int flen, const unsigned char *from,
         goto err;
 
     /*
-     * BN_bn2binpad puts in leading 0 bytes if the number is less than
-     * the length of the modulus.
+     * put in leading 0 bytes if the number is less than the length of the
+     * modulus
      */
-    r = BN_bn2binpad(ret, to, num);
+    j = BN_num_bytes(ret);
+    i = BN_bn2bin(ret, &(to[num - j]));
+    for (k = 0; k < (num - i); k++)
+        to[k] = 0;
+
+    r = num;
  err:
     if (ctx != NULL)
         BN_CTX_end(ctx);
@@ -228,7 +233,7 @@ static int rsa_ossl_private_encrypt(int flen, const unsigned char *from,
                                    unsigned char *to, RSA *rsa, int padding)
 {
     BIGNUM *f, *ret, *res;
-    int i, num = 0, r = -1;
+    int i, j, k, num = 0, r = -1;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
     int local_blinding = 0;
@@ -332,8 +337,7 @@ static int rsa_ossl_private_encrypt(int flen, const unsigned char *from,
             goto err;
 
     if (padding == RSA_X931_PADDING) {
-        if (!BN_sub(f, rsa->n, ret))
-            goto err;
+        BN_sub(f, rsa->n, ret);
         if (BN_cmp(ret, f) > 0)
             res = f;
         else
@@ -342,10 +346,15 @@ static int rsa_ossl_private_encrypt(int flen, const unsigned char *from,
         res = ret;
 
     /*
-     * BN_bn2binpad puts in leading 0 bytes if the number is less than
-     * the length of the modulus.
+     * put in leading 0 bytes if the number is less than the length of the
+     * modulus
      */
-    r = BN_bn2binpad(res, to, num);
+    j = BN_num_bytes(res);
+    i = BN_bn2bin(res, &(to[num - j]));
+    for (k = 0; k < (num - i); k++)
+        to[k] = 0;
+
+    r = num;
  err:
     if (ctx != NULL)
         BN_CTX_end(ctx);
@@ -359,6 +368,7 @@ static int rsa_ossl_private_decrypt(int flen, const unsigned char *from,
 {
     BIGNUM *f, *ret;
     int j, num = 0, r = -1;
+    unsigned char *p;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
     int local_blinding = 0;
@@ -453,7 +463,8 @@ static int rsa_ossl_private_decrypt(int flen, const unsigned char *from,
         if (!rsa_blinding_invert(blinding, ret, unblind, ctx))
             goto err;
 
-    j = BN_bn2binpad(ret, buf, num);
+    p = buf;
+    j = BN_bn2bin(ret, p);      /* j is only used with no-padding mode */
 
     switch (padding) {
     case RSA_PKCS1_PADDING:
@@ -466,7 +477,7 @@ static int rsa_ossl_private_decrypt(int flen, const unsigned char *from,
         r = RSA_padding_check_SSLv23(to, num, buf, j, num);
         break;
     case RSA_NO_PADDING:
-        memcpy(to, buf, (r = j));
+        r = RSA_padding_check_none(to, num, buf, j, num);
         break;
     default:
         RSAerr(RSA_F_RSA_OSSL_PRIVATE_DECRYPT, RSA_R_UNKNOWN_PADDING_TYPE);
@@ -489,6 +500,7 @@ static int rsa_ossl_public_decrypt(int flen, const unsigned char *from,
 {
     BIGNUM *f, *ret;
     int i, num = 0, r = -1;
+    unsigned char *p;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
 
@@ -553,7 +565,8 @@ static int rsa_ossl_public_decrypt(int flen, const unsigned char *from,
         if (!BN_sub(ret, rsa->n, ret))
             goto err;
 
-    i = BN_bn2binpad(ret, buf, num);
+    p = buf;
+    i = BN_bn2bin(ret, p);
 
     switch (padding) {
     case RSA_PKCS1_PADDING:
@@ -563,7 +576,7 @@ static int rsa_ossl_public_decrypt(int flen, const unsigned char *from,
         r = RSA_padding_check_X931(to, num, buf, i, num);
         break;
     case RSA_NO_PADDING:
-        memcpy(to, buf, (r = i));
+        r = RSA_padding_check_none(to, num, buf, i, num);
         break;
     default:
         RSAerr(RSA_F_RSA_OSSL_PUBLIC_DECRYPT, RSA_R_UNKNOWN_PADDING_TYPE);

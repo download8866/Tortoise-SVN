@@ -145,17 +145,9 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeNumber;
     settings[i++].def.l = 1;
 
-    settings[i].sName   = L"PlaySound";
-    settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
-    settings[i++].def.b = true;
-
     settings[i].sName   = L"RepoBrowserTrySVNParentPath";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
-
-    settings[i].sName   = L"ScintillaBidirectional";
-    settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
-    settings[i++].def.b = false;
 
     settings[i].sName   = L"ScintillaDirect2D";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
@@ -189,7 +181,7 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeNone;
     settings[i++].def.b = false;
 
-    // 41 so far...
+    // 39 so far...
     ASSERT(i < _countof(settings));
 }
 

@@ -1096,7 +1096,7 @@ CString CAppUtils::GetProjectNameFromURL(CString url)
 bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1,
                                      const CTSVNPath& url2, const SVNRev& rev2,
                                      const SVNRev& peg, const SVNRev& headpeg,
-                                     bool prettyprint, const CString& options,
+                                     const CString& options,
                                      bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, bool blame /* = false */, bool bIgnoreProperties /* = true*/)
 {
     CString sCmd = L"/command:showcompare /unified";
@@ -1128,9 +1128,6 @@ bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVN
     if (bIgnoreProperties)
         sCmd += L" /ignoreprops";
 
-    if (prettyprint)
-        sCmd += L" /prettyprint";
-
     if (hWnd)
     {
         sCmd += L" /hwnd:";
@@ -1145,7 +1142,7 @@ bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVN
 bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1,
                                  const CTSVNPath& url2, const SVNRev& rev2,
                                  const SVNRev& peg, const SVNRev& headpeg,
-                                 bool ignoreprops, bool prettyprint, const CString& options,
+                                 bool ignoreprops, const CString& options,
                                  bool bAlternateDiff /*= false*/, bool bIgnoreAncestry /*= false*/,
                                  bool blame /*= false*/, svn_node_kind_t nodekind /*= svn_node_unknown*/,
                                  int line /*= 0*/ )
@@ -1174,8 +1171,6 @@ bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev&
         sCmd += L" /blame";
     if (ignoreprops)
         sCmd += L" /ignoreprops";
-    if (prettyprint)
-        sCmd += L" /prettyprint";
 
     if (hWnd)
     {

@@ -35,7 +35,6 @@
 #include "BstrSafeVector.h"
 #include "SmartHandle.h"
 #include "Hooks.h"
-#include "DPIAware.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -627,7 +626,7 @@ UINT CCommitDlg::StatusThread()
         m_History.Load(reg, L"logmsgs");
     }
 
-    // Initialize the list control with the status of the files/folders below us
+    // Initialise the list control with the status of the files/folders below us
     BOOL success = m_ListCtrl.GetStatus(m_pathList);
     m_ListCtrl.CheckIfChangelistsArePresent(false);
 
@@ -1544,7 +1543,7 @@ void CCommitDlg::SetSplitterRange()
         m_ListCtrl.GetWindowRect(rcMiddle);
         ScreenToClient(rcMiddle);
         if (rcMiddle.Height() && rcMiddle.Width())
-            m_wndSplitter.SetRange(rcTop.top + CDPIAware::Instance().Scale(60), rcMiddle.bottom - CDPIAware::Instance().Scale(80));
+            m_wndSplitter.SetRange(rcTop.top+60, rcMiddle.bottom-80);
     }
 }
 
@@ -1941,7 +1940,7 @@ void CCommitDlg::AdjustDialogSizeAndPanes()
         m_wndSplitter.GetWindowRect(&rectSplitter);
         ScreenToClient(&rectSplitter);
         int delta = yPos - rectSplitter.top;
-        if ((rcLogMsg.bottom + delta > rcLogMsg.top)&&(rcLogMsg.bottom + delta < rcFileList.bottom - CDPIAware::Instance().Scale(30)))
+        if ((rcLogMsg.bottom + delta > rcLogMsg.top)&&(rcLogMsg.bottom + delta < rcFileList.bottom - 30))
         {
             m_wndSplitter.SetWindowPos(NULL, rectSplitter.left, yPos, 0, 0, SWP_NOSIZE);
             DoSize(delta);

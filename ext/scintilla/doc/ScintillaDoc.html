@@ -119,7 +119,7 @@
 
     <h1>Scintilla Documentation</h1>
 
-    <p>Last edited 6 June 2018 NH</p>
+    <p>Last edited 17 April 2018 NH</p>
 
     <p>There is <a class="jump" href="Design.html">an overview of the internal design of
     Scintilla</a>.<br />
@@ -157,10 +157,9 @@
     <p>Scintilla also builds with Cocoa on OS X and with Qt, and follows the conventions of
     those platforms.</p>
 
-    <p>Scintilla provides only limited experimental support on Windows for right-to-left languages
-    like Arabic and Hebrew.
-    While text in these languages may appear correct, interaction with this text may not work
-    correctly as occurs with other editors.</p>
+    <p>Scintilla does not properly support right-to-left languages like Arabic and Hebrew.
+    While text in these languages may appear correct, it is not possible to interact with this text
+    as is normal with other editing components.</p>
 
     <p>This documentation describes the individual messages and notifications used by Scintilla. It
     does not describe how to link them together to form a useful editor. For now, the best way to
@@ -270,140 +269,136 @@
         <tr>
           <td>&cir; <a class="toc" href="#SelectionAndInformation">Selection and information</a></td>
 
-          <td>&cir; <a class="toc" href="#ByCharacterOrCodeUnit">By character or UTF-16 code unit</a></td>
-
           <td>&cir; <a class="toc" href="#MultipleSelectionAndVirtualSpace">Multiple Selection and Virtual Space</a></td>
+
+          <td>&cir; <a class="toc" href="#ScrollingAndAutomaticScrolling">Scrolling and automatic
           scrolling</a></td>
 
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#ScrollingAndAutomaticScrolling">Scrolling and automatic
-
           <td>&cir; <a class="toc" href="#WhiteSpace">White space</a></td>
 
           <td>&cir; <a class="toc" href="#Cursor">Cursor</a></td>
 
+          <td>&cir; <a class="toc" href="#MouseCapture">Mouse capture</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#MouseCapture">Mouse capture</a></td>
-
           <td>&cir; <a class="toc" href="#LineEndings">Line endings</a></td>
 
           <td>&cir; <a class="toc" href="#Words">Words</a></td>
 
+          <td>&cir; <a class="toc" href="#Styling">Styling</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#Styling">Styling</a></td>
-
           <td>&cir; <a class="toc" href="#StyleDefinition">Style definition</a></td>
 
           <td>&cir; <a class="toc" href="#CaretAndSelectionStyles">Caret, selection, and hotspot styles</a></td>
 
+          <td>&cir; <a class="toc" href="#CharacterRepresentations">Character representations</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#CharacterRepresentations">Character representations</a></td>
-
           <td>&cir; <a class="toc" href="#Margins">Margins</a></td>
 
           <td>&cir; <a class="toc" href="#Annotations">Annotations</a></td>
 
+          <td>&cir; <a class="toc" href="#OtherSettings">Other settings</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#OtherSettings">Other settings</a></td>
-
           <td>&cir; <a class="toc" href="#BraceHighlighting">Brace highlighting</a></td>
 
           <td>&cir; <a class="toc" href="#TabsAndIndentationGuides">Tabs and Indentation
           Guides</a></td>
 
+          <td>&cir; <a class="toc" href="#Markers">Markers</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#Markers">Markers</a></td>
-
           <td>&cir; <a class="toc" href="#Indicators">Indicators</a></td>
 
           <td>&cir; <a class="toc" href="#Autocompletion">Autocompletion</a></td>
 
+          <td>&cir; <a class="toc" href="#UserLists">User lists</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#UserLists">User lists</a></td>
-
           <td>&cir; <a class="toc" href="#CallTips">Call tips</a></td>
 
           <td>&cir; <a class="toc" href="#KeyboardCommands">Keyboard commands</a></td>
 
+          <td>&cir; <a class="toc" href="#KeyBindings">Key bindings</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#KeyBindings">Key bindings</a></td>
-
           <td>&cir; <a class="toc" href="#PopupEditMenu">Popup edit menu</a></td>
 
           <td>&cir; <a class="toc" href="#MacroRecording">Macro recording</a></td>
 
+          <td>&cir; <a class="toc" href="#Printing">Printing</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#Printing">Printing</a></td>
-
           <td>&cir; <a class="toc" href="#DirectAccess">Direct access</a></td>
 
           <td>&cir; <a class="toc" href="#MultipleViews">Multiple views</a></td>
 
+          <td>&cir; <a class="toc" href="#BackgroundLoadSave">Background loading and saving</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#BackgroundLoadSave">Background loading and saving</a></td>
-
           <td>&cir; <a class="toc" href="#Folding">Folding</a></td>
 
           <td>&cir; <a class="toc" href="#LineWrapping">Line wrapping</a></td>
 
+          <td>&cir; <a class="toc" href="#Zooming">Zooming</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#Zooming">Zooming</a></td>
-
           <td>&cir; <a class="toc" href="#LongLines">Long lines</a></td>
 
           <td>&cir; <a class="toc" href="#Accessibility">Accessibility</a></td>
 
+          <td>&cir; <a class="toc" href="#Lexer">Lexer</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#Lexer">Lexer</a></td>
-
           <td>&cir; <a class="toc" href="#LexerObjects">Lexer objects</a></td>
 
           <td>&cir; <a class="toc" href="#Notifications">Notifications</a></td>
 
+          <td>&cir; <a class="toc" href="#Images">Images</a></td>
+
         </tr>
 
         <tr>
-          <td>&cir; <a class="toc" href="#Images">Images</a></td>
-
           <td>&cir; <a class="toc" href="#GTK">GTK+</a></td>
 
           <td>&cir; <a class="toc" href="#ProvisionalMessages"><span class="provisional">Provisional messages</span></a></td>
 
-        </tr>
-        <tr>
           <td>&cir; <a class="toc" href="#DeprecatedMessages">Deprecated messages</a></td>
 
+        </tr>
+        <tr>
           <td>&cir; <a class="toc" href="#EditMessagesNeverSupportedByScintilla">Edit messages never
           supported by Scintilla</a></td>
 
           <td>&cir; <a class="toc" href="#RemovedFeatures">Removed features</a></td>
 
-        </tr>
-        <tr>
           <td>&cir; <a class="toc" href="#BuildingScintilla">Building Scintilla</a></td>
 
         </tr>
@@ -1233,6 +1228,8 @@ struct Sci_TextToFind {
      <a class="message" href="#SCI_MOVECARETINSIDEVIEW">SCI_MOVECARETINSIDEVIEW</a><br />
      <a class="message" href="#SCI_POSITIONBEFORE">SCI_POSITIONBEFORE(int pos) &rarr; position</a><br />
      <a class="message" href="#SCI_POSITIONAFTER">SCI_POSITIONAFTER(int pos) &rarr; position</a><br />
+     <a class="message" href="#SCI_POSITIONRELATIVE">SCI_POSITIONRELATIVE(int pos, int relative) &rarr; position</a><br />
+     <a class="message" href="#SCI_COUNTCHARACTERS">SCI_COUNTCHARACTERS(int start, int end) &rarr; int</a><br />
      <a class="message" href="#SCI_TEXTWIDTH">SCI_TEXTWIDTH(int style, const char *text) &rarr; int</a><br />
      <a class="message" href="#SCI_TEXTHEIGHT">SCI_TEXTHEIGHT(int line) &rarr; int</a><br />
      <a class="message" href="#SCI_CHOOSECARETX">SCI_CHOOSECARETX</a><br />
@@ -1450,6 +1447,15 @@ struct Sci_TextToFind {
      If called with a position within a multi byte character will return the position
      of the start/end of that character.</p>
 
+    <p><b id="SCI_POSITIONRELATIVE">SCI_POSITIONRELATIVE(int pos, int relative) &rarr; position</b><br />
+     Count a number of whole characters before or after the argument position and return that position.
+     The minimum position returned is 0 and the maximum is the last position in the document.
+     If the position goes past the document end then 0 is returned.
+     </p>
+
+    <p><b id="SCI_COUNTCHARACTERS">SCI_COUNTCHARACTERS(int start, int end) &rarr; int</b><br />
+     Returns the number of whole characters between two positions..</p>
+
     <p><b id="SCI_TEXTWIDTH">SCI_TEXTWIDTH(int style, const char *text) &rarr; int</b><br />
      This returns the pixel width of a string drawn in the given <code class="parameter">style</code> which can
     be used, for example, to decide how wide to make the line number margin in order to display a
@@ -1519,61 +1525,6 @@ struct Sci_TextToFind {
      the corresponding modifier key. They then stick to rectangular mode even when the modifier key is released again.
      When this option is turned off, mouse selections will always stick to the mode the selection was started in. It
      is off by default.</p>
-
-    <h2 id="ByCharacterOrCodeUnit">By character or UTF-16 code unit</h2>
-
-    <p>Most Scintilla APIs use byte positions but some applications want to use positions based on counting
-    (UTF-32) characters or (UTF-16) code units
-    or need to communicate with other code written in terms of characters or code units.
-    With only byte positions, this may require examining many bytes to count characters or code units in the document
-    but this may be sped up in some cases by indexing the line starts by character or code unit.</p>
-
-    <code>
-     <a class="message" href="#SCI_POSITIONRELATIVE">SCI_POSITIONRELATIVE(int pos, int relative) &rarr; position</a><br />
-     <a class="message" href="#SCI_POSITIONRELATIVECODEUNITS">SCI_POSITIONRELATIVECODEUNITS(int pos, int relative) &rarr; position</a><br />
-     <a class="message" href="#SCI_COUNTCHARACTERS">SCI_COUNTCHARACTERS(int start, int end) &rarr; int</a><br />
-     <a class="message" href="#SCI_COUNTCODEUNITS">SCI_COUNTCODEUNITS(int start, int end) &rarr; int</a><br />
-     <a class="message" href="#SCI_GETLINECHARACTERINDEX">SCI_GETLINECHARACTERINDEX &rarr; int</a><br />
-     <a class="message" href="#SCI_ALLOCATELINECHARACTERINDEX">SCI_ALLOCATELINECHARACTERINDEX(int lineCharacterIndex)</a><br />
-     <a class="message" href="#SCI_RELEASELINECHARACTERINDEX">SCI_RELEASELINECHARACTERINDEX(int lineCharacterIndex)</a><br />
-     <a class="message" href="#SCI_LINEFROMINDEXPOSITION">SCI_LINEFROMINDEXPOSITION(int pos, int lineCharacterIndex) &rarr; int</a><br />
-     <a class="message" href="#SCI_INDEXPOSITIONFROMLINE">SCI_INDEXPOSITIONFROMLINE(int line, int lineCharacterIndex) &rarr; int</a><br />
-    </code>
-
-    <p><b id="SCI_POSITIONRELATIVE">SCI_POSITIONRELATIVE(int pos, int relative) &rarr; position</b><br />
-     Count a number of whole characters before or after the argument position and return that position.
-     The minimum position returned is 0 and the maximum is the last position in the document.
-     If the position goes past the document end then 0 is returned.
-     </p>
-
-    <p><b id="SCI_COUNTCHARACTERS">SCI_COUNTCHARACTERS(int start, int end) &rarr; int</b><br />
-     Returns the number of whole characters between two positions.</p>
-
-    <p><b id="SCI_POSITIONRELATIVECODEUNITS">SCI_POSITIONRELATIVECODEUNITS(int pos, int relative) &rarr; int</b><br />
-    <b id="SCI_COUNTCODEUNITS">SCI_COUNTCODEUNITS(int start, int end) &rarr; int</b><br />
-     These are the UTF-16 versions of <code>SCI_POSITIONRELATIVE</code> and <code>SCI_COUNTCHARACTERS</code>
-     working in terms of UTF-16 code units.</p>
-
-    <p><b id="SCI_GETLINECHARACTERINDEX">SCI_GETLINECHARACTERINDEX &rarr; int</b><br />
-     Returns which if any indexes are active. It may be <code>SC_LINECHARACTERINDEX_NONE(0)</code> or one or more
-     of <code>SC_LINECHARACTERINDEX_UTF32(1)</code> if whole characters are indexed or
-     <code>SC_LINECHARACTERINDEX_UTF16(2)</code> if UTF-16 code units are indexed.
-     Character indexes are currently only supported for UTF-8 documents.</p>
-
-    <p><b id="SCI_ALLOCATELINECHARACTERINDEX">SCI_ALLOCATELINECHARACTERINDEX(int lineCharacterIndex)</b><br />
-    <b id="SCI_RELEASELINECHARACTERINDEX">SCI_RELEASELINECHARACTERINDEX(int lineCharacterIndex)</b><br />
-     Allocate or release one or more indexes using same enumeration as <code>SCI_GETLINECHARACTERINDEX</code>.
-     Different aspects of an application may need indexes for different periods and should allocate for those periods.
-     Indexes use additional memory so releasing them can help minimize memory but they also take time to recalculate.
-     Scintilla may also allocate indexes to support features like accessibility or input method editors.
-     Only one index of each type is created for a document at a time.</p>
-
-    <p><b id="SCI_LINEFROMINDEXPOSITION">SCI_LINEFROMINDEXPOSITION(int pos, int lineCharacterIndex) &rarr; int</b><br />
-    <b id="SCI_INDEXPOSITIONFROMLINE">SCI_INDEXPOSITIONFROMLINE(int line, int lineCharacterIndex) &rarr; int</b><br />
-     The document line of a particular character or code unit may be found by calling <code>SCI_LINEFROMINDEXPOSITION</code> with one of
-     <code>SC_LINECHARACTERINDEX_UTF32(1)</code> or <code>SC_LINECHARACTERINDEX_UTF16(2)</code>.
-     The inverse action, finds the starting position of a document line either in characters or code units from the document start by calling
-     <code>SCI_INDEXPOSITIONFROMLINE</code> with the same <code class="parameter">lineCharacterIndex</code> argument.</p>
 
     <h2 id="MultipleSelectionAndVirtualSpace">Multiple Selection and Virtual Space</h2>
 
@@ -3770,27 +3721,21 @@ struct Sci_TextToFind {
      <p>The windowed behaviour can be chosen with <code>SCI_SETIMEINTERACTION(SC_IME_WINDOWED)</code>
      and the inline behaviour with <code>SCI_SETIMEINTERACTION(SC_IME_INLINE)</code>.
      Scintilla may ignore this call in some cases. For example, the inline behaviour might only be supported for some languages.</p>
-     <p>When the inline IME mode is active, characters are added tentatively before being finalised and an
-     <a class="message" href="#SCN_CHARADDED">SCN_CHARADDED</a>
-     notification is sent for each character.</p>
 
 <div  class="provisional">
-    <a href="#ProvisionalMessages">These bidirectional features are experimental and incomplete.</a><br />
+    <a href="#ProvisionalMessages">These bidirectional features are not yet implemented and the API is provisional</a><br />
     <p><b id="SCI_SETBIDIRECTIONAL">SCI_SETBIDIRECTIONAL(int bidirectional)</b><br />
      <b id="SCI_GETBIDIRECTIONAL">SCI_GETBIDIRECTIONAL &rarr; int</b><br />
      Some languages, like Arabic and Hebrew, are written from right to left instead of from left to right as English is.
      Documents that use multiple languages may contain both directions and this is termed "bidirectional".
      The default text direction may be right to left or left to right.
-     Scintilla only correctly displays bidirectional text on some platforms.
-     Currently, there is experimental support for bidirectional text on Win32 using DirectWrite and on macOS using Cocoa.
-     Only UTF-8 documents will show bidirectional behaviour and only in <code>SC_BIDIRECTIONAL_L2R</code> mode.
-     Some features, such as virtual space may not work with
-     bidirectional text or may work only in some circumstances.</p>
-     <p>There are additional processing and storage costs to bidirectional text.
+     Scintilla only correctly displays bidirectional text on some platforms and there can be additional processing and storage
+     costs to this.
+     Currently, bidirectional text only works on Win32 using DirectWrite.
      As some applications may not want to pay the costs, bidirectional support must be explicitly enabled by calling
      <code>SCI_SETBIDIRECTIONAL(SC_BIDIRECTIONAL_L2R)</code> (1) which chooses left to right as the default direction or
      <code>SCI_SETBIDIRECTIONAL(SC_BIDIRECTIONAL_R2L)</code> (2) for default right to left.
-     On Win32, this should be done after setting the technology to <code>SC_TECHNOLOGY_DIRECTWRITE</code>,
+     This should be done after setting the technology to <code>SC_TECHNOLOGY_DIRECTWRITE</code>,
      <code>SC_TECHNOLOGY_DIRECTWRITERETAIN</code>, or
      <code>SC_TECHNOLOGY_DIRECTWRITEDC</code>.</p>
      <p>If the call succeeded <code>SCI_GETBIDIRECTIONAL</code> will return the same value otherwise
@@ -4522,23 +4467,6 @@ struct Sci_TextToFind {
               <a class="seealso" href="#SCI_INDICSETOUTLINEALPHA">SCI_INDICSETOUTLINEALPHA</a>
               control the alpha transparency values. The default values are 30 for alpha and 50 for outline alpha.
               To avoid excessive memory allocation the maximum width of a dotted box is 4000 pixels.</td>
-        </tr>
-
-        <tr>
-          <td align="left"><code>INDIC_GRADIENT</code></td>
-
-          <td align="center">20</td>
-
-          <td>A vertical gradient between a colour and alpha at top to fully transparent at bottom.</td>
-        </tr>
-
-        <tr>
-          <td align="left"><code>INDIC_GRADIENTCENTRE</code></td>
-
-          <td align="center">21</td>
-
-          <td>A vertical gradient with the specified colour and alpha in the middle
-          fading to fully transparent at top and bottom.</td>
         </tr>
 
         <tr>
@@ -6480,10 +6408,8 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
         <tr>
           <td align="left"><code>SC_WRAPINDENT_FIXED</code></td>
           <td align="center">0</td>
-          <td>
-              Wrapped sublines aligned to left of window plus amount set by
-              <a class="seealso" href="#SCI_SETWRAPSTARTINDENT">SCI_SETWRAPSTARTINDENT</a>
-          </td>
+          <td>Wrapped sublines aligned to left of window plus amount set by
+	  <a class="seealso" href="#SCI_SETWRAPSTARTINDENT">SCI_SETWRAPSTARTINDENT</a></td>
         </tr>
 
         <tr>
@@ -6496,12 +6422,6 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
           <td align="left"><code>SC_WRAPINDENT_INDENT</code></td>
           <td align="center">2</td>
           <td>Wrapped sublines are aligned to first subline indent plus one more level of indentation</td>
-        </tr>
-
-        <tr>
-          <td align="left"><code>SC_WRAPINDENT_DEEPINDENT</code></td>
-          <td align="center">3</td>
-          <td>Wrapped sublines are aligned to first subline indent plus two more levels of indentation</td>
         </tr>
       </tbody>
     </table>

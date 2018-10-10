@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014-2015, 2018 - TortoiseSVN
+// Copyright (C) 2007-2012, 2014-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -414,7 +414,7 @@ void CRepositoryInfo::Load()
 
 // does the user want to be this repository off-line?
 
-bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info, const CString& sErr, bool& doRetry) const
+bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info) const
 {
     // is this repository already off-line?
 
@@ -427,10 +427,17 @@ bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info, const CString& sErr, 
     {
         // Default behavior is "Ask the user what to do"
 
+        // TODO: improve the dialog with
+        // * the error message (why do we think the repository is offline?)
+        //   this could be shown in the dialog itself in a label, a separate popup
+        //   from a "show error" button or simply a tooltip
+        // * a button to retry
+        //
+        // for this, the IsOffline() method needs changing:
+        // * requires a param for the error message (or the SVNError exception object)
+        // * an int return type which tells either to cancel, go offline, retry, ...
         CGoOffline dialog;
-        dialog.SetErrorMessage(sErr);
         dialog.DoModal();
-        doRetry = dialog.doRetry;
         if (dialog.asDefault)
             CSettings::SetDefaultConnectionState (dialog.selection);
 
@@ -573,29 +580,23 @@ revision_t CRepositoryInfo::GetHeadRevision (CString uuid, const CTSVNPath& url)
 
         info->headLookupTime = now;
         info->headURL = sURL;
-        bool doRetry = false;
-        do
+        info->headRevision = svn.GetHEADRevision (url, false);
+
+        // if we couldn't connect to the server, ask the user
+
+        bool cancelled = svn.GetSVNError() && (svn.GetSVNError()->apr_err == SVN_ERR_CANCELLED);
+        if (   !svn.IsSuppressedUI() && !cancelled
+            && (info->headRevision == NO_REVISION)
+            && IsOffline (info))
         {
-            doRetry = false;
-            info->headRevision = svn.GetHEADRevision(url, false);
+            // user wants to go off-line
 
-            // if we couldn't connect to the server, ask the user
+            SetHeadFromCache (info);
 
-            bool cancelled = svn.GetSVNError() && (svn.GetSVNError()->apr_err == SVN_ERR_CANCELLED);
+            // we just ignore our latest error
 
-            if (!svn.IsSuppressedUI() && !cancelled
-                && (info->headRevision == NO_REVISION)
-                && IsOffline(info, svn.GetLastErrorMessage(), doRetry))
-            {
-                // user wants to go off-line
-
-                SetHeadFromCache(info);
-
-                // we just ignore our latest error
-
-                svn.ClearSVNError();
-            }
-        } while (doRetry);
+            svn.ClearSVNError();
+        }
 
         modified = true;
     }
@@ -629,7 +630,7 @@ void CRepositoryInfo::ResetHeadRevision (const CString& uuid, const CString& roo
 // is the repository offline?
 // Don't modify the state if autoSet is false.
 
-bool CRepositoryInfo::IsOffline (const CString& uuid, const CString& root, bool autoSet, const CString& sErr, bool& doRetry)
+bool CRepositoryInfo::IsOffline (const CString& uuid, const CString& root, bool autoSet)
 {
     async::CCriticalSectionLock lock (GetDataMutex());
 
@@ -647,7 +648,7 @@ bool CRepositoryInfo::IsOffline (const CString& uuid, const CString& root, bool 
     // offline-defaults have been set)
 
     if (autoSet)
-        IsOffline (info, sErr, doRetry);
+        IsOffline (info);
 
     // return state
 

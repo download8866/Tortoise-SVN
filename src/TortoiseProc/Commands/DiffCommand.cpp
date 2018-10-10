@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2011, 2013-2015, 2018 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2011, 2013-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,11 +27,11 @@
 bool DiffCommand::Execute()
 {
     bool bRet = false;
-    auto path2 = CPathUtils::GetLongPathname(parser.GetVal(L"path2"));
+    CString path2 = CPathUtils::GetLongPathname(parser.GetVal(L"path2"));
     bool bAlternativeTool = !!parser.HasKey(L"alternative");
     bool bBlame = !!parser.HasKey(L"blame");
     bool ignoreprops = !!parser.HasKey(L"ignoreprops");
-    if (path2.empty())
+    if (path2.IsEmpty())
     {
         SVNDiff diff(NULL, GetExplorerHWND());
         diff.SetAlternativeTool(bAlternativeTool);
@@ -84,7 +84,7 @@ bool DiffCommand::Execute()
     }
     else
         bRet = CAppUtils::StartExtDiff(
-            CTSVNPath(path2.c_str()), cmdLinePath, CString(), CString(),
+            CTSVNPath(path2), cmdLinePath, CString(), CString(),
             CAppUtils::DiffFlags().AlternativeTool(bAlternativeTool), parser.GetLongVal(L"line"), L"");
     return bRet;
 }
