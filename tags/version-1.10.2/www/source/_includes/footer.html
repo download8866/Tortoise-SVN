@@ -1,0 +1,36 @@
+            </div>  <!-- .content -->
+        </div>  <!-- .page -->
+
+        <div class="footer">
+            <p>&hearts; 2004-{{ site.time | date: '%Y' }} &ndash; <span title={{ site.time | date_to_xmlschema }}>The TortoiseSVN team</span>. Please share.</p>
+        </div>  <!-- .footer -->
+
+    </div>  <!-- .wrapper -->
+
+    <script async src="/assets/js/main.js"></script>
+
+    {% if page.includeBaguetteBox %}
+    <script async src="/assets/js/baguetteBox-pack.js"></script>
+    {% endif %}
+
+    {% if page.showAds %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    {% endif %}
+
+    {% if page.includeGCSE %}
+    <script>
+        (function() {
+            var cx = 'partner-pub-0430507460695576:j0zyjq-56po';
+            var gcse = document.createElement('script');
+            gcse.type = 'text/javascript';
+            gcse.async = true;
+            gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(gcse, s);
+        })();
+    </script>
+    {% endif %}
+
+
+</body>
+</html>
