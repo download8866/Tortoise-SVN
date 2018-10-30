@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project name="OpenSSL" default="OpenSSL">
+  <target name="clean">
+    <if test="${cleanup == 'yes'}">
+      <!-- to prevent 'nmake clean' to choke on userinput questions, give it our own del command -->
+      <echo file="..\openssl\del.bat" message="del %1 %2 %3 %4 %5 %6 %7 %8 %9 /Q" />
+      <exec program="nmake" workingdir="..\openssl" failonerror="false">
+        <arg value="-f" />
+        <arg value="makefile" />
+        <arg value="clean" />
+      </exec>
+      <delete>
+        <fileset>
+          <include name="..\openssl\out32\**.*" if="${configuration == 'release' and platform == 'win32'}" />
+          <include name="..\openssl\out64\**.*" if="${configuration == 'release' and platform == 'x64'}" />
+          <include name="..\openssl\out32.dbg\**.*" if="${configuration == 'debug' and platform == 'win32'}" />
+          <include name="..\openssl\out64.dbg\**.*" if="${configuration == 'debug' and platform == 'x64'}" />
+          <include name="..\openssl\tmp32\**.*" />
+          <include name="..\openssl\tmp64\**.*" />
+        </fileset>
+      </delete>
+    </if>
+  </target>
+  <target name="OpenSSL" depends="clean">
+    <delete file="..\openssl\del.bat" if="${file::exists('..\openssl\del.bat')}" />
+    <if test="${platform == 'win32'}">
+      <property name="targetDir" value="..\openssl\out32" if="${configuration == 'release'}" />
+      <property name="targetDir" value="..\openssl\out32.dbg" if="${configuration != 'release'}" />
+      <property name="targetName" value="VC-WIN32" if="${configuration == 'release'}" />
+      <property name="targetName" value="debug-VC-WIN32" if="${configuration != 'release'}" />
+      <property name="opensslPrefix" value="${path::get-full-path('ext\openssl\out32')}" />
+    </if>
+    <if test="${platform == 'x64'}">
+      <property name="targetDir" value="..\openssl\out64" if="${configuration == 'release'}" />
+      <property name="targetDir" value="..\openssl\out64.dbg" if="${configuration == 'debug'}" />
+      <property name="targetName" value="VC-WIN64A" if="${configuration == 'release'}" />
+      <property name="targetName" value="debug-VC-WIN64A" if="${configuration != 'release'}" />
+      <property name="opensslPrefix" value="${path::get-full-path('ext\openssl\out64')}" />
+    </if>
+
+    <mkdir dir="${targetDir}" />
+
+    <exec program="perl" workingdir="${targetDir}">
+      <arg value="..\Configure" />
+      <arg value="${targetName}" />
+      <arg value="no-asm" />
+      <arg value="no-gost" />
+      <arg value="no-shared" />
+      <arg value="-DOPENSSL_SSL_CLIENT_ENGINE_AUTO=capi" />
+      <arg value="-DOPENSSL_CAPIENG_DIALOG" />
+      <arg value="--prefix=${opensslPrefix}" />
+    </exec>
+    <loadfile file="${targetDir}\makefile" property="makefile">
+      <filterchain>
+        <replacestring from="MT=mt" to="MT=md" />
+        <replacestring from="/MT" to="/MD" />
+        <replacestring from="-W3" to="-W0" />
+      </filterchain>
+    </loadfile>
+    <echo file="${targetDir}\makefile" message="${makefile}" />
+    <exec program="nmake" workingdir="${targetDir}">
+      <arg value="-f" />
+      <arg value="makefile" />
+      <arg value="build_libs" />
+    </exec>
+    <copy file="${targetDir}\include\openssl\opensslconf.h" todir="..\openssl\include\openssl" />
+  </target>
+
+</project>
