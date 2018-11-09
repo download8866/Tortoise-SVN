@@ -15,6 +15,7 @@
 # Alessio <alessio@alessiodamato.com>, 2014
 # Andrea Tuscano <andrea.tuscano1997@gmail.com>, 2016
 # Cecilia Saltori <csaltori@gmail.com>, 2011
+# maxTransBrod <egianturco@gmail.com>, 2018
 # Fabio Turrin, 2018
 # luebbe <luebbe.opensource@gmail.com>, 2011
 # Lübbe  <luebbe.tortoisesvn@googlemail.com>, 2012
@@ -24,15 +25,15 @@
 # Nicolò Altamura <inactive+nicoalta01@transifex.com>, 2015
 # Paolo Crocetti <crocettipaolo@gmail.com>, 2017
 # Roberto Casazza <roberto.casazza@alice.it>, 2011
-# Sebastiano Pistore <SebastianoPistore.info@protonmail.ch>, 2016-2017
+# SebastianoPistore <SebastianoPistore.info@protonmail.ch>, 2016-2017
 # Silvia, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-09-16 01:39+0000\n"
-"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2018-10-20 15:22+0000\n"
+"Last-Translator: maxTransBrod <egianturco@gmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "it/)\n"
 "MIME-Version: 1.0\n"
