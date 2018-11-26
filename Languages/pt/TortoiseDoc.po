@@ -12,10 +12,12 @@
 # Translators:
 # alfalb_mansil, 2014
 # alfalb_mansil, 2014
+# alfalb_mansil, 2014
 # Bernardo Silva <benny.stuff@gmail.com>, 2011
 # JustinoAveiro <paulojustino.nec@gmail.com>, 2011,2013
 # luebbe <luebbe.opensource@gmail.com>, 2011
 # luebbe <luebbe.opensource@gmail.com>, 2012
+# luebbe <luebbe.opensource@gmail.com>, 2011-2012
 # luebbe <luebbe.opensource@gmail.com>, 2011-2012
 # JustinoAveiro <paulojustino.nec@gmail.com>, 2013
 # JustinoAveiro <paulojustino.nec@gmail.com>, 2011-2013
@@ -25,7 +27,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-03-18 00:37+0000\n"
+"PO-Revision-Date: 2018-11-17 01:52+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Portuguese (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/pt/)\n"

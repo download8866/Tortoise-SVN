@@ -27,11 +27,13 @@
 # ggh <gdelahuebra@hotmail.com>, 2011
 # Javi <inactive+japaol@transifex.com>, 2014
 # Javi <inactive+japaol@transifex.com>, 2014
+# Javi <inactive+japaol@transifex.com>, 2014
 # juancentro <jmtruppia@gmail.com>, 2011
 # juancentro <jmtruppia@gmail.com>, 2011
 # Juan Chacon <jchacon.fossey@gmail.com>, 2012
 # luebbe <luebbe.opensource@gmail.com>, 2011
 # luebbe <luebbe.opensource@gmail.com>, 2012
+# luebbe <luebbe.opensource@gmail.com>, 2011-2012
 # luebbe <luebbe.opensource@gmail.com>, 2011-2012
 # luiceur <luiceur@gmail.com>, 2011
 # luiceur <luiceur@gmail.com>, 2011
@@ -48,8 +50,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-08-24 07:54+0000\n"
-"Last-Translator: Emilio Plaza García <emilpg@gmail.com>\n"
+"PO-Revision-Date: 2018-11-17 01:52+0000\n"
+"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "es/)\n"
 "MIME-Version: 1.0\n"
