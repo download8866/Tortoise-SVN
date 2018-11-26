@@ -21,6 +21,7 @@
 # Lübbe Onken <l.onken@rac.de>, 2011-2012, 2013-2015, 2016-2017
 # Lübbe Onken <l.onken@rac.de>, 2011-2012, 2013-2016, 2017
 # luebbe <luebbe.opensource@gmail.com>, 2011,2013
+# luebbe <luebbe.opensource@gmail.com>, 2011,2013,2018
 # luebbe <luebbe.opensource@gmail.com>, 2018
 # peu <peu@rekoba.de>, 2012-2013
 # peu <peu@rekoba.de>, 2012
@@ -36,7 +37,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-03-18 00:37+0000\n"
+"PO-Revision-Date: 2018-11-17 01:52+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: German (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "de/)\n"

@@ -12,13 +12,14 @@
 # Translators:
 # Jiri Sedlak <jiri_sedlak@users.sourceforge.net>, 2014
 # luebbe <luebbe.opensource@gmail.com>, 2011
+# luebbe <luebbe.opensource@gmail.com>, 2011
 # Zbyněk Schwarz <zbynek.schwarz@gmail.com>, 2011-2016
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-09-16 01:51+0000\n"
+"PO-Revision-Date: 2018-11-17 01:52+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Czech (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "cs/)\n"
