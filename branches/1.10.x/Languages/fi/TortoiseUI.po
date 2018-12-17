@@ -10,7 +10,7 @@
 # 
 # Authors:
 # Translators:
-# Kari Granö <kari.grano@gmail.com>, 2011-2017
+# Kari Granö <kari.grano@gmail.com>, 2011-2018
 # Kari Granö <kari.grano@gmail.com>, 2013
 # luebbe <luebbe.opensource@gmail.com>, 2011
 # Lübbe  <luebbe.tortoisesvn@googlemail.com>, 2012
@@ -20,8 +20,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-09-16 01:39+0000\n"
-"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2018-12-03 10:02+0000\n"
+"Last-Translator: Kari Granö <kari.grano@gmail.com>\n"
 "Language-Team: Finnish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "fi/)\n"
 "MIME-Version: 1.0\n"
@@ -50,12 +50,12 @@ msgstr "! %d"
 
 #. Resource IDs: (Dialog IDD_STATGRAPH: Control id 1262)
 msgid "# authors shown individually:"
-msgstr "# yksittäin näytetyt tekijät:"
+msgstr "# yksittäiset tekijät:"
 
 #. Resource IDs: (IDS_SVN_PROGRESS_TOTALMBTRANSFERRED)
 #, c-format
 msgid "%.2f MBytes transferred"
-msgstr "%.2f megatavua siirretty"
+msgstr "%.2f MiB siirretty"
 
 #. Resource IDs: (IDS_SVN_PROGRESS_KBYTES_SEC)
 #, c-format
@@ -934,7 +934,7 @@ msgstr "P&iilota ohitetut kohteet"
 
 #. Resource IDs: (cmdShowFileList_LabelTitle_RESID)
 msgid "&Hide/Show the patch file list"
-msgstr ""
+msgstr "&Piilota/Näytä paikkatiedostolista"
 
 #. Resource IDs: (Dialog IDD_SETOVERLAYICONS: Control id 1170)
 msgid "&Icon Set:"
@@ -1092,7 +1092,7 @@ msgstr "&Siirretyt lohkot"
 
 #. Resource IDs: (Dialog IDD_SHELVE: Control id 1672, Dialog IDD_UNSHELVE: Control id 1672)
 msgid "&Name"
-msgstr ""
+msgstr "&Nimi"
 
 #. Resource IDs: (65535 - PopupMenu)
 msgid "&Navigate"
@@ -1958,7 +1958,7 @@ msgstr "Peruuta"
 
 #. Resource IDs: (cmdAbout_LabelTitle_RESID)
 msgid "Abou&t TortoiseMerge"
-msgstr ""
+msgstr "&Tietoja TortoiseMergestä..."
 
 #. Resource IDs: (IDS_MENUABOUT)
 msgid "About"
@@ -2558,7 +2558,7 @@ msgstr "Riko lu&kko"
 
 #. Resource IDs: (IDS_MENUDESCUNSHELVE)
 msgid "Brings a shelved change back to the working copy"
-msgstr ""
+msgstr "Palauttaa hyllytetyt muutokset takaisin työkopioon"
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROXY: Control id 1069)
 msgid "Browse..."
@@ -2590,7 +2590,7 @@ msgstr "Bugtraq testaus - TortoiseSVN"
 
 #. Resource IDs: (cmdCopy_Keytip_RESID)
 msgid "C"
-msgstr ""
+msgstr "C"
 
 #. Resource IDs: (Dialog IDD_SETTINGSMAIN: Control id 1215)
 msgid "C&heck now"
@@ -3160,7 +3160,7 @@ msgstr "Toimita"
 #. Resource IDs: (IDS_PROGRS_CMD_COMMIT)
 #, c-format
 msgid "Commit to %1!ls!"
-msgstr ""
+msgstr "Toimita kohteeseen %1!ls!"
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1110)
 msgid "Commit to:"
@@ -3292,7 +3292,7 @@ msgstr "Säädä &TortoiseSVN olemaan koskaan käyttämättä roskakoria"
 
 #. Resource IDs: (cmdRegexFilterConfig2_LabelTitle_RESID)
 msgid "Configure Filter Regex"
-msgstr ""
+msgstr "Määritä suodatin"
 
 #. Resource IDs: (IDS_CONFIGUREREGEXES, ID_REGEXFILTER - Menu)
 msgid "Configure Filter Regexes"
@@ -3691,7 +3691,7 @@ msgstr "Luo &kirjasto"
 
 #. Resource IDs: (cmdCreateUnifiedDiff_LabelTitle_RESID)
 msgid "Create &patch file"
-msgstr ""
+msgstr "Luo &paikkatiedosto"
 
 #. Resource IDs: (IDS_MENUCREATEPATCH)
 msgid "Create &patch..."
@@ -4330,7 +4330,7 @@ msgstr "Pudottaminen %1!ls!:een ei ole mahdollista"
 
 #. Resource IDs: (cmdEditEnabled_Keytip_RESID, cmdTabEdit_Keytip_RESID)
 msgid "E"
-msgstr ""
+msgstr "E"
 
 #. Resource IDs: (ID_INLINEEDIT - Menu)
 msgid "E&xact copy sources"
@@ -4737,7 +4737,7 @@ msgstr "Vie tiedostoja (*.tsex)|*.tsex|Kaikki tiedostot (*.*)|*.*||"
 #. Resource IDs: (IDS_PROGRS_CMD_EXPORT)
 #, c-format
 msgid "Export from %1!ls!"
-msgstr ""
+msgstr "Viedään kohteesta %1!ls!"
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1667)
 msgid "Export settings to file..."
@@ -4811,7 +4811,7 @@ msgstr "Mukaanlukien svn:externals"
 
 #. Resource IDs: (cmdFind_Keytip_RESID)
 msgid "F"
-msgstr ""
+msgstr "F"
 
 #. Resource IDs: (Dialog IDD_MERGEALL: Control id 1480, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1480)
 msgid "F&orce the merge"
@@ -5128,7 +5128,7 @@ msgstr "Suodatin:"
 
 #. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535)
 msgid "Filtered"
-msgstr ""
+msgstr "Suodatettu"
 
 #. Resource IDs: (Dialog IDD_FIND: Control id 139, ID_EDIT_FIND - Menu, cmdFind_LabelTitle_RESID)
 msgid "Find"
@@ -5255,7 +5255,7 @@ msgstr "Täysin palautuva"
 
 #. Resource IDs: (cmdGotoLine_Keytip_RESID)
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #. Resource IDs: (IDS_REVGRAPH_ERR_GDIINIT)
 msgid "GDI+ couldn't be initialized!"
@@ -5914,7 +5914,7 @@ msgstr "Ohita kommentit"
 
 #. Resource IDs: (IDS_DIFF_IGNORE_EOL)
 msgid "Ignore EOL changes"
-msgstr ""
+msgstr "Ohita EOL-muutokset"
 
 #. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
@@ -6322,7 +6322,7 @@ msgstr "Tyyppi"
 
 #. Resource IDs: (cmdViewWrapLines_Keytip_RESID)
 msgid "L"
-msgstr ""
+msgstr "L"
 
 #. Resource IDs: (Dialog IDD_EDITPROPTSVNSIZES: Control id 65535)
 msgid "L&imit:"
@@ -7082,15 +7082,15 @@ msgstr "Tiedostoni:"
 
 #. Resource IDs: (cmdNavigateNextConflict_Keytip_RESID)
 msgid "NC"
-msgstr ""
+msgstr "NC"
 
 #. Resource IDs: (cmdNavigateNextDifference_Keytip_RESID)
 msgid "ND"
-msgstr ""
+msgstr "ND"
 
 #. Resource IDs: (cmdNavigateNextInlineDiff_Keytip_RESID)
 msgid "NI"
-msgstr ""
+msgstr "NI"
 
 #. Resource IDs: (59138)
 msgid "NUM"
@@ -7241,7 +7241,7 @@ msgstr ""
 
 #. Resource IDs: (33002)
 msgid "No filter"
-msgstr ""
+msgstr "Ei suodatinta"
 
 #. Resource IDs: (IDS_REVGRAPH_ERR_NOGRAPH)
 msgid "No graph available"
@@ -7347,7 +7347,7 @@ msgstr "Yhtään tiedostoa ei ole valittu toimitettavaksi!"
 
 #. Resource IDs: (IDS_NOTHING_SHELVED)
 msgid "Nothing is shelved!"
-msgstr ""
+msgstr "Mitään ei hyllytetty!"
 
 #. Resource IDs: (IDS_WARN_NOTE)
 msgid "Notice"
@@ -7626,15 +7626,15 @@ msgstr ""
 
 #. Resource IDs: (cmdNavigatePreviousConflict_Keytip_RESID)
 msgid "PC"
-msgstr ""
+msgstr "PC"
 
 #. Resource IDs: (cmdNavigatePreviousDifference_Keytip_RESID)
 msgid "PD"
-msgstr ""
+msgstr "PD"
 
 #. Resource IDs: (cmdNavigatePreviousInlineDiff_Keytip_RESID)
 msgid "PI"
-msgstr ""
+msgstr "PI"
 
 #. Resource IDs: (65535 - PopupMenu)
 msgid "POPUP"
@@ -8066,7 +8066,7 @@ msgstr "Lisää \"Lukitse\" päävalikkoon kun svn:needs-lock on asetettu"
 
 #. Resource IDs: (IDS_MENUDESCSHELVE)
 msgid "Puts all changes you made onto a shelf"
-msgstr ""
+msgstr "Siirtää tekemäsi paikalliset muutokset hyllylle"
 
 #. Resource IDs: (cmdExit)
 msgid ""
@@ -8086,7 +8086,7 @@ msgstr ""
 
 #. Resource IDs: (cmdReload_Keytip_RESID)
 msgid "R"
-msgstr ""
+msgstr "R"
 
 #. Resource IDs: (Dialog IDD_SETTINGSOVERLAY: Control id 1073)
 msgid "R&AM drives"
@@ -8828,7 +8828,7 @@ msgstr "Suorita &komento"
 
 #. Resource IDs: (cmdSave_Keytip_RESID)
 msgid "S"
-msgstr ""
+msgstr "S"
 
 #. Resource IDs: (Dialog IDD_LOGMESSAGE: Control id 1132)
 msgid "S&tatistics"
@@ -8954,7 +8954,7 @@ msgstr "Tallenna"
 
 #. Resource IDs: (cmdSaveAs_LabelTitle_RESID)
 msgid "Save &as"
-msgstr ""
+msgstr "Tallenna &nimellä"
 
 #. Resource IDs: (IDS_REPOBROWSE_SAVEAS, ID_FILE_SAVE_AS - Menu)
 msgid "Save &as..."
@@ -9380,11 +9380,11 @@ msgstr "Komentotulkin kuvakemuisti rakennettiin uudelleen!"
 
 #. Resource IDs: (Dialog IDD_SHELVE: Control id 205)
 msgid "Shelve"
-msgstr ""
+msgstr "Hyllytä"
 
 #. Resource IDs: (IDS_MENUSHELVE)
 msgid "Shelve..."
-msgstr ""
+msgstr "Hyllytä..."
 
 #. Resource IDs: (32822)
 msgid ""
@@ -11439,11 +11439,11 @@ msgstr "Ratkaisemattomia ristiriitoja!"
 
 #. Resource IDs: (Dialog IDD_UNSHELVE: Control id 206)
 msgid "Unshelve"
-msgstr ""
+msgstr "Palauta hyllystä"
 
 #. Resource IDs: (IDS_MENUUNSHELVE)
 msgid "Unshelve..."
-msgstr ""
+msgstr "Palauta hyllystä..."
 
 #. Resource IDs: (61443)
 msgid "Untitled"
@@ -11823,7 +11823,7 @@ msgstr "Käytä vålimuistityyppiä 'none' korotetuille prosesseille"
 
 #. Resource IDs: (cmdPaste_Keytip_RESID)
 msgid "V"
-msgstr ""
+msgstr "V"
 
 #. Resource IDs: (IDS_COMMANDLINEHELP)
 msgid ""
@@ -11910,7 +11910,7 @@ msgstr "Käy verkkosivuillamme"
 
 #. Resource IDs: (cmdShowWhitespaces_Keytip_RESID)
 msgid "W"
-msgstr ""
+msgstr "W"
 
 #. Resource IDs: (Dialog IDD_SETTINGS_CONFIG: Control id 65535)
 msgid ""
@@ -12046,7 +12046,7 @@ msgstr "Työkopio: %ls\n"
 
 #. Resource IDs: (cmdViewWrapLines_LabelTitle_RESID)
 msgid "Wrap Lines"
-msgstr ""
+msgstr "Rivitä"
 
 #. Resource IDs: (ID_VIEW_WRAPLONGLINES - Menu)
 msgid "Wrap long lines"
@@ -12062,7 +12062,7 @@ msgstr ""
 
 #. Resource IDs: (cmdRedo_Keytip_RESID)
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #. Resource IDs: (IDS_CHECKNEWER_YOURUPTODATE)
 msgid "You already have the latest version installed."
@@ -12228,7 +12228,7 @@ msgstr ""
 
 #. Resource IDs: (cmdUndo_Keytip_RESID)
 msgid "Z"
-msgstr ""
+msgstr "Z"
 
 #. Resource IDs: (ID_VIEW_ZOOMOUT - Menu)
 msgid "Zoo&m out\t(-)"
@@ -12696,7 +12696,7 @@ msgstr "normaali"
 
 #. Resource IDs: (cmdOpen_Keytip_RESID)
 msgid "o1"
-msgstr ""
+msgstr "o1"
 
 #. Resource IDs: (IDS_STATUSOBSTRUCTED)
 msgid "obstructed"

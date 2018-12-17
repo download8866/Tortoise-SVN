@@ -43,6 +43,7 @@
 # Philippe <kissifrot@gmail.com>, 2014
 # Philippe PERIN, 2016
 # Philippe PERIN, 2016
+# LoubiTek, 2018
 # ShevAbam, 2015
 # ShevAbam, 2015-2016
 # lkppo, 2012
@@ -51,8 +52,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-11-17 01:52+0000\n"
-"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2018-12-15 20:41+0000\n"
+"Last-Translator: LoubiTek\n"
 "Language-Team: French (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "fr/)\n"
 "MIME-Version: 1.0\n"

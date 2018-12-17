@@ -10,14 +10,15 @@
 # 
 # Authors:
 # Translators:
-# Kari Granö <kari.grano@gmail.com>, 2011-2017
+# Kari Granö <kari.grano@gmail.com>, 2011-2018
+# luebbe <luebbe.opensource@gmail.com>, 2011
 # luebbe <luebbe.opensource@gmail.com>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-03-18 00:37+0000\n"
+"PO-Revision-Date: 2018-12-15 12:36+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Finnish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "fi/)\n"
@@ -138,13 +139,13 @@ msgstr ""
 
 #. (title)
 msgid "TortoiseSVN's Features"
-msgstr "TortoiseSVN-ohjelman ominaisuudet"
+msgstr "TortoiseSVN: ominaisuudet"
 
 #. (para)
 msgid ""
 "What makes TortoiseSVN such a good Subversion client? Here's a short list of "
 "features."
-msgstr "Mikä tekee TortoiseSVN-ohjelmasta niin näppärän?"
+msgstr "Mikä tekee TortoiseSVN-ohjelmasta näppärän?"
 
 #. (term)
 msgid "Shell integration"
@@ -415,13 +416,13 @@ msgid ""
 "base for TortoiseSVN. He then started the project, registered the domain "
 "<literal>tortoisesvn.org</literal> and put the source code online."
 msgstr ""
-"Vuonna 2002 Tim Kemp havaitsi, että Subversion on tehokas "
-"versionhallintajärjestelmä, mutta ilman toimivaa graafista käyttöliittymää. "
-"Ajatus Subversion-asiakasohjelmasta Windowsin Resurssienhallinnan "
-"laajennoksena sai alkunsa saman tyyppisestä CVS-asiakasohjelmasta nimeltä "
-"TortoiseCVS. Tim tutki TortoiseCVS-lähdekoodia ja käytti sitä TortoiseSVN-"
-"ohjelman pohjana. Sittemmin hän käynnisti projektin, rekisteröi nimialueen "
-"<literal>tortoisesvn.org</literal> ja julkaisi lähdekoodin verkossa."
+"Vuonna 2002 Tim Kemp päätti luoda graafisen käyttöliittymän Subversion-"
+"ohjelmalle. Ajatus Subversion-asiakasohjelmasta Windowsin "
+"Resurssienhallinnan laajennoksena sai alkunsa saman tyyppisestä CVS-"
+"asiakasohjelmasta nimeltä TortoiseCVS. Tim tutki TortoiseCVS-lähdekoodia ja "
+"käytti sitä TortoiseSVN-ohjelman pohjana. Sittemmin hän käynnisti projektin, "
+"rekisteröi nimialueen <literal>tortoisesvn.org</literal> ja julkaisi "
+"lähdekoodin verkossa."
 
 #. (para)
 msgid ""
@@ -433,12 +434,11 @@ msgid ""
 "remained."
 msgstr ""
 "Samoihin aikoihin Stefan Küng etsiskeli hyvää ja ilmaista "
-"versionhallintajärjestelmää ja törmäsi Subversioniin sekä TortoiseSVN-"
-"lähdekoodeihin. Koska TortoiseSVN ei ollut vielä käyttövalmis, hän liittyi "
-"projektiin ja alkoi ohjelmoida. Pian hän oli kirjoittanut suurimman osan "
-"olemassa olevasta koodista uudelleen ja alkoi lisätä ominaisuuksia siinä "
-"laajuudessa, että ennen pitkää alkuperäisestä koodista ei ollut  jäljellä "
-"mitään."
+"versionhallintajärjestelmää ja löysi Subversion- ja TortoiseSVN-ohjelmat. "
+"Koska TortoiseSVN ei ollut vielä valmis, hän liittyi projektiin ja alkoi "
+"parantaa sitä. Pian hän oli kirjoittanut suurimman osan olemassa olevasta "
+"koodista uudelleen ja alkoi lisätä ominaisuuksia siinä laajuudessa, että "
+"lopulta alkuperäisestä koodista ei ollut mitään jäljellä."
 
 #. (para)
 msgid ""
@@ -493,8 +493,8 @@ msgid ""
 "for the hard work to get TortoiseSVN to what it is now, and his leadership "
 "of the project"
 msgstr ""
-"uraauurtavasta työstä, jonka ansiosta TortoiseSVN on nykyisenlainen, ja "
-"projektin johtamisesta"
+"kovasta työstä, jonka ansiosta TortoiseSVN on nykyisenlainen, ja projektin "
+"johtamisesta"
 
 #. (term)
 msgid "Lübbe Onken"
@@ -6844,15 +6844,15 @@ msgstr ""
 
 #. (title)
 msgid "Shelving"
-msgstr ""
+msgstr "Hyllyttäminen"
 
 #. (primary)
 msgid "shelve"
-msgstr ""
+msgstr "hyllytä"
 
 #. (primary)
 msgid "unshelve"
-msgstr ""
+msgstr "palauta hyllystä"
 
 #. (para)
 msgid ""
@@ -6863,6 +6863,12 @@ msgid ""
 "the urgent issue, but often those changes would break the build or are just "
 "not ready for committing yet."
 msgstr ""
+"Joskus on tarpeen keskeyttää meneillään oleva työ ja siirtyä tekemään jotain "
+"muuta.  Vakavan ongelman löytyminen voi esimerkiksi vaatia korjauksen "
+"tekemistä välittömästi, jolloin meneillään oleva uuden ominaisuuden "
+"kehittäminen pitää väliaikaisesti keskeyttää. Mikäli mahdollista, tehdyt "
+"muutokset tulisi toimittaa arkistoon ennen ongelman korjausta. Usein tämä ei "
+"kuitenkaan ole mahdollista muutosten keskeneräisyyden vuoksi."
 
 #. (para)
 msgid ""
@@ -6874,16 +6880,25 @@ msgid ""
 "committed those changes, you can <firstterm>unshelve</firstterm> your "
 "shelved work and continue working on your previous task again."
 msgstr ""
+"Jos et voi toimittaa muutoksiasi arkistoon, ne on siirrettävä sivuun siksi "
+"ajaksi, kun työskentelet kiireellisemmän asian parissa. <firstterm>Hyllytys</"
+"firstterm> auttaa juuri tässä: voit tallettaa muutoksesi hyllylle ja poistaa "
+"ne työkopiosta siksi aikaa, kun teet jotain muuta.  Kun olet saanut muun "
+"työn päätökseen ja toimitettua versionhallintaan, voit <firstterm>palauttaa "
+"hyllystä</firstterm> aiemmin kesken jääneet muutokset ja jatkaa niiden "
+"parissa."
 
 #. (para)
 msgid ""
 "Two new commands are implemented for this. One for shelving and one for "
 "unshelving."
 msgstr ""
+"Tätä ominaisuutta varten on kaksi komentoa, yksi hyllyttämiseen ja toinen "
+"hyllyltä palauttamiseen."
 
 #. (title)
 msgid "Shelve dialog"
-msgstr ""
+msgstr "Hyllytysikkuna"
 
 #. (para)
 msgid ""
@@ -6898,7 +6913,7 @@ msgstr ""
 
 #. (title)
 msgid "Unshelve dialog"
-msgstr ""
+msgstr "Palauta hyllystä -ikkuna"
 
 #. (para)
 msgid ""
@@ -6914,6 +6929,8 @@ msgid ""
 "Shelves are purely a local client feature. Creating and removing Shelves "
 "will not affect the repository, nor anyone else's working copy."
 msgstr ""
+"Hyllyt ovat pelkästään paikallinen ominaisuus.  Hyllytys tai hyllytyksen "
+"poisto eivät vaikuta arkistoon eivätkä kenenkään muun työkopioon."
 
 #. (para)
 msgid ""
@@ -20051,7 +20068,7 @@ msgstr "Päätä toimitus"
 
 #. (para)
 msgid "Called after the commit finishes successfully."
-msgstr ""
+msgstr "Kutsutaan, kun toimitus päättyy onnistuneesti."
 
 #. (term)
 #. (term)
@@ -21099,6 +21116,8 @@ msgid ""
 "The user is asked whether to update the working copy or not, and the commit "
 "dialog is not reopened after the update."
 msgstr ""
+"Käyttäjältä kysytään, päivitetäänkö työkopio vai ei, ja toimitusikkunaa ei "
+"avata uudelleen päivityksen jälkeen."
 
 #. (para)
 msgid ""
@@ -21106,6 +21125,9 @@ msgid ""
 "not, and the commit dialog is reopened after the update so the user can "
 "proceed with the commit right away."
 msgstr ""
+"Oletustoiminta. Käyttäjältä kysytään, päivitetäänkö työkopio vai ei, ja "
+"toimitusikkuna avataan uudelleen päivityksen jälkeen, jolloin käyttäjä voi "
+"suoraan jatkaa arkistoon toimitusta."
 
 #. (para)
 msgid ""
@@ -21113,18 +21135,25 @@ msgid ""
 "selected for a commit, the update is done on the working copy root. This "
 "helps to avoid inconsistent working copies."
 msgstr ""
+"Kuten <literal>1</literal>, mutta sen sijaan, että päivitettäisiin vain "
+"toimitukseen sisältyvät polut, päivitys tehdään koko työkopiolle.  Tämä "
+"auttaa pitämään työkopion yhtenäisenä."
 
 #. (para)
 msgid ""
 "The user is not asked to update the working copy. The commit simply fails "
 "with the out-of-date error message."
 msgstr ""
+"Käyttäjää ei pyydetä päivittämään työkopiota.  Toimitus epäonnistuu "
+"\"vanhentunut työkopio\" -virheen kera."
 
 #. (para)
 msgid ""
 "This parameter specifies how TortoiseSVN behaves if a commit fails due to an "
 "out-of-date error: <placeholder-1/>"
 msgstr ""
+"Tämä asetus määrittää, miten TortoiseSVN toimii, jos toimitus epäonnistuu "
+"siitä syystä, että työkopio on vanhentunut: <placeholder-1/>"
 
 #. (para)
 msgid ""
@@ -25481,6 +25510,11 @@ msgid ""
 "confirmation dialog, and <placeholder-4/> to also disable showing the "
 "progress dialog."
 msgstr ""
+"Kopioi kansion <placeholder-1/> palautuvasti kansioon <placeholder-2/>. "
+"Uudet tiedostot lisätään automaattisesti, ja puuttuvat tiedostot poistetaan "
+"kohdekansiosta. Tämä takaa, että lähde- ja kohdekansiot ovat samoja. Asetus "
+"<placeholder-3/> ohittaa vahvistusikkunan, ja asetus <placeholder-4/> estää "
+"edistymisikkunan näyttämisen."
 
 #. (option)
 #. (option)
@@ -27408,12 +27442,19 @@ msgid ""
 "spell checker module in the Windows settings (<literal>Settings &gt; Time "
 "&amp; Language &gt; Region &amp; Language</literal>)."
 msgstr ""
+"TortoiseSVN käyttää Windowsin tavutustarkistajaa, mikäli sellainen on "
+"saatavilla (Windows 8 ja uudemmat). Tämä tarkoittaa, että jos haluat "
+"tavutustarkistuksen toimivan jollain muulla kuin käyttöjärjestelmän "
+"asennuskielellä, sinun on asennettava tavutusmoduuli Windows-asetuksissa "
+"(<literal>Asetukset &gt; Aika &amp; kieli &gt; Alue &amp; kieli</literal>)."
 
 #. (para)
 msgid ""
 "TortoiseSVN will use that spell checker if properly configured with the "
 "<literal>tsvn:projectlanguage</literal> project property."
 msgstr ""
+"TortoiseSVN käyttää tätä tavutustarkistajaa, mikäli projektiominaisuus "
+"<literal>tsvn:projectlanguage</literal> on määritetty."
 
 #. (para)
 msgid ""
@@ -27422,6 +27463,10 @@ msgid ""
 "\"><citetitle>OpenOffice</citetitle></ulink> and <ulink url=\"https://"
 "mozilla.org\"><citetitle>Mozilla</citetitle></ulink>."
 msgstr ""
+"Mikäli Windowsin tavutustarkistaja ei ole saatavilla, TortoiseSVN voi myös "
+"käyttää tavutussanakirjoja <ulink url=\"https://openoffice.org"
+"\"><citetitle>OpenOffice</citetitle></ulink> ja <ulink url=\"https://mozilla."
+"org\"><citetitle>Mozilla</citetitle></ulink> -projekteista."
 
 #. (para)
 msgid ""
