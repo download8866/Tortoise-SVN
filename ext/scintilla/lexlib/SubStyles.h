@@ -8,7 +8,9 @@
 #ifndef SUBSTYLES_H
 #define SUBSTYLES_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 class WordClassifier {
 	int baseStyle;
@@ -33,10 +35,6 @@ public:
 
 	int Start() const {
 		return firstStyle;
-	}
-
-	int Last() const {
-		return firstStyle + lenStyles - 1;
 	}
 
 	int Length() const {
@@ -120,11 +118,11 @@ public:
 	}
 
 	int Allocate(int styleBase, int numberStyles) {
-		const int block = BlockFromBaseStyle(styleBase);
+		int block = BlockFromBaseStyle(styleBase);
 		if (block >= 0) {
 			if ((allocated + numberStyles) > stylesAvailable)
 				return -1;
-			const int startBlock = styleFirst + allocated;
+			int startBlock = styleFirst + allocated;
 			allocated += numberStyles;
 			classifiers[block].Allocate(startBlock, numberStyles);
 			return startBlock;
@@ -134,17 +132,17 @@ public:
 	}
 
 	int Start(int styleBase) {
-		const int block = BlockFromBaseStyle(styleBase);
+		int block = BlockFromBaseStyle(styleBase);
 		return (block >= 0) ? classifiers[block].Start() : -1;
 	}
 
 	int Length(int styleBase) {
-		const int block = BlockFromBaseStyle(styleBase);
+		int block = BlockFromBaseStyle(styleBase);
 		return (block >= 0) ? classifiers[block].Length() : 0;
 	}
 
 	int BaseStyle(int subStyle) const {
-		const int block = BlockFromStyle(subStyle);
+		int block = BlockFromStyle(subStyle);
 		if (block >= 0)
 			return classifiers[block].Base();
 		else
@@ -155,26 +153,8 @@ public:
 		return secondaryDistance;
 	}
 
-	int FirstAllocated() const {
-		int start = 257;
-		for (std::vector<WordClassifier>::const_iterator it = classifiers.begin(); it != classifiers.end(); ++it) {
-			if (start > it->Start())
-				start = it->Start();
-		}
-		return (start < 256) ? start : -1;
-	}
-
-	int LastAllocated() const {
-		int last = -1;
-		for (std::vector<WordClassifier>::const_iterator it = classifiers.begin(); it != classifiers.end(); ++it) {
-			if (last < it->Last())
-				last = it->Last();
-		}
-		return last;
-	}
-
 	void SetIdentifiers(int style, const char *identifiers) {
-		const int block = BlockFromStyle(style);
+		int block = BlockFromStyle(style);
 		if (block >= 0)
 			classifiers[block].SetIdentifiers(style, identifiers);
 	}
@@ -191,6 +171,8 @@ public:
 	}
 };
 
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

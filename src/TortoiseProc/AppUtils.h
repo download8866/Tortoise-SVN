@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014, 2016-2018 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,13 +52,11 @@ public:
         bool bWait;
         bool bReadOnly;
         bool bAlternativeTool; // If true, invert selection of TortoiseMerge vs. external merge tool
-        bool bPreventSVNResolve;
 
-        MergeFlags(): bWait(false), bReadOnly(false), bAlternativeTool(false), bPreventSVNResolve(false)   {}
+        MergeFlags(): bWait(false), bReadOnly(false), bAlternativeTool(false)   {}
         MergeFlags& Wait(bool b = true) { bWait = b; return *this; }
         MergeFlags& ReadOnly(bool b = true) { bReadOnly = b; return *this; }
         MergeFlags& AlternativeTool(bool b = true) { bAlternativeTool = b; return *this; }
-        MergeFlags& PreventSVNResolve(bool b = true) { bPreventSVNResolve = b; return *this; }
     };
 
     /**
@@ -111,16 +109,6 @@ public:
     static BOOL CheckForEmptyDiff(const CTSVNPath& sDiffPath);
 
     /**
-    * Returns font name which is used for log messages, etc.
-    */
-    static CString GetLogFontName();
-
-    /**
-    * Returns font size which is used for log messages, etc.
-    */
-    static DWORD GetLogFontSize();
-
-    /**
      * Create a font which can is used for log messages, etc
      */
     static void CreateFontForLogs(CFont& fontToCreate);
@@ -163,7 +151,6 @@ public:
     static bool StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1,
                                     const CTSVNPath& url2, const SVNRev& rev2,
                                     const SVNRev& peg, const SVNRev& headpeg,
-                                    bool prettyprint,
                                     const CString& options,
                                     bool bAlternateDiff = false,
                                     bool bIgnoreAncestry = false,
@@ -176,7 +163,7 @@ public:
     static bool StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1,
                                  const CTSVNPath& url2, const SVNRev& rev2,
                                  const SVNRev& peg, const SVNRev& headpeg,
-                                 bool ignoreprops, bool prettyprint, const CString& options,
+                                 bool ignoreprops, const CString& options,
                                  bool bAlternateDiff = false, bool bIgnoreAncestry = false,
                                  bool blame = false, svn_node_kind_t nodekind = svn_node_unknown,
                                  int line = 0);
@@ -203,7 +190,7 @@ public:
     static void ReportFailedHook(HWND hWnd, const CString& sError);
 
     static bool HasMimeTool();
-    static bool GetMimeType(const CTSVNPath& file, CString& mimetype, const SVNRev& rev = SVNRev::REV_WC);
+    static bool GetMimeType(const CTSVNPath& file, CString& mimetype, SVNRev rev = SVNRev::REV_WC);
 private:
     static CString PickDiffTool(const CTSVNPath& file1, const CTSVNPath& file2, const CString& mimetype);
 

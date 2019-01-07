@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014, 2016, 2018 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,19 @@ BOOL CALLBACK PageProc (HWND, UINT, WPARAM, LPARAM);
 UINT CALLBACK PropPageCallbackProc ( HWND hwnd, UINT uMsg, LPPROPSHEETPAGE ppsp );
 
 // CShellExt member functions (needed for IShellPropSheetExt)
-STDMETHODIMP CShellExt::AddPages(LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam)
+STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam)
+{
+    __try
+    {
+        return AddPages_Wrap(lpfnAddPage, lParam);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+STDMETHODIMP CShellExt::AddPages_Wrap (LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam)
 {
     for (std::vector<tstring>::iterator I = files_.begin(); I != files_.end(); ++I)
     {
@@ -52,8 +64,9 @@ STDMETHODIMP CShellExt::AddPages(LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam
     PROPSHEETPAGE psp;
     SecureZeroMemory(&psp, sizeof(PROPSHEETPAGE));
     HPROPSHEETPAGE hPage;
+    CSVNPropertyPage *sheetpage = NULL;
 
-    CSVNPropertyPage * sheetpage = new (std::nothrow) CSVNPropertyPage(files_);
+    sheetpage = new (std::nothrow) CSVNPropertyPage(files_);
 
     if (sheetpage == NULL)
         return E_OUTOFMEMORY;
@@ -110,7 +123,13 @@ BOOL CALLBACK PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
     if (sheetpage != 0L)
     {
-        return sheetpage->PageProc(hwnd, uMessage, wParam, lParam);
+        __try
+        {
+            return sheetpage->PageProc(hwnd, uMessage, wParam, lParam);
+        }
+        __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+        {
+        }
     }
     return FALSE;
 }
@@ -287,7 +306,7 @@ void CSVNPropertyPage::InitWorkfileView()
                 }
                 if (svn.status->revision != SVN_INVALID_REVNUM)
                 {
-                    swprintf_s(buf, L"%ld", svn.status->revision);
+                    swprintf_s(buf, L"%d", svn.status->revision);
                     SetDlgItemText(m_hwnd, IDC_REVISION, buf);
                 }
                 else
@@ -327,7 +346,7 @@ void CSVNPropertyPage::InitWorkfileView()
                 }
                 if (svn.status->changed_rev != SVN_INVALID_REVNUM)
                 {
-                    swprintf_s(buf, L"%ld", svn.status->changed_rev);
+                    swprintf_s(buf, L"%d", svn.status->changed_rev);
                     SetDlgItemText(m_hwnd, IDC_CREVISION, buf);
                 }
                 else
@@ -443,5 +462,5 @@ void CSVNPropertyPage::InitWorkfileView()
 void CSVNPropertyPage::RunCommand(const tstring& command)
 {
     tstring tortoiseProcPath = GetAppDirectory() + L"TortoiseProc.exe";
-    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), command.c_str());
+    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
 }

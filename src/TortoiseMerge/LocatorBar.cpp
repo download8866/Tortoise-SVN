@@ -1,4 +1,4 @@
-﻿// TortoiseMerge - a Diff/Patch program
+// TortoiseMerge - a Diff/Patch program
 
 // Copyright (C) 2006-2012, 2014-2015 - TortoiseSVN
 
@@ -29,8 +29,8 @@
 
 IMPLEMENT_DYNAMIC(CLocatorBar, CPaneDialog)
 CLocatorBar::CLocatorBar() : CPaneDialog()
-    , m_pMainFrm(nullptr)
-    , m_pCacheBitmap(nullptr)
+    , m_pMainFrm(NULL)
+    , m_pCacheBitmap(NULL)
     , m_regUseFishEye(L"Software\\TortoiseMerge\\UseFishEye", TRUE)
     , m_nLines(-1)
     , m_minWidth(0)
@@ -43,7 +43,7 @@ CLocatorBar::~CLocatorBar()
     {
         m_pCacheBitmap->DeleteObject();
         delete m_pCacheBitmap;
-        m_pCacheBitmap = nullptr;
+        m_pCacheBitmap = NULL;
     }
 }
 
@@ -60,7 +60,7 @@ END_MESSAGE_MAP()
 void CLocatorBar::DocumentUpdated()
 {
     m_pMainFrm = (CMainFrame *)this->GetParentFrame();
-    if (!m_pMainFrm)
+    if (m_pMainFrm == NULL)
         return;
 
     m_nLines = 0;
@@ -139,7 +139,7 @@ void CLocatorBar::OnPaint()
     CDC cacheDC;
     VERIFY(cacheDC.CreateCompatibleDC(&dc));
 
-    if (!m_pCacheBitmap)
+    if (m_pCacheBitmap == NULL)
     {
         m_pCacheBitmap = new CBitmap;
         VERIFY(m_pCacheBitmap->CreateCompatibleBitmap(&dc, width, height));
@@ -194,11 +194,11 @@ void CLocatorBar::OnSize(UINT nType, int cx, int cy)
 {
     CPaneDialog::OnSize(nType, cx, cy);
 
-    if (m_pCacheBitmap)
+    if (m_pCacheBitmap != NULL)
     {
         m_pCacheBitmap->DeleteObject();
         delete m_pCacheBitmap;
-        m_pCacheBitmap = nullptr;
+        m_pCacheBitmap = NULL;
     }
     Invalidate();
 }
@@ -291,7 +291,7 @@ void CLocatorBar::PaintView(CDC& cacheDC, CBaseView* view, CDWordArray& indents,
         if ((DiffStates)state != DIFFSTATE_NORMAL)
         {
             cacheDC.FillSolidRect(rect.left + (width*stripeIndex/3), height*linecount/m_nLines,
-                        barwidth, max((int)(height * identcount / m_nLines), 1), color);
+                        barwidth, max(height*identcount/m_nLines,1), color);
         }
         linecount += identcount;
     }
@@ -305,7 +305,7 @@ void CLocatorBar::PaintView(CDC& cacheDC, CBaseView* view, CDWordArray& indents,
             if (view->m_arMarkedWordLines[i])
             {
                 cacheDC.FillSolidRect(rect.left + (width*stripeIndex/3), (int)(height*i/m_nLines),
-                    barwidth, max((int)(height / m_nLines), 2), color);
+                    barwidth, max(height/m_nLines,2), color);
             }
         }
     }
@@ -319,7 +319,7 @@ void CLocatorBar::PaintView(CDC& cacheDC, CBaseView* view, CDWordArray& indents,
             if (view->m_arFindStringLines[i])
             {
                 cacheDC.FillSolidRect(rect.left + (width*stripeIndex/3), (int)(height*i/m_nLines),
-                    barwidth, max((int)(height / m_nLines), 2), color);
+                    barwidth, max(height/m_nLines,2), color);
             }
         }
     }

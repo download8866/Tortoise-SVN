@@ -1,6 +1,6 @@
-﻿// TortoiseMerge - a Diff/Patch program
+// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2003-2015, 2017-2018 - TortoiseSVN
+// Copyright (C) 2003-2015, 2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -96,7 +96,7 @@ public: // methods
     void            SetCaretPosition(const POINT& pt) { SetCaretViewPosition(ConvertScreenPosToView(pt)); }
     POINT           GetCaretPosition() { return ConvertViewPosToScreen(GetCaretViewPosition()); }
     void            SetCaretViewPosition(const POINT & pt) { m_ptCaretViewPos = pt; }
-    POINT           GetCaretViewPosition() const { return m_ptCaretViewPos; }
+    POINT           GetCaretViewPosition() { return m_ptCaretViewPos; }
     void            UpdateCaretPosition(const POINT& pt) { SetCaretPosition(pt); UpdateCaret(); }
     void            UpdateCaretViewPosition(const POINT& pt) { SetCaretViewPosition(pt); UpdateCaret(); EnsureCaretVisible(); }
     void            SetCaretToViewStart() { SetCaretToFirstViewLine(); SetCaretToViewLineStart(); }
@@ -106,8 +106,8 @@ public: // methods
     void            EnsureCaretVisible();
     void            UpdateCaret();
 
-    bool            ArePointsSame(const POINT &pt1, const POINT &pt2) const {return (pt1.x == pt2.x) && (pt1.y == pt2.y); };
-    POINT           SetupPoint(int x, int y) const {POINT ptRet={x, y}; return ptRet; };
+    bool            ArePointsSame(const POINT &pt1, const POINT &pt2) {return (pt1.x == pt2.x) && (pt1.y == pt2.y); };
+    POINT           SetupPoint(int x, int y) {POINT ptRet={x, y}; return ptRet; };
     POINT           ConvertScreenPosToView(const POINT& pt);
     POINT           ConvertViewPosToScreen(const POINT& pt);
 
@@ -154,7 +154,7 @@ public: // methods
     static void     SetupViewSelection(CBaseView* view, int start, int end);
     void            SetupViewSelection(int start, int end);
     CString         GetSelectedText() const;
-    void            CheckModifications(bool& hasMods, bool& hasConflicts, bool& hasWhitespaceMods, bool& hasFilteredMods);
+    void            CheckModifications(bool& hasMods, bool& hasConflicts, bool& hasWhitespaceMods);
 
     // state classifying methods; note: state may belong to more classes
     static bool     IsStateConflicted(DiffStates state);
@@ -462,6 +462,7 @@ protected:  // methods
     virtual void    AddContextItems(CIconMenu& popup, DiffStates state);
     void            AddCutCopyAndPaste(CIconMenu& popup);
     void            CompensateForKeyboard(CPoint& point);
+    static HICON    LoadIcon(WORD iconId);
     void            ReleaseBitmap();
     static bool     LinesInOneChange( int direction, DiffStates firstLineState, DiffStates currentLineState );
     static void     FilterWhitespaces(CString& first, CString& second);
@@ -653,7 +654,7 @@ protected:  // variables
     {
     public:
         Screen2View()
-            : m_pViewData(nullptr)
+            : m_pViewData(NULL)
         {m_bFull=false; }
 
         int             GetViewLineForScreen(int screenLine);

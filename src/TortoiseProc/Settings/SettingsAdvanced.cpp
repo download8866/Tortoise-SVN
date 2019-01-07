@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2015, 2018 - TortoiseSVN
+// Copyright (C) 2009-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -142,20 +142,12 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i++].def.b = false;
 
     settings[i].sName   = L"OutOfDateRetry";
-    settings[i].type    = CSettingsAdvanced::SettingTypeNumber;
-    settings[i++].def.l = 1;
-
-    settings[i].sName   = L"PlaySound";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
 
     settings[i].sName   = L"RepoBrowserTrySVNParentPath";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
-
-    settings[i].sName   = L"ScintillaBidirectional";
-    settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
-    settings[i++].def.b = false;
 
     settings[i].sName   = L"ScintillaDirect2D";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
@@ -181,10 +173,6 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeString;
     settings[i++].def.s = L"";
 
-    settings[i].sName   = L"UseCustomWordBreak";
-    settings[i].type    = CSettingsAdvanced::SettingTypeNumber;
-    settings[i++].def.l = 2;
-
     settings[i].sName   = L"VersionCheck";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
@@ -193,7 +181,7 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeNone;
     settings[i++].def.b = false;
 
-    // 42 so far...
+    // 39 so far...
     ASSERT(i < _countof(settings));
 }
 
@@ -220,7 +208,7 @@ BOOL CSettingsAdvanced::OnInitDialog()
     ISettingsPropPage::OnInitDialog();
 
     m_ListCtrl.DeleteAllItems();
-    int c = m_ListCtrl.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_ListCtrl.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_ListCtrl.DeleteColumn(c--);
 
@@ -265,7 +253,7 @@ BOOL CSettingsAdvanced::OnInitDialog()
     }
 
     int mincol = 0;
-    int maxcol = m_ListCtrl.GetHeaderCtrl()->GetItemCount()-1;
+    int maxcol = ((CHeaderCtrl*)(m_ListCtrl.GetDlgItem(0)))->GetItemCount()-1;
     int col;
     for (col = mincol; col <= maxcol; col++)
     {

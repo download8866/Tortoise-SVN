@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014, 2018 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,7 +32,6 @@ CCreatePatch::CCreatePatch(CWnd* pParent /*=NULL*/)
     , m_bThreadRunning(FALSE)
     , m_bCancelled(false)
     , m_bShowUnversioned(FALSE)
-    , m_bPrettyPrint(true)
 {
 }
 
@@ -336,11 +335,8 @@ void CCreatePatch::OnTimer(UINT_PTR nIDEvent)
 void CCreatePatch::OnBnClickedDiffoptions()
 {
     CDiffOptionsDlg dlg(this);
-    dlg.SetDiffOptions(m_diffOptions);
-
     if (dlg.DoModal() == IDOK)
-    {
-        m_diffOptions = dlg.GetDiffOptions();
-        m_bPrettyPrint = dlg.GetPrettyPrint();
-    }
+        m_sDiffOptions = dlg.GetDiffOptionsString();
+    else
+        m_sDiffOptions.Empty();
 }

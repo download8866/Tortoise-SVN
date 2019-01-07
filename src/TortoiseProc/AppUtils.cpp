@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 // Copyright (C) 2015 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
@@ -38,10 +38,9 @@
 #include "SmartHandle.h"
 #include "SVNExternals.h"
 #include "CmdLineParser.h"
-#include "../Utils/DPIAware.h"
 
 
-bool CAppUtils::GetMimeType(const CTSVNPath& file, CString& mimetype, const SVNRev& rev /*= SVNRev::REV_WC*/)
+bool CAppUtils::GetMimeType(const CTSVNPath& file, CString& mimetype, SVNRev rev /*= SVNRev::REV_WC*/)
 {
     // only fetch the mime-type for local paths, or for urls if a mime-type specific diff tool
     // is configured.
@@ -286,8 +285,6 @@ BOOL CAppUtils::StartExtMerge(const MergeFlags& flags,
 
     if ((flags.bReadOnly)&&(bInternal))
         com += L" /readonly";
-    if ((flags.bPreventSVNResolve) && (bInternal))
-        com += L" /nosvnresolve";
 
     if(!LaunchApplication(com, IDS_ERR_EXTMERGESTART, false))
     {
@@ -590,20 +587,12 @@ BOOL CAppUtils::CheckForEmptyDiff(const CTSVNPath& sDiffPath)
 
 }
 
-CString CAppUtils::GetLogFontName()
-{
-    return (CString)CRegString(L"Software\\TortoiseSVN\\LogFontName", L"Consolas");
-}
-
-DWORD CAppUtils::GetLogFontSize()
-{
-    return (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\LogFontSize", 9);
-}
-
 void CAppUtils::CreateFontForLogs(CFont& fontToCreate)
 {
     LOGFONT logFont;
-    logFont.lfHeight         = -CDPIAware::Instance().PointsToPixels(GetLogFontSize());
+    HDC hScreenDC = ::GetDC(NULL);
+    logFont.lfHeight         = -MulDiv((DWORD)CRegDWORD(L"Software\\TortoiseSVN\\LogFontSize", 8), GetDeviceCaps(hScreenDC, LOGPIXELSY), 72);
+    ::ReleaseDC(NULL, hScreenDC);
     logFont.lfWidth          = 0;
     logFont.lfEscapement     = 0;
     logFont.lfOrientation    = 0;
@@ -616,7 +605,7 @@ void CAppUtils::CreateFontForLogs(CFont& fontToCreate)
     logFont.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
     logFont.lfQuality        = DRAFT_QUALITY;
     logFont.lfPitchAndFamily = FF_DONTCARE | FIXED_PITCH;
-    wcscpy_s(logFont.lfFaceName, (LPCTSTR) GetLogFontName());
+    wcscpy_s(logFont.lfFaceName, (LPCTSTR)(CString)CRegString(L"Software\\TortoiseSVN\\LogFontName", L"Courier New"));
     VERIFY(fontToCreate.CreateFontIndirect(&logFont));
 }
 
@@ -721,15 +710,15 @@ CAppUtils::FindRegexMatches
 
     try
     {
-        const std::wregex regMatch(matchstring, std::regex_constants::icase | std::regex_constants::ECMAScript);
-        const std::wregex regSubMatch(matchsubstring, std::regex_constants::icase | std::regex_constants::ECMAScript);
-        const std::wsregex_iterator end;
-        for (std::wsregex_iterator it(text.begin(), text.end(), regMatch); it != end; ++it)
+        const std::tr1::wregex regMatch(matchstring, std::tr1::regex_constants::icase | std::tr1::regex_constants::ECMAScript);
+        const std::tr1::wregex regSubMatch(matchsubstring, std::tr1::regex_constants::icase | std::tr1::regex_constants::ECMAScript);
+        const std::tr1::wsregex_iterator end;
+        for (std::tr1::wsregex_iterator it(text.begin(), text.end(), regMatch); it != end; ++it)
         {
             // (*it)[0] is the matched string
             std::wstring matchedString = (*it)[0];
             ptrdiff_t matchpos = it->position(0);
-            for (std::wsregex_iterator it2(matchedString.begin(), matchedString.end(), regSubMatch); it2 != end; ++it2)
+            for (std::tr1::wsregex_iterator it2(matchedString.begin(), matchedString.end(), regSubMatch); it2 != end; ++it2)
             {
                 ATLTRACE(L"matched id : %s\n", (*it2)[0].str().c_str());
                 ptrdiff_t matchposID = it2->position(0);
@@ -738,7 +727,7 @@ CAppUtils::FindRegexMatches
             }
         }
     }
-    catch (std::exception&) {}
+    catch (std::exception) {}
 
     return result;
 }
@@ -753,17 +742,10 @@ namespace {
             ch == L'|' || ch == L'>' || ch == L'<' || ch == L'!' || ch == L'@' || ch == L'~';
     }
 
-    bool IsUrlOrEmail(const CString& sText)
+    bool IsUrl(const CString& sText)
     {
         if (!PathIsURLW(sText))
-        {
-            auto atpos = sText.Find('@');
-            if (atpos <= 0)
-                return false;
-            if (sText.ReverseFind('.') > atpos)
-                return true;
             return false;
-        }
         if (sText.Find(L"://") >= 0)
             return true;
         return false;
@@ -802,14 +784,16 @@ CAppUtils::FindURLMatches(const CString& msg)
                     while (i < len && msg[i] != '\r' && msg[i] != '\n' && msg[i] != '>') // find first '>' or new line after resetting i to start position
                         ++i;
                 }
-                int skipTrailing = 0;
-                while (strip && i - skipTrailing - 1 > starturl && (msg[i - skipTrailing - 1] == '.' || msg[i - skipTrailing - 1] == '-' || msg[i - skipTrailing - 1] == '?' || msg[i - skipTrailing - 1] == ';' || msg[i - skipTrailing - 1] == ':' || msg[i - skipTrailing - 1] == '>' || msg[i - skipTrailing - 1] == '<' || msg[i - skipTrailing - 1] == '!'))
-                    ++skipTrailing;
-                if (!IsUrlOrEmail(msg.Mid(starturl, i - starturl - skipTrailing)))
+                if (!IsUrl(msg.Mid(starturl, i - starturl)))
                 {
                     starturl = -1;
                     continue;
                 }
+
+                int skipTrailing = 0;
+                while (strip && i - skipTrailing - 1 > starturl && (msg[i - skipTrailing - 1] == '.' || msg[i - skipTrailing - 1] == '-' || msg[i - skipTrailing - 1] == '?' || msg[i - skipTrailing - 1] == ';' || msg[i - skipTrailing - 1] == ':' || msg[i - skipTrailing - 1] == '>' || msg[i - skipTrailing - 1] == '<'))
+                    ++skipTrailing;
+
                 CHARRANGE range = { starturl, i - skipTrailing };
                 result.push_back(range);
             }
@@ -1096,7 +1080,7 @@ CString CAppUtils::GetProjectNameFromURL(CString url)
 bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1,
                                      const CTSVNPath& url2, const SVNRev& rev2,
                                      const SVNRev& peg, const SVNRev& headpeg,
-                                     bool prettyprint, const CString& options,
+                                     const CString& options,
                                      bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, bool blame /* = false */, bool bIgnoreProperties /* = true*/)
 {
     CString sCmd = L"/command:showcompare /unified";
@@ -1128,9 +1112,6 @@ bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVN
     if (bIgnoreProperties)
         sCmd += L" /ignoreprops";
 
-    if (prettyprint)
-        sCmd += L" /prettyprint";
-
     if (hWnd)
     {
         sCmd += L" /hwnd:";
@@ -1145,7 +1126,7 @@ bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVN
 bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1,
                                  const CTSVNPath& url2, const SVNRev& rev2,
                                  const SVNRev& peg, const SVNRev& headpeg,
-                                 bool ignoreprops, bool prettyprint, const CString& options,
+                                 bool ignoreprops, const CString& options,
                                  bool bAlternateDiff /*= false*/, bool bIgnoreAncestry /*= false*/,
                                  bool blame /*= false*/, svn_node_kind_t nodekind /*= svn_node_unknown*/,
                                  int line /*= 0*/ )
@@ -1174,8 +1155,6 @@ bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev&
         sCmd += L" /blame";
     if (ignoreprops)
         sCmd += L" /ignoreprops";
-    if (prettyprint)
-        sCmd += L" /prettyprint";
 
     if (hWnd)
     {

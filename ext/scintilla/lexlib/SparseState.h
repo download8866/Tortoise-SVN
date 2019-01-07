@@ -10,14 +10,16 @@
 #ifndef SPARSESTATE_H
 #define SPARSESTATE_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 template <typename T>
 class SparseState {
 	struct State {
-		Sci_Position position;
+		int position;
 		T value;
-		State(Sci_Position position_, T value_) : position(position_), value(value_) {
+		State(int position_, T value_) : position(position_), value(value_) {
 		}
 		inline bool operator<(const State &other) const {
 			return position < other.position;
@@ -26,26 +28,26 @@ class SparseState {
 			return (position == other.position) && (value == other.value);
 		}
 	};
-	Sci_Position positionFirst;
+	int positionFirst;
 	typedef std::vector<State> stateVector;
 	stateVector states;
 
-	typename stateVector::iterator Find(Sci_Position position) {
+	typename stateVector::iterator Find(int position) {
 		State searchValue(position, T());
 		return std::lower_bound(states.begin(), states.end(), searchValue);
 	}
 
 public:
-	explicit SparseState(Sci_Position positionFirst_=-1) {
+	explicit SparseState(int positionFirst_=-1) {
 		positionFirst = positionFirst_;
 	}
-	void Set(Sci_Position position, T value) {
+	void Set(int position, T value) {
 		Delete(position);
 		if (states.empty() || (value != states[states.size()-1].value)) {
 			states.push_back(State(position, value));
 		}
 	}
-	T ValueAt(Sci_Position position) {
+	T ValueAt(int position) {
 		if (states.empty())
 			return T();
 		if (position < states[0].position)
@@ -60,7 +62,7 @@ public:
 			return low->value;
 		}
 	}
-	bool Delete(Sci_Position position) {
+	bool Delete(int position) {
 		typename stateVector::iterator low = Find(position);
 		if (low != states.end()) {
 			states.erase(low, states.end());
@@ -73,7 +75,7 @@ public:
 	}
 
 	// Returns true if Merge caused a significant change
-	bool Merge(const SparseState<T> &other, Sci_Position ignoreAfter) {
+	bool Merge(const SparseState<T> &other, int ignoreAfter) {
 		// Changes caused beyond ignoreAfter are not significant
 		Delete(ignoreAfter+1);
 
@@ -101,6 +103,8 @@ public:
 	}
 };
 
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

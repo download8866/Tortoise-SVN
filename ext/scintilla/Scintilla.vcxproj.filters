@@ -450,30 +450,6 @@
     <ClCompile Include="lexers\LexJSON.cxx">
       <Filter>lexers</Filter>
     </ClCompile>
-    <ClCompile Include="lexers\LexEDIFACT.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexIndent.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\DefaultLexer.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DBCS.cxx">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexMaxima.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\ScintillaDLL.cxx">
-      <Filter>win32</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexSAS.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexStata.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ILexer.h">
@@ -614,6 +590,9 @@
     <ClInclude Include="src\CaseFolder.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\UnicodeFromUTF8.h">
+      <Filter>src</Filter>
+    </ClInclude>
     <ClInclude Include="lexlib\StringCopy.h">
       <Filter>lexlib</Filter>
     </ClInclude>
@@ -633,21 +612,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="src\Position.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ILoader.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\DefaultLexer.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="src\DBCS.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IntegerRectangle.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ElapsedPeriod.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

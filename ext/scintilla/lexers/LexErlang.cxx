@@ -1,12 +1,11 @@
 // Scintilla source code edit control
-// Encoding: UTF-8
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 /** @file LexErlang.cxx
  ** Lexer for Erlang.
  ** Enhanced by Etienne 'Lenain' Girondel (lenaing@gmail.com)
  ** Originally wrote by Peter-Henry Mander,
- ** based on Matlab lexer by JosÃ© Fonseca.
+ ** based on Matlab lexer by José Fonseca.
  **/
 
 #include <stdlib.h>
@@ -27,7 +26,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 static int is_radix(int radix, int ch) {
 	int digit;
@@ -115,7 +116,6 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 					}
 				}
 				// V--- Falling through!
-				// Falls through.
 				case COMMENT_FUNCTION : {
 					if (sc.ch != '%') {
 						to_late_to_comment = true;
@@ -128,7 +128,6 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 					}
 				}
 				// V--- Falling through!
-				// Falls through.
 				case COMMENT_MODULE : {
 					if (parse_state != COMMENT) {
 						// Search for comment documentation

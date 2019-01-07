@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -139,7 +139,7 @@ public:
     CLogDlg(CWnd* pParent = NULL);   // standard constructor
     virtual ~CLogDlg();
 
-    void SetParams(const CTSVNPath& path, const SVNRev& pegrev, const SVNRev& startrev, const SVNRev& endrev,
+    void SetParams(const CTSVNPath& path, SVNRev pegrev, SVNRev startrev, SVNRev endrev,
         BOOL bStrict = CRegDWORD(L"Software\\TortoiseSVN\\LastLogStrict", FALSE),
         BOOL bSaveStrict = TRUE,
         int limit = (int)(DWORD)CRegDWORD(L"Software\\TortoiseSVN\\NumberOfLogs",
@@ -178,7 +178,6 @@ protected:
     afx_msg LRESULT OnReloadIniMsg(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClickedInfoIcon(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClickedCancelFilter(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnToastNotification(WPARAM wParam, LPARAM lParam);
     afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
     afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
     afx_msg void OnBnClickedGetall();
@@ -223,7 +222,6 @@ protected:
     afx_msg void OnMonitorRemoveProject();
     afx_msg void OnMonitorOptions();
     afx_msg void OnMonitorMarkAllAsRead();
-    afx_msg void OnMonitorClearErrors();
     afx_msg void OnMonitorUpdateAll();
     afx_msg void OnMonitorThreadFinished();
     afx_msg void OnTvnSelchangedProjtree(NMHDR *pNMHDR, LRESULT *pResult);
@@ -238,7 +236,6 @@ protected:
     afx_msg void OnInlineedit();
     afx_msg BOOL OnQueryEndSession();
     afx_msg LRESULT OnTaskbarButtonCreated(WPARAM wParam, LPARAM lParam);
-    afx_msg void OnLvnBegindragLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 
     virtual void OnCancel();
     virtual void OnOK();
@@ -261,11 +258,11 @@ private:
     void EditLogMessage(size_t index);
     void DoSizeV1(int delta);
     void DoSizeV2(int delta);
+    void AdjustMinSize();
     void SetSplitterRange();
     void SetFilterCueText();
     void CopySelectionToClipBoard();
     void CopySelectionToClipBoard(bool bIncludeChangedList);
-    void CopySelectionToClipBoardRev();
     void CopyCommaSeparatedRevisionsToClipboard();
     void CopyChangedSelectionToClipBoard();
     void CopyCommaSeparatedAuthorsToClipboard();
@@ -284,7 +281,7 @@ private:
     void UpdateSelectedRevs();
     void UpdateLogInfoLabel();
     void SaveSplitterPos();
-    bool ValidateRegexp(LPCTSTR regexp_str, std::wregex& pat, bool bMatchCase);
+    bool ValidateRegexp(LPCTSTR regexp_str, std::tr1::wregex& pat, bool bMatchCase);
     void CheckRegexpTooltip();
     void DiffSelectedFile(bool ignoreprops);
     void DiffSelectedRevWithPrevious();
@@ -357,7 +354,6 @@ private:
     void ExecuteCheckoutMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi);
     void ExecuteViewRevMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi);
     void ExecuteViewPathRevMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi);
-    void ExecuteGetMergeLogs(ContextMenuInfoForRevisionsPtr& pCmi);
     void ExecuteAddCodeCollaboratorReview();
     CString GetSpaceSeparatedSelectedRevisions();
     CString GetUrlOfTrunk();
@@ -366,13 +362,11 @@ private:
     void ExecuteViewPathRevisionChangedPaths(INT_PTR selIndex);
     void ExecuteBrowseRepositoryChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath);
     void ExecuteShowLogChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath, bool bMergeLog);
-    void ExecuteShowMergedLogs(ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteBlameChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath);
     void ExecuteOpenChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi, bool bOpenWith);
     void ExecuteExportTreeChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteSaveAsChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteShowPropertiesChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
-    void ExecuteCompareChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex, bool ignoreprops);
     void ExecuteGnuDiff1ChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteBlameDiffChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
@@ -396,7 +390,7 @@ private:
     // selection management
 
     void AutoStoreSelection();
-    void AutoRestoreSelection(bool bClear = false);
+    void AutoRestoreSelection();
 
     // ListViewAccProvider
     virtual CString GetListviewHelpString(HWND hControl, int index) override;
@@ -440,15 +434,13 @@ private:
     void ShowContextMenuForMonitorTree(CWnd* pWnd, CPoint point);
     static int CALLBACK TreeSort(LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
     void MonitorShowDlg();
-    void MonitorHideDlg();
     void OnDrop(const CTSVNPathList& pathList, const CString& parent);
 public:
     CWnd *              m_pNotifyWindow;
     ProjectProperties   m_ProjectProperties;
     WORD                m_wParam;
 private:
-    CFont               m_unreadFont;
-    CFont               m_wcRevFont;
+    HFONT               m_boldFont;
     CString             m_sRelativeRoot;
     CString             m_sRepositoryRoot;
     CString             m_sURL;
@@ -543,7 +535,7 @@ private:
 
     HACCEL              m_hAccel;
 
-    std::unique_ptr<CStoreSelection>  m_pStoreSelection;
+    CStoreSelection*    m_pStoreSelection;
     bool                m_bEnsureSelection;
     CLogDataVector      m_logEntries;
     size_t              m_prevLogEntriesSize;
@@ -563,7 +555,7 @@ private:
     bool                m_bMonitoringMode;
     bool                m_bKeepHidden;
     HWND                m_hwndToolbar;
-    CImageList          m_toolbarImages;
+    HIMAGELIST          m_hToolbarImages;
     CRect               m_ProjTreeOrigRect;
     CSplitterControl    m_wndSplitterLeft;
     CHintCtrl<CDragDropTreeCtrl> m_projTree;

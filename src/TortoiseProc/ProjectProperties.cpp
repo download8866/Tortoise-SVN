@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -214,8 +214,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
         CheckStringProp(sStartUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_STARTUPDATEHOOK);
         CheckStringProp(sPreUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_PREUPDATEHOOK);
         CheckStringProp(sPostUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_POSTUPDATEHOOK);
-        CheckStringProp(sPreLockHook, sPropName, sPropVal, PROJECTPROPNAME_PRELOCKHOOK);
-        CheckStringProp(sPostLockHook, sPropName, sPropVal, PROJECTPROPNAME_POSTLOCKHOOK);
 
         CheckStringProp(sMergeLogTemplateTitle, sPropName, sPropVal, PROJECTPROPNAME_MERGELOGTEMPLATETITLE);
         CheckStringProp(sMergeLogTemplateReverseTitle, sPropName, sPropVal, PROJECTPROPNAME_MERGELOGTEMPLATEREVERSETITLE);
@@ -348,10 +346,10 @@ void ProjectProperties::AutoUpdateRegex()
     {
         try
         {
-            regCheck = std::wregex (sCheckRe);
-            regBugID = std::wregex (sBugIDRe);
+            regCheck = std::tr1::wregex (sCheckRe);
+            regBugID = std::tr1::wregex (sBugIDRe);
         }
-        catch (std::exception&)
+        catch (std::exception)
         {
         }
 
@@ -373,14 +371,14 @@ std::vector<CHARRANGE> ProjectProperties::FindBugIDPositions(const CString& msg)
             try
             {
                 AutoUpdateRegex();
-                const std::wsregex_iterator end;
+                const std::tr1::wsregex_iterator end;
                 std::wstring s = msg;
-                for (std::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
+                for (std::tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
                 {
                     // (*it)[0] is the matched string
                     std::wstring matchedString = (*it)[0];
                     ptrdiff_t matchpos = it->position(0);
-                    for (std::wsregex_iterator it2(matchedString.begin(), matchedString.end(), regBugID); it2 != end; ++it2)
+                    for (std::tr1::wsregex_iterator it2(matchedString.begin(), matchedString.end(), regBugID); it2 != end; ++it2)
                     {
                         ATLTRACE(L"matched id : %s\n", (*it2)[0].str().c_str());
                         ptrdiff_t matchposID = it2->position(0);
@@ -389,18 +387,18 @@ std::vector<CHARRANGE> ProjectProperties::FindBugIDPositions(const CString& msg)
                     }
                 }
             }
-            catch (std::exception&) {}
+            catch (std::exception) {}
         }
         else
         {
             try
             {
                 AutoUpdateRegex();
-                const std::wsregex_iterator end;
+                const std::tr1::wsregex_iterator end;
                 std::wstring s = msg;
-                for (std::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
+                for (std::tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
                 {
-                    const std::wsmatch match = *it;
+                    const std::tr1::wsmatch match = *it;
                     // we define group 1 as the whole issue text and
                     // group 2 as the bug ID
                     if (match.size() >= 2)
@@ -411,7 +409,7 @@ std::vector<CHARRANGE> ProjectProperties::FindBugIDPositions(const CString& msg)
                     }
                 }
             }
-            catch (std::exception&) {}
+            catch (std::exception) {}
         }
     }
     else if (result.empty()&&(!sMessage.IsEmpty()))
@@ -545,13 +543,7 @@ CString ProjectProperties::GetBugIDUrl(const CString& sBugID)
     if (!sMessage.IsEmpty() || !sCheckRe.IsEmpty())
     {
         ret = sUrl;
-        CString parameter;
-        DWORD   size = INTERNET_MAX_URL_LENGTH;
-        UrlEscape(sBugID, CStrBuf(parameter, size + 1), &size, URL_ESCAPE_SEGMENT_ONLY | URL_ESCAPE_PERCENT | URL_ESCAPE_AS_UTF8);
-        // UrlEscape does not escape + and =, starting with Win8 the URL_ESCAPE_ASCII_URI_COMPONENT flag could be used and the following two lines would not be necessary
-        parameter.Replace(L"+", L"%2B");
-        parameter.Replace(L"=", L"%3D");
-        ret.Replace(L"%BUGID%", parameter);
+        ret.Replace(L"%BUGID%", sBugID);
     }
     return ret;
 }
@@ -584,9 +576,9 @@ BOOL ProjectProperties::HasBugID(const CString& sMsg)
         try
         {
             AutoUpdateRegex();
-            return std::regex_search((LPCTSTR)sMsg, regCheck);
+            return std::tr1::regex_search((LPCTSTR)sMsg, regCheck);
         }
-        catch (std::exception&) {}
+        catch (std::exception) {}
     }
     return FALSE;
 }
@@ -633,12 +625,12 @@ CString ProjectProperties::GetLogSummary(const CString& sMsg)
     {
         try
         {
-            const std::wregex regSum(sLogSummaryRe);
-            const std::wsregex_iterator end;
+            const std::tr1::wregex regSum(sLogSummaryRe);
+            const std::tr1::wsregex_iterator end;
             std::wstring s = sMsg;
-            for (std::wsregex_iterator it(s.begin(), s.end(), regSum); it != end; ++it)
+            for (std::tr1::wsregex_iterator it(s.begin(), s.end(), regSum); it != end; ++it)
             {
-                const std::wsmatch match = *it;
+                const std::tr1::wsmatch match = *it;
                 // we define the first group as the summary text
                 if ((*it).size() >= 1)
                 {
@@ -647,7 +639,7 @@ CString ProjectProperties::GetLogSummary(const CString& sMsg)
                 }
             }
         }
-        catch (std::exception&) {}
+        catch (std::exception) {}
     }
     sRet.Trim();
 
@@ -749,8 +741,6 @@ void ProjectProperties::SaveToIni(CSimpleIni& inifile, const CString& section, c
     inifile.SetValue(section, prefix + L"sPreUpdateHook", sPreUpdateHook);
     inifile.SetValue(section, prefix + L"sPostUpdateHook", sPostUpdateHook);
     inifile.SetValue(section, prefix + L"sPreConnectHook", sPreConnectHook);
-    inifile.SetValue(section, prefix + L"sPreLockHook", sPreLockHook);
-    inifile.SetValue(section, prefix + L"sPostLockHook", sPostLockHook);
     inifile.SetValue(section, prefix + L"sRepositoryRootUrl", sRepositoryRootUrl);
     inifile.SetValue(section, prefix + L"sRepositoryPathUrl", sRepositoryPathUrl);
     inifile.SetValue(section, prefix + L"sMergeLogTemplateTitle", sMergeLogTemplateTitle);
@@ -806,8 +796,6 @@ void ProjectProperties::LoadFromIni(CSimpleIni& inifile, const CString& section,
     sPreUpdateHook = inifile.GetValue(section, prefix + L"sPreUpdateHook", L"");
     sPostUpdateHook = inifile.GetValue(section, prefix + L"sPostUpdateHook", L"");
     sPreConnectHook = inifile.GetValue(section, prefix + L"sPreConnectHook", L"");
-    sPreLockHook = inifile.GetValue(section, prefix + L"sPreLockHook", L"");
-    sPostLockHook = inifile.GetValue(section, prefix + L"sPostLockHook", L"");
     sRepositoryRootUrl = inifile.GetValue(section, prefix + L"sRepositoryRootUrl", L"");
     sRepositoryPathUrl = inifile.GetValue(section, prefix + L"sRepositoryPathUrl", L"");
     sMergeLogTemplateTitle = inifile.GetValue(section, prefix + L"sMergeLogTemplateTitle", L"");

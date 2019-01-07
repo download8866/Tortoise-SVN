@@ -153,9 +153,9 @@ protected:
     UINT                    m_iButtonClickedMessageId;
     UINT                    m_iCancelClickedMessageId;
     COLORREF                m_backColor;
-    CBrush                  m_brBack;
+    HBRUSH                  m_brBack;
     IFilterEditValidator *  m_pValidator;
-    CString                 m_sCueBanner;
+    std::unique_ptr<TCHAR[]> m_pCueBanner;
 };
 
 

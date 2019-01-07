@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012, 2014-2016 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012, 2014-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -86,11 +86,10 @@ void CFullGraphFinalizer::InitWCRevs()
 
     std::vector<revision_t> revisions;
 
-    const auto wcInfo = history.GetWCInfo();
-    revisions.push_back (wcInfo.minCommit);
-    revisions.push_back (wcInfo.maxCommit);
-    revisions.push_back (wcInfo.minAtRev);
-    revisions.push_back (wcInfo.maxAtRev);
+    revisions.push_back (history.GetWCInfo().minCommit);
+    revisions.push_back (history.GetWCInfo().maxCommit);
+    revisions.push_back (history.GetWCInfo().minAtRev);
+    revisions.push_back (history.GetWCInfo().maxAtRev);
 
     std::sort (revisions.begin(), revisions.end());
     revisions.erase ( std::unique_copy ( revisions.begin()
@@ -107,8 +106,8 @@ void CFullGraphFinalizer::InitWCRevs()
            && (revisions.back() >= pathRevision)
            && path.IsValid())
     {
-        wcRevs.emplace( wcRevs.begin()
-                      , revisions.back(), path.GetBasePath());
+        wcRevs.insert ( wcRevs.begin()
+                      , std::make_pair (revisions.back(), path.GetBasePath()));
         revisions.pop_back();
     }
 
@@ -143,8 +142,8 @@ void CFullGraphFinalizer::InitWCRevs()
         }
 
         if (path.IsValid())
-            wcRevs.emplace( wcRevs.begin()
-                          , revision, path.GetBasePath());
+            wcRevs.insert ( wcRevs.begin()
+                          , std::make_pair (revision, path.GetBasePath()));
     }
 }
 

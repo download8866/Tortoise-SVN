@@ -23,7 +23,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 // Extended to accept accented characters
 static inline bool IsAWordChar(int ch) {
@@ -312,7 +314,6 @@ next:
 					break;
 				case '[':
 					expected = true;
-					// Falls through.
 				case ']':
 				case '(':
 				case ')':

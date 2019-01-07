@@ -5,13 +5,11 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <cstdlib>
+#include <stdlib.h>
 
 #include <stdexcept>
-#include <string_view>
 #include <vector>
 #include <map>
-#include <memory>
 
 #include "Platform.h"
 
@@ -19,7 +17,9 @@
 
 #include "KeyMap.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 KeyMap::KeyMap() {
 	for (int i = 0; MapDefault[i].key; i++) {
@@ -44,10 +44,6 @@ void KeyMap::AssignCmdKey(int key, int modifiers, unsigned int msg) {
 unsigned int KeyMap::Find(int key, int modifiers) const {
 	std::map<KeyModifiers, unsigned int>::const_iterator it = kmap.find(KeyModifiers(key, modifiers));
 	return (it == kmap.end()) ? 0 : it->second;
-}
-
-const std::map<KeyModifiers, unsigned int> &KeyMap::GetKeyMap() const {
-	return kmap;
 }
 
 #if PLAT_GTK_MACOSX

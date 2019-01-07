@@ -41,9 +41,10 @@
 #include "CharacterCategory.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
-#include "DefaultLexer.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 // See https://github.com/ghc/ghc/blob/master/compiler/parser/Lexer.x#L1682
 // Note, letter modifiers are prohibited.
@@ -268,7 +269,7 @@ struct OptionSetHaskell : public OptionSet<OptionsHaskell> {
    }
 };
 
-class LexerHaskell : public DefaultLexer {
+class LexerHaskell : public ILexer {
    bool literate;
    Sci_Position firstImportLine;
    int firstImportIndent;
@@ -395,47 +396,47 @@ public:
       {}
    virtual ~LexerHaskell() {}
 
-   void SCI_METHOD Release() override {
+   void SCI_METHOD Release() {
       delete this;
    }
 
-   int SCI_METHOD Version() const override {
-      return lvRelease4;
+   int SCI_METHOD Version() const {
+      return lvOriginal;
    }
 
-   const char * SCI_METHOD PropertyNames() override {
+   const char * SCI_METHOD PropertyNames() {
       return osHaskell.PropertyNames();
    }
 
-   int SCI_METHOD PropertyType(const char *name) override {
+   int SCI_METHOD PropertyType(const char *name) {
       return osHaskell.PropertyType(name);
    }
 
-   const char * SCI_METHOD DescribeProperty(const char *name) override {
+   const char * SCI_METHOD DescribeProperty(const char *name) {
       return osHaskell.DescribeProperty(name);
    }
 
-   Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override;
+   Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
 
-   const char * SCI_METHOD DescribeWordListSets() override {
+   const char * SCI_METHOD DescribeWordListSets() {
       return osHaskell.DescribeWordListSets();
    }
 
-   Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override;
+   Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
 
-   void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
+   void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
 
-   void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
+   void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
 
-   void * SCI_METHOD PrivateCall(int, void *) override {
+   void * SCI_METHOD PrivateCall(int, void *) {
       return 0;
    }
 
-   static ILexer4 *LexerFactoryHaskell() {
+   static ILexer *LexerFactoryHaskell() {
       return new LexerHaskell(false);
    }
 
-   static ILexer4 *LexerFactoryLiterateHaskell() {
+   static ILexer *LexerFactoryLiterateHaskell() {
       return new LexerHaskell(true);
    }
 };

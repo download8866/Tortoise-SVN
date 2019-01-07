@@ -1,4 +1,4 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2009, 2014 - TortoiseSVN
 
@@ -33,7 +33,7 @@ void CTopAlignTrees::GetMinMaxY
             minY.push_back (INT_MAX);
 
         int& y = minY[rootID];
-        y = min(y, (int)(node->rect.bottom - node->requiredSize.cy));
+        y = min (y, node->rect.bottom - node->requiredSize.cy);
     }
 }
 

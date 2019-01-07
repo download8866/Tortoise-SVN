@@ -47,9 +47,9 @@
       </includedirs>
     </rc>
 
-    <mkdir dir="${configuration}_${platform}_static" if="${platform == 'win32'}"/>
+    <mkdir dir="${configuration}_${platform}_static" if="${configuration == 'release' and platform == 'win32'}"/>
     <property name="machineoption" value="/MACHINE:X86" />
-    <cl outputdir="${configuration}_${platform}_static" if="${platform == 'win32'}">
+    <cl outputdir="${configuration}_${platform}_static" if="${configuration == 'release' and platform == 'win32'}">
       <arg value="/O2" if="${configuration == 'release'}" />
       <arg value="/Oy-" if="${configuration == 'release' and platform == 'win32'}" />
       <arg value="/Od" if="${configuration == 'debug'}" />
@@ -68,7 +68,6 @@
       <sources>
         <include name="buckets\*.c" />
         <include name="crypto\*.c" />
-        <exclude name="crypto\apr_siphash.c" />
         <include name="dbd\*.c" />
         <include name="dbm\*.c" />
         <include name="dbm\sdbm\*.c" />
@@ -80,15 +79,14 @@
         <include name="strmatch\*.c" />
         <include name="uri\apr_uri.c" />
         <include name="xml\apr_xml.c" />
-        <include name="..\expat\lib\loadlibrary.c" />
-        <include name="..\expat\lib\xmlparse.c" />
-        <include name="..\expat\lib\xmlrole.c" />
-        <include name="..\expat\lib\xmltok.c" />
+        <include name="xml\expat\lib\xmlparse.c" />
+        <include name="xml\expat\lib\xmlrole.c" />
+        <include name="xml\expat\lib\xmltok.c" />
       </sources>
       <includedirs>
         <include name="include" />
         <include name="include\private" />
-        <include name="..\expat\lib" />
+        <include name="xml\expat\lib" />
         <include name="..\apr\include" />
       </includedirs>
       <defines>
@@ -108,7 +106,7 @@
     </cl>
     <lib
       output="${configuration}_${platform}_static\libaprutil_tsvn.lib"
-      options='/NOLOGO ${subsystem} ${machineoption}' if="${platform == 'win32'}">
+      options='/NOLOGO ${subsystem} ${machineoption}' if="${configuration == 'release' and platform == 'win32'}">
       <sources>
         <include name="${configuration}_${platform}_static\*.obj" />
       </sources>
@@ -133,7 +131,6 @@
       <sources>
         <include name="buckets\*.c" />
         <include name="crypto\*.c" />
-        <exclude name="crypto\apr_siphash.c" />
         <include name="dbd\*.c" />
         <include name="dbm\*.c" />
         <include name="dbm\sdbm\*.c" />
@@ -145,15 +142,14 @@
         <include name="strmatch\*.c" />
         <include name="uri\apr_uri.c" />
         <include name="xml\apr_xml.c" />
-        <include name="..\expat\lib\loadlibrary.c" />
-        <include name="..\expat\lib\xmlparse.c" />
-        <include name="..\expat\lib\xmlrole.c" />
-        <include name="..\expat\lib\xmltok.c" />
+        <include name="xml\expat\lib\xmlparse.c" />
+        <include name="xml\expat\lib\xmlrole.c" />
+        <include name="xml\expat\lib\xmltok.c" />
       </sources>
       <includedirs>
         <include name="include" />
         <include name="include\private" />
-        <include name="..\expat\lib" />
+        <include name="xml\expat\lib" />
         <include name="..\apr\include" />
       </includedirs>
       <defines>
@@ -177,7 +173,7 @@
     <property name="platext" value ="" if="${platform == 'x64'}" />
     <link
       output="${configuration}_${platform}\libaprutil_tsvn${platext}.dll"
-      options='/INCREMENTAL:NO /NOLOGO /DYNAMICBASE /NXCOMPAT /MANIFEST /MANIFESTFILE:"${configuration}_${platform}\libaprutil_tsvn.dll.intermediate.manifest" /DEBUG /PDB:"${configuration}_${platform}\libaprutil_tsvn.pdb" /DLL ${subsystem} /IMPLIB:"${configuration}_${platform}\libaprutil_tsvn.lib" ${machineoption} ${configuration}_${platform}\libaprutil_tsvn.res ..\apr\${configuration}_${platform}\libapr_tsvn.lib ws2_32.lib Wldap32.lib mswsock.lib rpcrt4.lib kernel32.lib advapi32.lib'>
+      options='/INCREMENTAL:NO /NOLOGO /DYNAMICBASE /NXCOMPAT /MANIFEST /MANIFESTFILE:"${configuration}_${platform}\libaprutil_tsvn.dll.intermediate.manifest" /DEBUG /PDB:"${configuration}_${platform}\libaprutil_tsvn.pdb" /DLL ${subsystem} /BASE:"0x6EE60000" /IMPLIB:"${configuration}_${platform}\libaprutil_tsvn.lib" ${machineoption} ${configuration}_${platform}\libaprutil_tsvn.res ..\apr\${configuration}_${platform}\libapr_tsvn.lib ws2_32.lib Wldap32.lib mswsock.lib rpcrt4.lib kernel32.lib advapi32.lib'>
       <arg line="/LTCG /RELEASE /OPT:REF /OPT:ICF" if="${configuration == 'release'}" />
       <sources>
         <include name="${configuration}_${platform}\*.obj" />

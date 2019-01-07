@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2013-2015, 2017-2018 - TortoiseSVN
+// Copyright (C) 2013-2015, 2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,19 +33,15 @@ bool DropVendorCommand::Execute()
     CTSVNPath droptsvnpath = CTSVNPath(droppath);
     if (droptsvnpath.IsAdminDir())
         return FALSE;
-    if (!parser.HasKey(L"noui"))
-    {
-        CString sAsk;
-        sAsk.Format(IDS_PROC_VENDORDROP_CONFIRM, (LPCWSTR)droptsvnpath.GetFileOrDirectoryName());
-        if (MessageBox(GetExplorerHWND(), sAsk, L"TortoiseSVN", MB_YESNO|MB_ICONQUESTION) != IDYES)
-            return FALSE;
-    }
+    CString sAsk;
+    sAsk.Format(IDS_PROC_VENDORDROP_CONFIRM, (LPCWSTR)droptsvnpath.GetFileOrDirectoryName());
+    if (MessageBox(GetExplorerHWND(), sAsk, L"TortoiseSVN", MB_YESNO|MB_ICONQUESTION) != IDYES)
+        return FALSE;
 
     CProgressDlg progress;
     progress.SetTitle(IDS_PROC_VENDORDROP_TITLE);
     progress.SetLine(1, CString(MAKEINTRESOURCE(IDS_PROC_VENDORDROP_GETDATA1)));
-    if (!parser.HasKey(L"noprogressui"))
-        progress.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
+    progress.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
 
     std::map<CString,bool> versionedFiles;
     CTSVNPath path;
@@ -59,7 +55,7 @@ bool DropVendorCommand::Execute()
             {
                 if (PathFileExists(path.GetWinPath()))
                 {
-                    path = CTSVNPath(CPathUtils::GetLongPathname(path.GetWinPath()).c_str());
+                    path = CTSVNPath(CPathUtils::GetLongPathname(path.GetWinPath()));
                 }
                 else
                     continue;
@@ -109,14 +105,11 @@ bool DropVendorCommand::Execute()
             {
                 if (!CopyFileHandleReadOnly(srcPath, dstPath))
                 {
-                    if (!parser.HasKey(L"noui"))
-                    {
-                        CFormatMessageWrapper error;
-                        progress.Stop();
-                        CString sErr;
-                        sErr.Format(IDS_ERR_COPYFAILED, (LPCWSTR)srcPath, (LPCWSTR)dstPath, (LPCWSTR)error);
-                        MessageBox(progress.GetHwnd(), sErr, L"TortoiseSVN", MB_ICONERROR);
-                    }
+                    CFormatMessageWrapper error;
+                    progress.Stop();
+                    CString sErr;
+                    sErr.Format(IDS_ERR_COPYFAILED, (LPCWSTR)srcPath, (LPCWSTR)dstPath, (LPCWSTR)error);
+                    MessageBox(progress.GetHwnd(), sErr, L"TortoiseSVN", MB_ICONERROR);
                     return FALSE;
                 }
             }
@@ -141,14 +134,11 @@ bool DropVendorCommand::Execute()
                         {
                             if (!CopyFileHandleReadOnly(srcPath, dstPath))
                             {
-                                if (!parser.HasKey(L"noui"))
-                                {
-                                    CFormatMessageWrapper error;
-                                    progress.Stop();
-                                    CString sErr;
-                                    sErr.Format(IDS_ERR_COPYFAILED, (LPCWSTR)srcPath, (LPCWSTR)dstPath, (LPCWSTR)error);
-                                    MessageBox(progress.GetHwnd(), sErr, L"TortoiseSVN", MB_ICONERROR);
-                                }
+                                CFormatMessageWrapper error;
+                                progress.Stop();
+                                CString sErr;
+                                sErr.Format(IDS_ERR_COPYFAILED, (LPCWSTR)srcPath, (LPCWSTR)dstPath, (LPCWSTR)error);
+                                MessageBox(progress.GetHwnd(), sErr, L"TortoiseSVN", MB_ICONERROR);
                                 return FALSE;
                             }
                             versionedFiles.erase(v);
@@ -184,14 +174,11 @@ bool DropVendorCommand::Execute()
                 {
                     if (!CopyFileHandleReadOnly(srcPath, dstPath))
                     {
-                        if (!parser.HasKey(L"noui"))
-                        {
-                            CFormatMessageWrapper error;
-                            progress.Stop();
-                            CString sErr;
-                            sErr.Format(IDS_ERR_COPYFAILED, (LPCWSTR)srcPath, (LPCWSTR)dstPath, (LPCWSTR)error);
-                            MessageBox(progress.GetHwnd(), sErr, L"TortoiseSVN", MB_ICONERROR);
-                        }
+                        CFormatMessageWrapper error;
+                        progress.Stop();
+                        CString sErr;
+                        sErr.Format(IDS_ERR_COPYFAILED, (LPCWSTR)srcPath, (LPCWSTR)dstPath, (LPCWSTR)error);
+                        MessageBox(progress.GetHwnd(), sErr, L"TortoiseSVN", MB_ICONERROR);
                         return FALSE;
                     }
                 }
@@ -200,8 +187,7 @@ bool DropVendorCommand::Execute()
                 if (!svn.Add(plist, &projectproperties, svn_depth_infinity, true, true, true, true))
                 {
                     progress.Stop();
-                    if (!parser.HasKey(L"noui"))
-                        svn.ShowErrorDialog(progress.GetHwnd());
+                    svn.ShowErrorDialog(progress.GetHwnd());
                     return FALSE;
                 }
             }
@@ -237,8 +223,7 @@ bool DropVendorCommand::Execute()
         if (!svn.Remove(CTSVNPathList(delpath), true, false))
         {
             progress.Stop();
-            if (!parser.HasKey(L"noui"))
-                svn.ShowErrorDialog(progress.GetHwnd());
+            svn.ShowErrorDialog(progress.GetHwnd());
             return FALSE;
         }
         if (isDir)

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013, 2015-2018 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013, 2015-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "../SmartHandle.h"
 #include "scintilla.h"
 #include "SciLexer.h"
 #include "../../../ext/hunspell/hunspell.hxx"
@@ -26,7 +25,6 @@
 #include "PersonalDictionary.h"
 #include <regex>
 #include <spellcheck.h>
-#include "LruCache.h"
 
 #define AUTOCOMPLETE_SPELLING       0
 #define AUTOCOMPLETE_FILENAME       1
@@ -120,7 +118,7 @@ public:
     /**
      * Returns the word located under the cursor.
      */
-    CString     GetWordUnderCursor(bool bSelectWord = false, bool allchars = false);
+    CString     GetWordUnderCursor(bool bSelectWord = false);
 
     void        RegisterContextMenuHandler(CSciEditContextMenuInterface * object) {m_arContextHandlers.Add(object);}
 
@@ -130,14 +128,12 @@ public:
     void        SetRepositoryRoot(const CString& url) {m_sRepositoryRoot = url;}
 
     void        RestyleBugIDs();
-
-    void        SetReadOnly(bool bReadOnly);
 private:
-    CAutoLibrary m_hModule;
+    HMODULE     m_hModule;
     LRESULT     m_DirectFunction;
     LRESULT     m_DirectPointer;
-    std::unique_ptr<Hunspell> pChecker;
-    std::unique_ptr<MyThes>   pThesaur;
+    Hunspell *  pChecker;
+    MyThes *    pThesaur;
     UINT        m_spellcodepage;
     std::map<CString, int> m_autolist;
     TCHAR       m_separator;
@@ -152,31 +148,27 @@ private:
     int         m_nAutoCompleteMinChars;
     ISpellCheckerFactoryPtr     m_spellCheckerFactory;
     ISpellCheckerPtr            m_SpellChecker;
-    LruCache<std::wstring, BOOL> m_SpellingCache;
     bool        m_blockModifiedHandler;
-    bool        m_bReadOnly;
-
     static bool IsValidURLChar(unsigned char ch);
 protected:
     virtual BOOL OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult);
     virtual BOOL PreTranslateMessage(MSG* pMsg);
     virtual ULONG GetGestureStatus(CPoint ptTouch) override;
-    void        CheckSpelling(Sci_Position startpos, Sci_Position endpos);
+    void        CheckSpelling(int startpos, int endpos);
     void        SuggestSpellingAlternatives(void);
-    void        DoAutoCompletion(Sci_Position nMinPrefixLength);
+    void        DoAutoCompletion(int nMinPrefixLength);
     BOOL        LoadDictionaries(LONG lLanguageID);
-    BOOL        MarkEnteredBugID(Sci_Position startstylepos, Sci_Position endstylepos);
-    bool        StyleEnteredText(Sci_Position startstylepos, Sci_Position endstylepos);
-    void        StyleURLs(Sci_Position startstylepos, Sci_Position endstylepos);
-    bool        WrapLines(Sci_Position startpos, Sci_Position endpos);
-    bool        FindStyleChars(const char * line, char styler, Sci_Position& start, Sci_Position& end);
+    BOOL        MarkEnteredBugID(int startstylepos, int endstylepos);
+    bool        StyleEnteredText(int startstylepos, int endstylepos);
+    void        StyleURLs(int startstylepos, int endstylepos);
+    bool        WrapLines(int startpos, int endpos);
+    bool        FindStyleChars(const char * line, char styler, int& start, int& end);
     void        AdvanceUTF8(const char * str, int& pos);
-    BOOL        CheckWordSpelling(const CString & sWord);
     BOOL        IsMisspelled(const CString& sWord);
-    DWORD       GetStyleAt(Sci_Position pos) { return (DWORD)Call(SCI_GETSTYLEAT, pos) & 0x1f; }
-    bool        IsUrlOrEmail(const CStringA& sText);
-    CStringA    GetWordForSpellChecker(const CString& sWord);
-    CString     GetWordFromSpellChecker(const CStringA& sWordA);
+    DWORD       GetStyleAt(int pos) { return (DWORD)Call(SCI_GETSTYLEAT, pos) & 0x1f; }
+    bool        IsUrl(const CStringA& sText);
+    CStringA    GetWordForSpellCkecker(const CString& sWord);
+    CString     GetWordFromSpellCkecker(const CStringA& sWordA);
 
     afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
     afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);

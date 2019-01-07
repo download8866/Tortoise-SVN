@@ -29,9 +29,10 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
-#include "DefaultLexer.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 static const int NUM_RUST_KEYWORD_LISTS = 7;
 static const int MAX_RUST_IDENT_CHARS = 1023;
@@ -115,39 +116,39 @@ struct OptionSetRust : public OptionSet<OptionsRust> {
 	}
 };
 
-class LexerRust : public DefaultLexer {
+class LexerRust : public ILexer {
 	WordList keywords[NUM_RUST_KEYWORD_LISTS];
 	OptionsRust options;
 	OptionSetRust osRust;
 public:
 	virtual ~LexerRust() {
 	}
-	void SCI_METHOD Release() override {
+	void SCI_METHOD Release() {
 		delete this;
 	}
-	int SCI_METHOD Version() const override {
-		return lvRelease4;
+	int SCI_METHOD Version() const {
+		return lvOriginal;
 	}
-	const char * SCI_METHOD PropertyNames() override {
+	const char * SCI_METHOD PropertyNames() {
 		return osRust.PropertyNames();
 	}
-	int SCI_METHOD PropertyType(const char *name) override {
+	int SCI_METHOD PropertyType(const char *name) {
 		return osRust.PropertyType(name);
 	}
-	const char * SCI_METHOD DescribeProperty(const char *name) override {
+	const char * SCI_METHOD DescribeProperty(const char *name) {
 		return osRust.DescribeProperty(name);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override;
-	const char * SCI_METHOD DescribeWordListSets() override {
+	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
+	const char * SCI_METHOD DescribeWordListSets() {
 		return osRust.DescribeWordListSets();
 	}
-	Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override;
-	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
-	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
-	void * SCI_METHOD PrivateCall(int, void *) override {
+	Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
+	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+	void * SCI_METHOD PrivateCall(int, void *) {
 		return 0;
 	}
-	static ILexer4 *LexerFactoryRust() {
+	static ILexer *LexerFactoryRust() {
 		return new LexerRust();
 	}
 };
@@ -212,7 +213,7 @@ static void ScanIdentifier(Accessor& styler, Sci_Position& pos, WordList *keywor
 		styler.ColourTo(pos - 1, SCE_RUST_MACRO);
 	} else {
 		char s[MAX_RUST_IDENT_CHARS + 1];
-		Sci_Position len = pos - start;
+		int len = pos - start;
 		len = len > MAX_RUST_IDENT_CHARS ? MAX_RUST_IDENT_CHARS : len;
 		GrabString(s, styler, start, len);
 		bool keyword = false;
@@ -270,7 +271,7 @@ static void ScanNumber(Accessor& styler, Sci_Position& pos) {
 		pos++;
 		c = styler.SafeGetCharAt(pos, '\0');
 		n = styler.SafeGetCharAt(pos + 1, '\0');
-		if (c == '8') {
+		if (c == '8' || c == 's') {
 			pos++;
 		} else if (c == '1' && n == '6') {
 			pos += 2;
@@ -278,8 +279,6 @@ static void ScanNumber(Accessor& styler, Sci_Position& pos) {
 			pos += 2;
 		} else if (c == '6' && n == '4') {
 			pos += 2;
-		} else if (styler.Match(pos, "size")) {
-			pos += 4;
 		} else {
 			error = true;
 		}

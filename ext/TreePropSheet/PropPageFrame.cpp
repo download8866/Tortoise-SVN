@@ -40,20 +40,13 @@ CPropPageFrame::CPropPageFrame()
 :   m_bShowCaption(FALSE),
     m_nCaptionHeight(0),
     m_hCaptionIcon(NULL),
-    m_dwMsgFormat(DT_CENTER|DT_VCENTER|DT_NOPREFIX|DT_SINGLELINE),
-    m_uiFont(0)
+    m_dwMsgFormat(DT_CENTER|DT_VCENTER|DT_NOPREFIX|DT_SINGLELINE)
 {
-    NONCLIENTMETRICS metrics = { 0 };
-    metrics.cbSize = sizeof(NONCLIENTMETRICS);
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &metrics, FALSE);
-    m_uiFont = CreateFontIndirect(&metrics.lfMessageFont);
 }
 
 
 CPropPageFrame::~CPropPageFrame()
 {
-    if (m_uiFont)
-        DeleteObject(m_uiFont);
 }
 
 
@@ -155,13 +148,13 @@ CRect CPropPageFrame::CalcMsgArea()
 
 void CPropPageFrame::DrawMsg(CDC *pDc, CRect rect, LPCTSTR /*lpszMsg*/, DWORD /*dwFormat*/)
 {
-    auto hOldFont    = pDc->SelectObject(m_uiFont);
-    int  nPrevBkMode = pDc->SetBkMode(TRANSPARENT);
+    CFont   *pPrevFont = dynamic_cast<CFont*>(pDc->SelectStockObject(DEFAULT_GUI_FONT));
+    int     nPrevBkMode = pDc->SetBkMode(TRANSPARENT);
 
     pDc->DrawText(GetMsgText(), rect, GetMsgFormat());
 
     pDc->SetBkMode(nPrevBkMode);
-    pDc->SelectObject(hOldFont);
+    pDc->SelectObject(pPrevFont);
 }
 
 

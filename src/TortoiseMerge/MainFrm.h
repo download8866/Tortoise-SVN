@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2015, 2017 - TortoiseSVN
+// Copyright (C) 2006-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@
 #include "SVNPatch.h"
 #include "SimpleIni.h"
 #include "CustomMFCRibbonStatusBar.h"
-#include "NativeRibbonApp.h"
 
 #include <tuple>
 
@@ -58,9 +57,6 @@ public:
     virtual ~CMainFrame();
 
     void            ShowDiffBar(bool bShow);
-    void            DiffLeftToBase();
-    void            DiffRightToBase();
-
 #ifdef _DEBUG
     virtual void    AssertValid() const;
     virtual void    Dump(CDumpContext& dc) const;
@@ -78,10 +74,10 @@ protected:
     bool            LoadViews(int line = -2);
     void            ClearViewNamesAndPaths();
     void            SetWindowTitle();
-    void            RecalcLayout(BOOL bNotify = TRUE) override;
 
     afx_msg LRESULT OnTaskbarButtonCreated(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnIdleUpdateCmdUI(WPARAM wParam, LPARAM);
+    afx_msg void    OnApplicationLook(UINT id);
+    afx_msg void    OnUpdateApplicationLook(CCmdUI* pCmdUI);
 
     afx_msg void    OnFileSave();
     afx_msg void    OnFileSaveAs();
@@ -93,7 +89,6 @@ protected:
     afx_msg void    OnActivate(UINT, CWnd*, BOOL);
     afx_msg void    OnViewWhitespaces();
     afx_msg int     OnCreate(LPCREATESTRUCT lpCreateStruct);
-    afx_msg void    OnDestroy();
     afx_msg void    OnSize(UINT nType, int cx, int cy);
     afx_msg void    OnUpdateFileSave(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateFileSaveAs(CCmdUI *pCmdUI);
@@ -193,9 +188,7 @@ protected:
     afx_msg void    OnUpdateTabModeLeft(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateTabModeRight(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateTabModeBottom(CCmdUI *pCmdUI);
-    afx_msg void    OnUpdateThreeWayActions(CCmdUI *pCmdUI);
-    afx_msg void    OnRegexNoFilter();
-    afx_msg void    OnUpdateRegexNoFilter(CCmdUI * pCmdUI);
+
     DECLARE_MESSAGE_MAP()
 protected:
     void            UpdateLayout();
@@ -245,8 +238,6 @@ protected:
     static bool     HasPrevInlineDiff(CBaseView* view);
     static bool     HasNextInlineDiff(CBaseView* view);
     void            BuildRegexSubitems(CMFCPopupMenu* pMenuPopup = nullptr);
-    bool            AdjustUnicodeTypeForLoad(CFileTextLines::UnicodeType& type);
-    void            DiffTwo(const CWorkingFile& file1, const CWorkingFile& file2);
 
     static svn_error_t * getallstatus(void * baton, const char * path, const svn_client_status_t * status, apr_pool_t * pool);
 
@@ -270,6 +261,9 @@ protected:
     bool            m_bLineDiff;
     bool            m_bLocatorBar;
     bool            m_bUseRibbons;
+
+    CMFCRibbonBar               m_wndRibbonBar;
+    CMFCRibbonApplicationButton m_MainButton;
 
     CRegDWORD       m_regWrapLines;
     CRegDWORD       m_regViewModedBlocks;
@@ -298,7 +292,6 @@ public:
     bool            m_bWrapLines;
     bool            m_bSaveRequired;
     bool            m_bSaveRequiredOnConflicts;
-    bool            m_bAskToMarkAsResolved;
     HWND            resolveMsgWnd;
     WPARAM          resolveMsgWParam;
     LPARAM          resolveMsgLParam;
@@ -309,7 +302,4 @@ public:
     void            FillTabModeButton(CMFCRibbonButton * pButton, int start);
     CMFCMenuBar     m_wndMenuBar;
     CMFCToolBar     m_wndToolBar;
-
-    std::unique_ptr<CNativeRibbonApp> m_pRibbonApp;
-    CComPtr<IUIFramework> m_pRibbonFramework;
 };

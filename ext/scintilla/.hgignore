@@ -1,20 +1,16 @@
 syntax: glob
 *.o
 *.a
-*.asm
 *.lib
 *.obj
-*.iobj
 *.pyc
 *.dll
 *.dylib
 *.framework
 *.pyd
-*.exe
 *.exp
 *.lib
 *.pdb
-*.ipdb
 *.res
 *.bak
 *.sbr
@@ -38,8 +34,9 @@ win32/*.plist
 *.pbproj
 *.log
 *.xcbkptlist
+*.xcscheme
+*.xcworkspacedata
 *.xcuserstate
-xcuserdata/
 *.xcsettings
 xcschememanagement.plist
 .DS_Store
@@ -54,7 +51,6 @@ Makefile.Release
 *_resource.rc
 moc_*
 *.pro.user
-.qmake.stash
 ScintillaEdit.cpp
 ScintillaEdit.h
 ScintillaConstants.py
@@ -62,9 +58,3 @@ ScintillaEditBase.intermediate.manifest
 ScintillaEdit.intermediate.manifest
 qt/*/Makefile
 cov-int
-.vs
-meson-private
-meson-logs
-build.ninja
-.ninja*
-compile_commands.json

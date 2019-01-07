@@ -27,9 +27,10 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
-#include "DefaultLexer.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 /* Nested comments require keeping the value of the nesting level for every
    position in the document.  But since scintilla always styles line by line,
@@ -144,7 +145,7 @@ struct OptionSetD : public OptionSet<OptionsD> {
 	}
 };
 
-class LexerD : public DefaultLexer {
+class LexerD : public ILexer {
 	bool caseSensitive;
 	WordList keywords;
 	WordList keywords2;
@@ -161,37 +162,37 @@ public:
 	}
 	virtual ~LexerD() {
 	}
-	void SCI_METHOD Release() override {
+	void SCI_METHOD Release() {
 		delete this;
 	}
-	int SCI_METHOD Version() const override {
-		return lvRelease4;
+	int SCI_METHOD Version() const {
+		return lvOriginal;
 	}
-	const char * SCI_METHOD PropertyNames() override {
+	const char * SCI_METHOD PropertyNames() {
 		return osD.PropertyNames();
 	}
-	int SCI_METHOD PropertyType(const char *name) override {
+	int SCI_METHOD PropertyType(const char *name) {
 		return osD.PropertyType(name);
 	}
-	const char * SCI_METHOD DescribeProperty(const char *name) override {
+	const char * SCI_METHOD DescribeProperty(const char *name) {
 		return osD.DescribeProperty(name);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override;
-	const char * SCI_METHOD DescribeWordListSets() override {
+	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
+	const char * SCI_METHOD DescribeWordListSets() {
 		return osD.DescribeWordListSets();
 	}
-	Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override;
-	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
-	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
+	Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
+	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
 
-	void * SCI_METHOD PrivateCall(int, void *) override {
+	void * SCI_METHOD PrivateCall(int, void *) {
 		return 0;
 	}
 
-	static ILexer4 *LexerFactoryD() {
+	static ILexer *LexerFactoryD() {
 		return new LexerD(true);
 	}
-	static ILexer4 *LexerFactoryDInsensitive() {
+	static ILexer *LexerFactoryDInsensitive() {
 		return new LexerD(false);
 	}
 };

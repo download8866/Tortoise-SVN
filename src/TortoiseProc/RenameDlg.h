@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010, 2013-2015, 2017-2018 - TortoiseSVN
+// Copyright (C) 2003-2006, 2009-2010, 2013-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "IInputValidator.h"
-#include "AutoComplete.h"
 
 /**
  * \ingroup TortoiseProc
@@ -37,8 +36,6 @@ public:
     void SetRenameRequired(bool renameRequired) { m_renameRequired = renameRequired; }
     void SetFileSystemAutoComplete() { m_bFSAutoComplete = true; }
     void SetAutoComplete(bool bAutoComplete) { m_bAutoComplete = bAutoComplete; }
-    template<typename T> void SetCustomAutoComplete(T t) { m_bCustomAutocomplete = true; m_AutoCompleteCustom.SetEntries(t); }
-
     enum { IDD = IDD_RENAME };
 
 protected:
@@ -56,15 +53,12 @@ public:
     CString m_name;
     CString m_windowtitle;
     CString m_label;
-    CString m_infoLabel;
 
 private:
     bool                m_bBalloonVisible;
     bool                m_renameRequired;
     bool                m_bFSAutoComplete;
     bool                m_bAutoComplete;
-    bool                m_bCustomAutocomplete;
     CString             m_originalName;
     IInputValidator *   m_pInputValidator;
-    CAutoComplete       m_AutoCompleteCustom;
 };

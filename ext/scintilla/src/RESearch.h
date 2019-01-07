@@ -9,7 +9,9 @@
 #ifndef RESEARCH_H
 #define RESEARCH_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 /*
  * The following defines are not meant to be changeable.
@@ -21,7 +23,7 @@ namespace Scintilla {
 
 class CharacterIndexer {
 public:
-	virtual char CharAt(Sci::Position index) const=0;
+	virtual char CharAt(int index)=0;
 	virtual ~CharacterIndexer() {
 	}
 };
@@ -30,19 +32,18 @@ class RESearch {
 
 public:
 	explicit RESearch(CharClassify *charClassTable);
-	// No dynamic allocation so default copy constructor and assignment operator are OK.
 	~RESearch();
 	void Clear();
-	void GrabMatches(const CharacterIndexer &ci);
-	const char *Compile(const char *pattern, Sci::Position length, bool caseSensitive, bool posix);
-	int Execute(const CharacterIndexer &ci, Sci::Position lp, Sci::Position endp);
+	void GrabMatches(CharacterIndexer &ci);
+	const char *Compile(const char *pattern, int length, bool caseSensitive, bool posix);
+	int Execute(CharacterIndexer &ci, int lp, int endp);
 
 	enum { MAXTAG=10 };
 	enum { MAXNFA=4096 };
 	enum { NOTFOUND=-1 };
 
-	Sci::Position bopat[MAXTAG];
-	Sci::Position eopat[MAXTAG];
+	int bopat[MAXTAG];
+	int eopat[MAXTAG];
 	std::string pat[MAXTAG];
 
 private:
@@ -50,10 +51,10 @@ private:
 	void ChSetWithCase(unsigned char c, bool caseSensitive);
 	int GetBackslashExpression(const char *pattern, int &incr);
 
-	Sci::Position PMatch(const CharacterIndexer &ci, Sci::Position lp, Sci::Position endp, char *ap);
+	int PMatch(CharacterIndexer &ci, int lp, int endp, char *ap);
 
-	Sci::Position bol;
-	Sci::Position tagstk[MAXTAG];  /* subpat tag stack */
+	int bol;
+	int tagstk[MAXTAG];  /* subpat tag stack */
 	char nfa[MAXNFA];    /* automaton */
 	int sta;
 	unsigned char bittab[BITBLK]; /* bit table for CCL pre-set bits */
@@ -64,7 +65,9 @@ private:
 	}
 };
 
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif
 

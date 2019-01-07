@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by D:\Development\SVN\TortoiseSVN\src\Resources\TortoiseMergeENG.rc
 //
+#define IDCANCEL2                       4
 #define IDR_MAINFRAME                   100
 #define IDP_OLE_INIT_FAILED             101
 #define IDS_TITLE_REJECTEDHUNKS         101
@@ -34,9 +35,17 @@
 #define IDI_MOVEDTO                     151
 #define IDI_MOVEDLINE                   152
 #define IDC_MARGINCURSOR                153
+#define IDI_ICON1                       154
 #define IDI_AEROBACKGROUND              154
 #define IDD_GOTO                        155
+#define IDR_RIBBON                      156
+#define IDB_RIBBONLARGE                 157
+#define IDB_RIBBONSMALL                 158
+#define IDB_PNG1                        159
 #define IDB_LOGO                        159
+#define IDB_RIBBONSMALLHDPI             161
+#define IDB_PNG3                        162
+#define IDB_RIBBONLARGEHDPI             162
 #define IDD_REGEXFILTERS                164
 #define IDD_REGEXFILTER                 165
 #define IDR_CONFIG1                     166
@@ -45,7 +54,7 @@
 #define IDB_LOGOFLIPPED                 168
 #define IDR_IGNORECOMMENTSTXT           169
 #define IDI_LINEMARKED                  170
-#define IDB_REGEX_FILTER                171
+#define IDD_PATCH_FILE_OPEN_CUSTOM      180
 #define IDS_SELECTFILE                  200
 #define IDS_SELECTDIFFFILE              201
 #define IDD_ENCODING                    300
@@ -101,6 +110,7 @@
 #define IDC_FGWHITESPACEREMOVED         1034
 #define IDC_BKWHITESPACEDIFF            1034
 #define IDC_BKADDED                     1035
+#define IDC_BKWHITESPACEDIFF2           1036
 #define IDC_FGWHITESPACES               1036
 #define IDC_FGADDED                     1037
 #define IDC_BKWHITESPACEADDED           1038
@@ -108,11 +118,11 @@
 #define IDS_ERR_MAINFRAME_FILEVERSIONNOTFOUND 1040
 #define IDC_BKEMPTY                     1040
 #define IDS_ERR_MAINFRAME_FILEHASCONFLICTS 1041
+#define IDC_FGEMPTY                     1041
 #define IDC_BKCONFLICTRESOLVED          1041
 #define IDC_BKCONFLICTED                1042
 #define IDC_FGCONFLICTED                1043
 #define IDC_BKCONFLICTEDADDED           1044
-#define IDC_BKFILTERED                  1044
 #define IDC_FGCONFLICTEDADDED           1045
 #define IDC_BKCONFLICTEDEMPTY           1046
 #define IDC_FGCONFLICTEDEMPTY           1047
@@ -131,9 +141,7 @@
 #define IDC_FGYOURSADDED                1059
 #define IDC_BKYOURSREMOVED              1060
 #define IDC_FGYOURSREMOVED              1061
-#define IDC_FGCONFLICTRESOLVED          1062
 #define IDC_LANGUAGECOMBO               1062
-#define IDC_FGEMPTY                     1063
 #define IDC_LINENUMBERS                 1063
 #define IDC_MATCHCASE                   1064
 #define IDC_PATCHFROMCLIPBOARD          1064
@@ -182,8 +190,6 @@
 #define IDS_ERR_PATCHPATHS              1111
 #define IDS_ERR_ERROR                   1112
 #define IDS_ERR_INVALIDREGEX            1113
-#define IDS_ERR_REGEX_INVALID           1114
-#define IDS_ERR_REGEX_INVALIDRETRY      1115
 #define IDC_PATCH_TO_CLIPBOARD          1132
 #define IDS_APPNAME                     1271
 #define IDS_ERR_THREADSTARTFAILED       1281
@@ -246,7 +252,6 @@
 #define IDS_STATE                       2705
 #define IDS_STATE_ERROR                 2706
 #define IDS_STATE_PATCHED               2707
-#define IDS_DIFF_IGNORE_EOL             2708
 #define IDS_PROPMODS                    2800
 #define IDS_PROPANDCONTENTMODS          2801
 #define IDS_MOVED_FROM_TT               2810
@@ -258,7 +263,6 @@
 #define IDS_STATUSBAR_RIGHTVIEW         3004
 #define IDS_STATUSBAR_CONFLICTS         3005
 #define IDS_STATUSBAR_BOTTOMVIEW        3006
-#define IDS_ENCODING_COMBO_TOOLTIP      3010
 #define IDS_VIEWCONTEXTMENU_USETHISBLOCK 4000
 #define IDS_VIEWCONTEXTMENU_USETHEIRBLOCK 4001
 #define IDS_VIEWCONTEXTMENU_USEYOURBLOCK 4002
@@ -343,8 +347,6 @@
 #define IDS_PATCH_PREVIEW               6004
 #define IDS_PATCH_ITEMTT                6005
 #define IDS_PATCH_COPYFROMCLIPBOARD     6006
-#define IDS_HEADER_DIFFLEFTTOBASE       6100
-#define IDS_HEADER_DIFFRIGHTTOBASE      6101
 #define IDS_COLOURPICKER_CUSTOMTEXT     7000
 #define IDS_COLOURPICKER_DEFAULTTEXT    7001
 #define IDS_EDIT_COPY                   8000
@@ -354,6 +356,18 @@
 #define IDS_EDIT_SPACE2TAB              8004
 #define IDS_EDIT_TRIM                   8005
 #define IDC_STYLEBUTTON                 10000
+#define ID_VIEW_APPLOOK_WIN7            10001
+#define ID_VIEW_APPLOOK_VS_2008         10002
+#define ID_VIEW_APPLOOK_WIN_2000        10003
+#define ID_VIEW_APPLOOK_OFF_XP          10004
+#define ID_VIEW_APPLOOK_WIN_XP          10005
+#define ID_VIEW_APPLOOK_OFF_2003        10006
+#define ID_VIEW_APPLOOK_VS_2005         10007
+#define ID_OFFICE2007                   10008
+#define ID_VIEW_APPLOOK_OFF_2007_BLUE   10009
+#define ID_VIEW_APPLOOK_OFF_2007_BLACK  10010
+#define ID_VIEW_APPLOOK_OFF_2007_SILVER 10011
+#define ID_VIEW_APPLOOK_OFF_2007_AQUA   10012
 #define ID_VIEW_WHITESPACES             32774
 #define ID_VIEW_ONEWAYDIFF              32775
 #define ID_NAVIGATE_NEXTDIFFERENCE      32779
@@ -394,27 +408,49 @@
 #define ID_VIEW_IGNOREALLWHITESPACECHANGES 32873
 #define ID_NAVIGATE_NEXTINLINEDIFF      32875
 #define ID_NAVIGATE_PREVINLINEDIFF      32876
+#define ID_NAVIGATE_NEXTINLINEDIFFERENCE 32878
+#define ID_NAVIGATE_PREVIOUSINLINEDIFFERENCE 32879
 #define ID_VIEW_MOVEDBLOCKS             32880
 #define ID_VIEW_WRAPLONGLINES           32881
 #define ID_EDIT_SELECTALL               32883
+#define ID_EDIT_PASTE32888              32888
 #define ID_VIEW_INLINEDIFF              32889
+#define ID_VIEW_INLINEDIFF32890         32890
 #define ID_EDIT_FINDNEXTSTART           32891
 #define ID_EDIT_FINDPREVSTART           32892
 #define ID_EDIT_GOTOLINE                32893
+#define ID_EDIT_GOTOLINE32895           32895
 #define ID_VIEW_IGNORECOMMENTS          32896
 #define ID_LOGOBUTTON                   32897
 #define ID_VIEW_BARS                    32898
 #define ID_USEBLOCKS                    32914
+#define ID_BUTTON20                     32916
+#define ID_BUTTON24                     32920
+#define ID_BUTTON28                     32924
+#define ID_BUTTON7                      32929
+#define ID_BUTTON18                     32944
+#define ID_BUTTON25                     32949
+#define ID_BUTTON31                     32954
+#define ID_BUTTON32                     32955
+#define ID_APPLOOK                      32956
+#define ID_BUTTON6                      32961
+#define ID_BUTTON14                     32968
+#define ID_BUTTON17                     32971
 #define ID_EDIT_ENABLE                  32976
-#define ID_EDIT_THREEWAY_ACTIONS        33001
-#define ID_REGEX_NO_FILTER              33002
+#define ID_FILE_ENABLEEDIT              32978
+#define ID_BUTTON3                      32981
+#define ID_BUTTON4                      32982
+#define ID_BUTTON15                     32990
+#define ID_EDIT_REGEXFILTER             32992
+#define ID_REGEXFILTER_REGEXFILTER      32993
+#define ID_BUTTON13                     33000
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        173
-#define _APS_NEXT_COMMAND_VALUE         33003
+#define _APS_NEXT_RESOURCE_VALUE        171
+#define _APS_NEXT_COMMAND_VALUE         33001
 #define _APS_NEXT_CONTROL_VALUE         1513
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

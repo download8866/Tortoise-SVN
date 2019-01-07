@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -36,37 +36,37 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_static|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_static|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -111,7 +111,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='release_static|x64'">..\..\obj\$(ProjectName)\$(Configuration)64\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TortoiseSVN32</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TortoiseSVN32</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='release_static|Win32'">TortoiseSVN32_static</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='release_static|Win32'">TortoiseSVN32</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TortoiseSVN</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TortoiseSVN</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='release_static|x64'">TortoiseSVN</TargetName>
@@ -129,8 +129,7 @@
       <AdditionalDependencies>Crypt32.lib;shfolder.lib;comctl32.lib;ws2_32.lib;rpcrt4.lib;shlwapi.lib;wininet.lib;Version.lib;libsvn_tsvn32.lib;libapr_tsvn.lib;libaprutil_tsvn.lib;intl3_tsvn.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\ext\Subversion\$(Configuration)_$(Platform);..\..\ext\apr\$(Configuration)_$(Platform);..\..\ext\apr-util\$(Configuration)_$(Platform);..\..\ext\libintl\$(Configuration)_$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>ShellExt.def</ModuleDefinitionFile>
-      <BaseAddress>
-      </BaseAddress>
+      <BaseAddress>0x5960000</BaseAddress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -146,8 +145,7 @@
       <AdditionalDependencies>Crypt32.lib;shfolder.lib;comctl32.lib;ws2_32.lib;rpcrt4.lib;shlwapi.lib;wininet.lib;Version.lib;libsvn_tsvn.lib;libapr_tsvn.lib;libaprutil_tsvn.lib;intl3_tsvn.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\ext\Subversion\$(Configuration)_$(Platform);..\..\ext\apr\$(Configuration)_$(Platform);..\..\ext\apr-util\$(Configuration)_$(Platform);..\..\ext\libintl\$(Configuration)_$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>ShellExt.def</ModuleDefinitionFile>
-      <BaseAddress>
-      </BaseAddress>
+      <BaseAddress>0x5960000</BaseAddress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -162,8 +160,7 @@
       <AdditionalDependencies>Crypt32.lib;shfolder.lib;comctl32.lib;ws2_32.lib;rpcrt4.lib;shlwapi.lib;wininet.lib;Version.lib;libsvn_tsvn32.lib;libapr_tsvn.lib;libaprutil_tsvn.lib;intl3_tsvn.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\ext\Subversion\$(Configuration)_$(Platform);..\..\ext\apr\$(Configuration)_$(Platform);..\..\ext\apr-util\$(Configuration)_$(Platform);..\..\ext\libintl\$(Configuration)_$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>ShellExt.def</ModuleDefinitionFile>
-      <BaseAddress>
-      </BaseAddress>
+      <BaseAddress>0x5960000</BaseAddress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release_static|Win32'">
@@ -179,8 +176,10 @@
       <AdditionalDependencies>Crypt32.lib;shfolder.lib;comctl32.lib;ws2_32.lib;rpcrt4.lib;shlwapi.lib;wininet.lib;Version.lib;libsvn_tsvn32.lib;libapr_tsvn.lib;libaprutil_tsvn.lib;zlibstat.lib;sqlite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\ext\Subversion\release_$(Platform)_static;..\..\ext\apr\release_$(Platform)_static;..\..\ext\apr-util\release_$(Platform)_static;..\..\ext\zlib\release_$(Platform)_static;..\..\ext\sqlite\release_$(Platform)_static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>ShellExt.def</ModuleDefinitionFile>
-      <BaseAddress>
-      </BaseAddress>
+      <BaseAddress>0x5960000</BaseAddress>
+      <OutputFile>$(OutDir)$(TargetName)_static$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName)_static.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(OutDir)$(TargetName)_static.lib</ImportLibrary>
     </Link>
     <Xdcmake>
       <OutputFile>$(OutDir)$(TargetName)_static.xml</OutputFile>
@@ -201,8 +200,7 @@
       <AdditionalDependencies>Crypt32.lib;shfolder.lib;comctl32.lib;ws2_32.lib;rpcrt4.lib;shlwapi.lib;wininet.lib;Version.lib;libsvn_tsvn.lib;libapr_tsvn.lib;libaprutil_tsvn.lib;intl3_tsvn.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\ext\Subversion\$(Configuration)_$(Platform);..\..\ext\apr\$(Configuration)_$(Platform);..\..\ext\apr-util\$(Configuration)_$(Platform);..\..\ext\libintl\$(Configuration)_$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>ShellExt.def</ModuleDefinitionFile>
-      <BaseAddress>
-      </BaseAddress>
+      <BaseAddress>0x5960000</BaseAddress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release_static|x64'">
@@ -217,8 +215,7 @@
       <AdditionalDependencies>Crypt32.lib;shfolder.lib;comctl32.lib;ws2_32.lib;rpcrt4.lib;shlwapi.lib;wininet.lib;Version.lib;libsvn_tsvn.lib;libapr_tsvn.lib;libaprutil_tsvn.lib;intl3_tsvn.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\ext\Subversion\$(Configuration)_$(Platform)_static;..\..\ext\apr\$(Configuration)_$(Platform)_static;..\..\ext\apr-util\$(Configuration)_$(Platform)_static;..\..\ext\libintl\$(Configuration)_$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>ShellExt.def</ModuleDefinitionFile>
-      <BaseAddress>
-      </BaseAddress>
+      <BaseAddress>0x5960000</BaseAddress>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -236,13 +233,13 @@
     <ClCompile Include="..\SVN\TSVNPath.cpp" />
     <ClCompile Include="..\TSVNCache\CacheInterface.cpp" />
     <ClCompile Include="..\Utils\DebugOutput.cpp" />
-    <ClCompile Include="..\Utils\LoadIconEx.cpp" />
     <ClCompile Include="..\Utils\MiscUI\IconBitmapUtils.cpp" />
     <ClCompile Include="..\Utils\PathUtils.cpp" />
     <ClCompile Include="..\Utils\PreserveChdir.cpp" />
     <ClCompile Include="..\Utils\Registry.cpp" />
     <ClCompile Include="..\Utils\StringUtils.cpp" />
     <ClCompile Include="..\Utils\SVNTrace.cpp" />
+    <ClCompile Include="..\Utils\SysInfo.cpp" />
     <ClCompile Include="..\Utils\UnicodeUtils.cpp" />
     <ClCompile Include="ColumnProvider.cpp" />
     <ClCompile Include="ContextMenu.cpp" />
@@ -318,13 +315,13 @@
     <ClInclude Include="..\SVN\SVNStatus.h" />
     <ClInclude Include="..\SVN\TSVNPath.h" />
     <ClInclude Include="..\Utils\DebugOutput.h" />
-    <ClInclude Include="..\Utils\LoadIconEx.h" />
     <ClInclude Include="..\Utils\MiscUI\IconBitmapUtils.h" />
     <ClInclude Include="..\Utils\MiscUI\ProgressDlg.h" />
     <ClInclude Include="..\Utils\PathUtils.h" />
     <ClInclude Include="..\Utils\PreserveChdir.h" />
     <ClInclude Include="..\Utils\registry.h" />
     <ClInclude Include="..\Utils\SVNTrace.h" />
+    <ClInclude Include="..\Utils\SysInfo.h" />
     <ClInclude Include="..\Utils\UnicodeUtils.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Guids.h" />
@@ -347,8 +344,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\copy.ico" />
-    <Image Include="..\Resources\menushelve.ico" />
-    <Image Include="..\Resources\menuunshelve.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

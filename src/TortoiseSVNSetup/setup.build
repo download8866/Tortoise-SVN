@@ -49,7 +49,7 @@
         </setenv>
       </if>
 
-      <!-- we're using VS2017 -->
+      <!-- we're using VS2015 -->
       <setenv>
         <variable name="VCVERSION" value="140" />
       </setenv>
@@ -150,10 +150,10 @@
           </try>
           <catch>
             <sleep minutes="1" />
-            <exec program="${signtool}" failonerror="${devrelease != '-dev'}">
+            <exec program="${signtool}">
               <arg value="sign" />
               <arg value="${signinfo}" />
-              <arg value="..\..\bin\${msifilename}.msi" />
+              <arg value="..\..\bin\${msifilename}.msi" failonerror="${devrelease != '-dev'}" />
             </exec>
           </catch>
         </trycatch>

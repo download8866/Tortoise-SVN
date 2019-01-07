@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008, 2011-2012, 2014, 2018 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008, 2011-2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -64,7 +64,8 @@ BOOL CHyperLink::PreTranslateMessage(MSG* pMsg)
 void CHyperLink::PreSubclassWindow()
 {
     // Enable notifications - CStatic has this disabled by default
-    ModifyStyle(0, SS_NOTIFY);
+    DWORD dwStyle = GetStyle();
+    ::SetWindowLong(GetSafeHwnd(), GWL_STYLE, dwStyle | SS_NOTIFY);
 
     // By default use the label text as the URL
     if (m_strURL.IsEmpty())
@@ -77,18 +78,19 @@ void CHyperLink::PreSubclassWindow()
         SetWindowText(m_strURL);
     }
 
-    LOGFONT lf;
     CFont* pFont = GetFont();
-    if (pFont)
-        pFont->GetObject(sizeof(lf), &lf);
-    else
+    if (!pFont)
     {
-        NONCLIENTMETRICS metrics = { 0 };
-        metrics.cbSize = sizeof(NONCLIENTMETRICS);
-        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &metrics, FALSE);
-        memcpy_s(&lf, sizeof(LOGFONT), &metrics.lfMessageFont, sizeof(LOGFONT));
+        HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+        if (hFont == NULL)
+            hFont = (HFONT) GetStockObject(ANSI_VAR_FONT);
+        if (hFont)
+            pFont = CFont::FromHandle(hFont);
     }
+    ASSERT(pFont->GetSafeHandle());
 
+    LOGFONT lf;
+    pFont->GetLogFont(&lf);
     m_StdFont.CreateFontIndirect(&lf);
     lf.lfUnderline = (BYTE) TRUE;
     m_UnderlineFont.CreateFontIndirect(&lf);

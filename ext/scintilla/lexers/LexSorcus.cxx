@@ -25,7 +25,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 
 //each character a..z and A..Z + '_' can be part of a keyword

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015, 2017-2018 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -83,7 +83,7 @@ BOOL CInputLogDlg::OnInitDialog()
     else
         m_cInput.Init();
 
-    m_cInput.SetFont(CAppUtils::GetLogFontName(), CAppUtils::GetLogFontSize());
+    m_cInput.SetFont((CString)CRegString(L"Software\\TortoiseSVN\\LogFontName", L"Courier New"), (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\LogFontSize", 8));
 
     if (m_pProjectProperties)
     {
@@ -476,18 +476,12 @@ void CInputLogDlg::OnBnClickedHistory()
     HistoryDlg.SetHistory(history);
     if (HistoryDlg.DoModal()==IDOK)
     {
-        CString sMsg = HistoryDlg.GetSelectedText();
-        if (sMsg.Compare(m_cInput.GetText().Left(sMsg.GetLength()))!=0)
+        if (HistoryDlg.GetSelectedText().Compare(m_cInput.GetText().Left(HistoryDlg.GetSelectedText().GetLength()))!=0)
         {
-            CString sBugID = m_pProjectProperties != nullptr ? m_pProjectProperties->FindBugID(sMsg) : L"";
-            if ((!sBugID.IsEmpty()) && ((GetDlgItem(IDC_BUGID)->IsWindowVisible())))
-            {
-                SetDlgItemText(IDC_BUGID, sBugID);
-            }
             if ((m_pProjectProperties)&&(m_pProjectProperties->GetLogMsgTemplate(m_sSVNAction).Compare(m_cInput.GetText())!=0))
-                m_cInput.InsertText(sMsg, !m_cInput.GetText().IsEmpty());
+                m_cInput.InsertText(HistoryDlg.GetSelectedText(), !m_cInput.GetText().IsEmpty());
             else
-                m_cInput.SetText(sMsg);
+                m_cInput.SetText(HistoryDlg.GetSelectedText());
         }
 
         UpdateOKButton();
@@ -499,7 +493,7 @@ void CInputLogDlg::OnComError( HRESULT hr )
 {
     COMError ce(hr);
     CString sErr;
-    sErr.FormatMessage(IDS_ERR_FAILEDISSUETRACKERCOM, (LPCWSTR)m_bugtraq_association.GetProviderName(), ce.GetMessageAndDescription().c_str());
+    sErr.FormatMessage(IDS_ERR_FAILEDISSUETRACKERCOM, m_bugtraq_association.GetProviderName(), ce.GetMessageAndDescription().c_str());
     ::MessageBox(m_hWnd, sErr, L"TortoiseSVN", MB_ICONERROR);
 }
 

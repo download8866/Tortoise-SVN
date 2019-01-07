@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2016, 2018 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,14 +32,16 @@ extern ShellObjects g_shellObjects;
 
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)
-    : regDiffLater(L"Software\\TortoiseMerge\\DiffLater", L"")
+    : m_crasher(L"TortoiseSVN", false)
+    , regDiffLater(L"Software\\TortoiseMerge\\DiffLater", L"")
     , itemStates(0)
     , itemStatesFolder(0)
     , space(0)
     , columnrev(0)
     , filestatus(svn_wc_status_none)
-    , m_State(state)
 {
+    m_State = state;
+
     m_cRef = 0L;
     InterlockedIncrement(&g_cRefThisDll);
 
@@ -290,7 +292,19 @@ STDMETHODIMP CShellExt::Load(LPCOLESTR /*pszFileName*/, DWORD /*dwMode*/)
 }
 
 // ICopyHook member
-UINT __stdcall CShellExt::CopyCallback(HWND /*hWnd*/, UINT wFunc, UINT /*wFlags*/, LPCTSTR pszSrcFile, DWORD /*dwSrcAttribs*/, LPCTSTR /*pszDestFile*/, DWORD /*dwDestAttribs*/)
+UINT __stdcall CShellExt::CopyCallback(HWND hWnd, UINT wFunc, UINT wFlags, LPCTSTR pszSrcFile, DWORD dwSrcAttribs, LPCTSTR pszDestFile, DWORD dwDestAttribs)
+{
+    __try
+    {
+        return CopyCallback_Wrap(hWnd, wFunc, wFlags, pszSrcFile, dwSrcAttribs, pszDestFile, dwDestAttribs);
+    }
+    __except(GetExceptionCode() == 0xc0000194/*EXCEPTION_POSSIBLE_DEADLOCK*/ ? EXCEPTION_CONTINUE_EXECUTION : CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return IDYES;
+}
+
+UINT __stdcall CShellExt::CopyCallback_Wrap(HWND /*hWnd*/, UINT wFunc, UINT /*wFlags*/, LPCTSTR pszSrcFile, DWORD /*dwSrcAttribs*/, LPCTSTR /*pszDestFile*/, DWORD /*dwDestAttribs*/)
 {
     switch (wFunc)
     {

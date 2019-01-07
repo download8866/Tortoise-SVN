@@ -2,17 +2,106 @@
 
 module.exports = function(grunt) {
 
+    // Project configuration.
     grunt.initConfig({
         dirs: {
             dest: 'dist',
             src: 'source'
         },
+        ver: grunt.file.readJSON('version.json'),
 
-        jekyll: {
-            site: {
+        // Copy files that don't need compilation to dist/
+        copy: {
+            dist: {
+                files: [
+                    {dest: '<%= dirs.dest %>/', src: ['*', '!*.html'], filter: 'isFile', expand: true, cwd: '<%= dirs.src %>/'},
+                    {dest: '<%= dirs.dest %>/', src: '.htaccess', expand: true, cwd: '<%= dirs.src %>/'},
+                    {dest: '<%= dirs.dest %>/', src: 'files/**', expand: true, cwd: '<%= dirs.src %>/'},
+                    {dest: '<%= dirs.dest %>/', src: ['img/**', '!**/_old/**'], expand: true, cwd: '<%= dirs.src %>/'},
+                    {dest: '<%= dirs.dest %>/', src: ['js/*.min.js', 'js/prettify/**'], expand: true, cwd: '<%= dirs.src %>/'},
+                ]
+            }
+        },
+
+        includereplace: {
+            dist: {
                 options: {
-                    bundleExec: true,
-                    incremental: false
+                    globals: {
+                        bottomHtml: '',
+                        headHtml: '',
+                        metaDescription: '',
+                        metaKeywords: '',
+                        DATE: '<%= grunt.template.today("dddd, mmmm dS, yyyy, HH:MM:ss Z") %>',
+                        TSVNSHORTVERSION: '<%= ver.TSVNSHORTVERSION %>',
+                        TSVNVERSION: '<%= ver.TSVNVERSION %>',
+                        SVNVERSION: '<%= ver.SVNVERSION %>'
+                    }
+                },
+                files: [
+                    {src: '*.html', dest: '<%= dirs.dest %>/', expand: true, cwd: '<%= dirs.src %>/'}
+                ]
+            }
+        },
+
+        concat: {
+            prettify: {
+                src: '<%= dirs.src %>/css/prettify.css',
+                dest: '<%= dirs.dest %>/css/prettify.min.css'
+            },
+            core: {
+                src: ['<%= dirs.src %>/css/normalize.css',
+                      '<%= dirs.src %>/css/jquery.fancybox.css',
+                      '<%= dirs.src %>/css/style.css'
+                ],
+                dest: '<%= dirs.dest %>/css/pack.css'
+            },
+            js: {
+                src: ['<%= dirs.src %>/js/jquery.mousewheel.js',
+                      '<%= dirs.src %>/js/jquery.fancybox.js'
+                ],
+                dest: '<%= dirs.dest %>/js/pack.js'
+            }
+        },
+
+        uncss: {
+            options: {
+                htmlroot: '<%= dirs.dest %>',
+                ignore: [/(#|\.)fancybox(\-[a-zA-Z]+)?/],
+                ignoreSheets: [/fonts.googleapis/, /www.google.com/],
+                stylesheets: ['css/pack.css']
+            },
+            dist: {
+                src: '<%= dirs.dest %>/**/*.html',
+                dest: '<%= concat.core.dest %>'
+            }
+        },
+
+        cssmin: {
+            options: {
+                compatibility: 'ie8',
+                keepSpecialComments: 0
+            },
+            prettify: {
+                src: '<%= concat.prettify.dest %>',
+                dest: '<%= concat.prettify.dest %>'
+            },
+            core: {
+                src: '<%= concat.core.dest %>',
+                dest: '<%= concat.core.dest %>'
+            }
+        },
+
+        uglify: {
+            options: {
+                compress: {
+                    warnings: false
+                },
+                mangle: true,
+                preserveComments: false
+            },
+            dist: {
+                files: {
+                    '<%= concat.js.dest %>': '<%= concat.js.dest %>'
                 }
             }
         },
@@ -20,32 +109,11 @@ module.exports = function(grunt) {
         htmlmin: {
             dist: {
                 options: {
-                    collapseBooleanAttributes: true,
-                    collapseInlineTagWhitespace: false,
                     collapseWhitespace: true,
-                    conservativeCollapse: false,
-                    decodeEntities: true,
-                    ignoreCustomComments: [/^\s*google(off|on):\s/],
-                    minifyCSS: {
-                        level: {
-                            1: {
-                                specialComments: 0
-                            }
-                        }
-                    },
+                    minifyCSS: true,
                     minifyJS: true,
-                    minifyURLs: false,
-                    processConditionalComments: true,
                     removeAttributeQuotes: true,
-                    removeComments: true,
-                    removeOptionalAttributes: true,
-                    removeOptionalTags: true,
-                    removeRedundantAttributes: true,
-                    removeScriptTypeAttributes: true,
-                    removeStyleLinkTypeAttributes: true,
-                    removeTagWhitespace: false,
-                    sortAttributes: true,
-                    sortClassName: true
+                    removeComments: true
                 },
                 expand: true,
                 cwd: '<%= dirs.dest %>',
@@ -54,101 +122,20 @@ module.exports = function(grunt) {
             }
         },
 
-        concat: {
-            css: {
-                src: ['<%= dirs.src %>/assets/css/vendor/normalize.css',
-                      '<%= dirs.src %>/assets/css/vendor/baguetteBox.css',
-                      '<%= dirs.src %>/assets/css/vendor/highlighter.css',
-                      '<%= dirs.src %>/assets/css/flags-sprite.css',
-                      '<%= dirs.src %>/assets/css/style.css'
-                ],
-                dest: '<%= dirs.dest %>/assets/css/pack.css'
-            },
-            mainJs: {
-                src: ['<%= dirs.src %>/assets/js/vendor/plugins.js',
-                      '<%= dirs.src %>/assets/js/no-js-class.js',
-                      '<%= dirs.src %>/assets/js/onLoad.js',
-                      '<%= dirs.src %>/assets/js/google-analytics.js'
-                ],
-                dest: '<%= dirs.dest %>/assets/js/main.js'
-            },
-            baguetteBox: {
-                src: ['<%= dirs.src %>/assets/js/vendor/baguetteBox.js',
-                      '<%= dirs.src %>/assets/js/baguetteBox-init.js'
-                ],
-                dest: '<%= dirs.dest %>/assets/js/baguetteBox-pack.js'
-            }
-        },
-
-        postcss: {
-            options: {
-                processors: [
-                    require('autoprefixer')() // add vendor prefixes
-                ]
-            },
-            dist: {
-                src: '<%= concat.css.dest %>'
-            }
-        },
-
-        purgecss: {
-            dist: {
-                options: {
-                    content: [
-                        '<%= dirs.dest %>/**/*.html',
-                        '<%= dirs.dest %>/assets/js/**/*.js'
-                    ]
-                },
-                files: {
-                    '<%= concat.css.dest %>': ['<%= concat.css.dest %>']
-                }
-            }
-        },
-
-        cssmin: {
-            minify: {
-                options: {
-                    level: {
-                        1: {
-                            specialComments: 0
-                        }
-                    }
-                },
-                files: {
-                    '<%= concat.css.dest %>': '<%= concat.css.dest %>'
-                }
-            }
-        },
-
-        uglify: {
-            options: {
-                compress: true,
-                mangle: true,
-                output: {
-                    comments: false
-                }
-            },
-            minify: {
-                files: {
-                    '<%= concat.baguetteBox.dest %>': '<%= concat.baguetteBox.dest %>',
-                    '<%= concat.mainJs.dest %>': '<%= concat.mainJs.dest %>'
-                }
-            }
-        },
-
         filerev: {
             css: {
-                src: '<%= dirs.dest %>/assets/css/**/*.css'
-            },
+                src: '<%= dirs.dest %>/css/**/{,*/}*.css'
+             },
             js: {
                 src: [
-                    '<%= dirs.dest %>/assets/js/**/*.js'
+                    '<%= dirs.dest %>/js/**/{,*/}*.js',
+                    '!<%= dirs.dest %>/js/jquery*.min.js',
+                    '!<%= dirs.dest %>/js/prettify/lang-*.js'
                 ]
             },
             images: {
                 src: [
-                    '<%= dirs.dest %>/assets/img/**/*.{jpg,jpeg,gif,png,svg}',
-                    '!<%= dirs.dest %>/assets/img/logo-256x256.png'
+                    '<%= dirs.dest %>/img/**/*.{jpg,jpeg,gif,png}'
                 ]
             }
         },
@@ -162,164 +149,100 @@ module.exports = function(grunt) {
         },
 
         usemin: {
-            css: '<%= dirs.dest %>/assets/css/pack*.css',
-            html: '<%= dirs.dest %>/**/*.html',
-            options: {
-                assetsDirs: ['<%= dirs.dest %>/', '<%= dirs.dest %>/assets/img/']
-            }
+            css: '<%= dirs.dest %>/css/pack*.css',
+            html: '<%= dirs.dest %>/**/*.html'
         },
 
-        svgmin: {
-            options: {
-                multipass: true,
-                plugins: [
-                    { cleanupAttrs: true },
-                    { cleanupEnableBackground: true },
-                    { cleanupIDs: true },
-                    { cleanupListOfValues: true },
-                    { cleanupNumericValues: true },
-                    { collapseGroups: true },
-                    { convertColors: true },
-                    { convertPathData: true },
-                    { convertShapeToPath: true },
-                    { convertStyleToAttrs: true },
-                    { convertTransform: true },
-                    { inlineStyles: true },
-                    { mergePaths: true },
-                    { minifyStyles: true },
-                    { moveElemsAttrsToGroup: true },
-                    { moveGroupAttrsToElems: true },
-                    { removeComments: true },
-                    { removeDesc: true },
-                    { removeDoctype: true },
-                    { removeEditorsNSData: true },
-                    { removeEmptyAttrs: true },
-                    { removeEmptyContainers: true },
-                    { removeEmptyText: true },
-                    { removeHiddenElems: true },
-                    { removeMetadata: true },
-                    { removeNonInheritableGroupAttrs: true },
-                    { removeTitle: true },
-                    { removeUnknownsAndDefaults: true },
-                    { removeUnusedNS: true },
-                    { removeUselessDefs: true },
-                    { removeUselessStrokeAndFill: true },
-                    { removeViewBox: false },
-                    { removeXMLNS: false },
-                    { removeXMLProcInst: true },
-                    { sortAttrs: true }
-                ]
-            },
+        sitemap: {
             dist: {
-                expand: true,
-                cwd: '<%= dirs.dest %>',
-                dest: '<%= dirs.dest %>',
-                src: 'assets/img/**/*.svg'
+                pattern: ['<%= dirs.dest %>/**/*.html', '!<%= dirs.dest %>/**/google*.html'],
+                siteRoot: './dist'
             }
         },
 
         connect: {
             options: {
-                base: '<%= dirs.dest %>/',
-                hostname: 'localhost'
+                hostname: 'localhost',
+                livereload: 35729,
+                port: 8001
             },
             livereload: {
-                options: {
+                 options: {
                     base: '<%= dirs.dest %>/',
-                    livereload: 35729,
-                    open: true,  // Automatically open the webpage in the default browser
-                    port: 8000
-                }
-            },
-            linkChecker: {
-                options: {
-                    base: '<%= dirs.dest %>/',
-                    port: 9001
-                }
-            }
+                    open: true  // Automatically open the webpage in the default browser
+                 }
+             }
         },
 
         watch: {
             options: {
-                livereload: '<%= connect.livereload.options.livereload %>'
+                livereload: '<%= connect.options.livereload %>'
             },
             dev: {
-                files: ['<%= dirs.src %>/**', '.jshintrc', '_config.yml', 'Gruntfile.js'],
+            files: ['<%= dirs.src %>/**', '.csslintrc', '.jshintrc', 'Gruntfile.js', 'version.json'],
                 tasks: 'dev'
             },
             build: {
-                files: ['<%= dirs.src %>/**', '.jshintrc', '_config.yml', 'Gruntfile.js'],
+            files: ['<%= dirs.src %>/**', '.csslintrc', '.jshintrc', 'Gruntfile.js', 'version.json'],
                 tasks: 'build'
             }
+        },
+
+        clean: {
+            dist: '<%= dirs.dest %>/'
         },
 
         csslint: {
             options: {
                 csslintrc: '.csslintrc'
             },
-            src: '<%= dirs.src %>/assets/css/style.css'
+            src: [
+                '<%= dirs.src %>/css/style.css'
+            ]
         },
 
         jshint: {
             options: {
                 jshintrc: '.jshintrc'
             },
-            files: {
-                src: ['Gruntfile.js', '<%= dirs.src %>/assets/js/*.js', '!<%= dirs.src %>/assets/js/google-analytics.js']
+            grunt: {
+                src: 'Gruntfile.js'
             }
         },
 
         htmllint: {
-            options: {
-                ignore: /This document appears to be written in./
-            },
             src: '<%= dirs.dest %>/**/*.html'
         },
-
-        linkChecker: {
-            options: {
-                callback: function (crawler) {
-                    crawler.addFetchCondition(function (queueItem) {
-                        return !queueItem.path.match(/\/docs\/(release|nightly)\//) &&
-                               queueItem.path !== '/assets/js/vendor/g.src' &&
-                               queueItem.path !== '/assets/js/+f+' &&
-                               queueItem.path !== '/assets/js/%7Bhref%7D' &&
-                               queueItem.path !== '/a';
-                    });
-                },
-                interval: 1,        // 1 ms; default 250
-                maxConcurrency: 5   // default; bigger doesn't seem to improve time
-            },
-            dev: {
-                site: 'localhost',
-                options: {
-                    initialPort: '<%= connect.linkChecker.options.port %>'
-                }
-            }
-        },
-
-        clean: {
-            dist: '<%= dirs.dest %>/'
-        }
 
     });
 
     // Load any grunt plugins found in package.json.
-    require('load-grunt-tasks')(grunt, { scope: 'dependencies' });
+    require('load-grunt-tasks')(grunt, {scope: 'devDependencies'});
     require('time-grunt')(grunt);
+
+    grunt.registerTask('dev', [
+        'clean',
+        'copy',
+        'includereplace',
+        'useminPrepare',
+        'concat',
+        'filerev',
+        'usemin',
+        'sitemap'
+    ]);
 
     grunt.registerTask('build', [
         'clean',
-        'jekyll',
+        'copy',
+        'includereplace',
+        'sitemap',
         'useminPrepare',
         'concat',
-        'postcss',
-        'purgecss',
+        'uncss',
         'cssmin',
         'uglify',
         'filerev',
         'usemin',
-        'svgmin',
         'htmlmin'
     ]);
 
@@ -327,29 +250,18 @@ module.exports = function(grunt) {
         'build',
         'csslint',
         'jshint',
-        'htmllint',
-        'connect:linkChecker',
-        'linkChecker'
-    ]);
-
-    grunt.registerTask('dev', [
-        'jekyll',
-        'useminPrepare',
-        'concat',
-        'postcss',
-        'filerev',
-        'usemin'
+        'htmllint'
     ]);
 
     grunt.registerTask('server', [
         'build',
-        'connect:livereload',
+        'connect',
         'watch:build'
     ]);
 
     grunt.registerTask('default', [
         'dev',
-        'connect:livereload',
+        'connect',
         'watch:dev'
     ]);
 

@@ -43,7 +43,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 static inline bool IsStreamCommentStyle(int style) {
 	return style == SCE_POWERPRO_COMMENTBLOCK;

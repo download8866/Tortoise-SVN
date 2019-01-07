@@ -33,8 +33,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>    <ClCompile Include="..\..\..\misc.c">
       <Filter>Source Files</Filter>
-    </ClCompile>    <ClCompile Include="..\..\..\miscucs.c">
-      <Filter>Source Files</Filter>
     </ClCompile>    <ClCompile Include="..\..\..\pgssapi.c">
       <Filter>Source Files</Filter>
     </ClCompile>    <ClCompile Include="..\..\..\pinger.c">
@@ -139,8 +137,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>    <ClCompile Include="..\..\wintime.c">
       <Filter>Source Files</Filter>
-    </ClCompile>    <ClCompile Include="..\..\winucs.c">
-      <Filter>Source Files</Filter>
     </ClCompile>    <ClCompile Include="..\..\..\x11fwd.c">
       <Filter>Source Files</Filter>
     </ClCompile>  </ItemGroup>
@@ -186,8 +182,6 @@
     </ClInclude>    <ClInclude Include="..\..\..\sshgssc.h">
       <Filter>Header Files</Filter>
     </ClInclude>    <ClInclude Include="..\..\..\storage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>    <ClInclude Include="..\..\..\terminal.h">
       <Filter>Header Files</Filter>
     </ClInclude>    <ClInclude Include="..\..\..\tree234.h">
       <Filter>Header Files</Filter>

@@ -1,56 +1,5 @@
-﻿Version 1.11.1
-- BUG: Diffing from the log dialog failed
-       if the repository name itself
-       contained non-ASCII chars. (Stefan)
-
-Version 1.11.0
-- BUG: Display issues in the log dialog when
-       resizing the dialog. (Stefan)
-- CHG: splitter positions saved separately
-       for log dialog and project monitor. (Stefan)
-- CHG: Restored files get their last-write-time
-       set to the current time. (Stefan)
-- BUG: When merging, the copyfrom revision was
-       shown as eligible for merging. (Stefan)
-- BUG: long paths in the conflict dialogs were
-       cut off instead of properly shortened. (Stefan)
-
-Version 1.10.1
-- BUG: Wrong texts in conflict resolving
-       dialogs. (Stefan)
-- BUG: Shelving from TSVN dialogs returned
-       an error. (Stefan)
-- BUG: Crash when trying to unshelve from
-       an outdated or corrupted working copy. (Stefan)
-- CHG: Improved project monitor toolbar for
-       high dpi monitors. (Stefan)
-- CHG: Various improvements for
-       high-dpi monitors. (Stefan)
-- BUG: Wrong titles when editing a conflict. (Stefan)
-- BUG: Unshelving failed when the shelve name
-       contained non-ASCII chars. (Stefan)
-- BUG: Showing the log if the repo url contained
-       special chars sometimes failed. (Stefan)
-- BUG: Wrong behavior for 'lock' error. (Patrick Steinhardt)
-- CHG: Improved labels and text in dialog when
-       creating a copy in repo browser. (Stefan)
-- BUG: When showing multiple diffs from the log
-       dialog with added files, only the first
-       one was shown multiple times. (Stefan)
-- BUG: When adding unversioned folders, the
-       ignore properties were sometimes ignored. (Stefan)
-- BUG: Changing update depths of sparse checkouts
-       failed when trying to add files in excluded
-       folders. (Stefan)
-- BUG: Exception was shown when trying to show the
-       log between a date and a number revision. (Stefan)
-
-Version 1.10.0
-See the release notes here:
-http://tortoisesvn.net/tsvn_1.10_releasenotes.html
-
-Version 1.9.8 (unreleased)
-- BUG: GDI leak in repo-browser. (Stefan)
+﻿Version 1.9.8
+- BUG: GDI leak in repobrowser. (Stefan)
 - BUG: Endless loop in vendor-branch. (Stefan)
 - CHG: New line margin icons and minor high dpi refinements
        in TortoiseMerge. (Ivan Zhakov)
@@ -73,8 +22,6 @@ Version 1.9.6
        ignore patterns. (Stefan)
 - BUG: TortoiseMerge jumped to the wrong line on startup
        if the view was collapsed. (Stefan)
-- BUG: TortoiseMerge: scale whitespace and newline symbol glyphs on High-DPI
-       displays when Show Whitespaces option is enabled. (Ivan Zhakov)
 - CHG: Minor performance improvement for all operations when status cache is
        disabled. (Ivan Zhakov)
 - CHG: Improve startup performance of the update operation in common
@@ -83,6 +30,8 @@ Version 1.9.6
        blurriness in high dpi mode. (Ivan Zhakov)
 - BUG: Icons in the log dialog filter do not render correctly in
        high dpi mode. (Ivan Zhakov)
+- BUG: TortoiseMerge: scale whitespace and newline symbol glyphs on High-DPI
+       displays when Show Whitespaces option is enabled. (Ivan Zhakov)
 - BUG: Flickering mouse cursor when hovering over the log filter
        edit box. (Ivan Zhakov)
 - CHG: New action icons and minor high dpi refinements in the log
@@ -115,7 +64,7 @@ Version 1.9.5
        in TortoiseMerge. (Stefan)
 - BUG: TortoiseMerge could hang with "ignore comments"
        enabled. (Sven Strickroth)
-- BUG: The patch window in TMerge could be shown outside of a
+- BUG: The patch window in TMerge could be shown outside of a 
        multi-monitor setup, i.e. not in a visible area. (Stefan)
 - BUG: When deleting multiple files with unversioned files
        mixed in, the "do this for all unversioned/modified files"
@@ -131,19 +80,6 @@ Version 1.9.5
 Version 1.9.4
 - BUG: GDI Resource leak when showing a file list. (Stefan, Ivan)
 - BUG: lifetime issue with path string for long paths. (Ivan Zhakov)
-- BUG: Race condition in the shell extension. (Ivan Zhakov)
-- BUG: Crash in Project Monitor when drag&drop
-       item with children. (Ivan Zhakov)
-- BUG: Small memory leak in commit dialog when
-       doing refresh. (Ivan Zhakov)
-- BUG: Repobrowser lost info about working copy when the
-       revision was changed. (Stefan)
-- BUG: Drop-strings were shown wrong. (Stefan)
-- BUG: Conflicts were marked as resolved even if
-       the changes could not be saved. (Stefan)
-- CHG: Improve text for screen readers in log dialog. (Stefan)
-- BUG: Unnecessary horizontal scrollbar was
-       shown in case logwidthmarker is set. (Sven Strickroth)
 - BUG: The font size in the statistics dialog
        was wrong, font unreadable. (Stefan)
 - CHG: Improved stability of the log cache. (Ivan Zhakov)

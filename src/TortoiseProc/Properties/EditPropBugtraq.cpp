@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013-2017 - TortoiseSVN
+// Copyright (C) 2010-2011, 2013-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -204,20 +204,20 @@ void CEditPropBugtraq::OnOK()
     // check whether the entered regex strings are valid
     try
     {
-        std::wregex r1 = std::wregex(m_sBugtraqRegex1);
+        std::tr1::wregex r1 = std::tr1::wregex(m_sBugtraqRegex1);
         UNREFERENCED_PARAMETER(r1);
     }
-    catch (std::exception&)
+    catch (std::exception)
     {
         ShowEditBalloon(IDC_BUGTRAQLOGREGEX1, IDS_ERR_INVALIDREGEX, IDS_ERR_ERROR);
         return;
     }
     try
     {
-        std::wregex r2 = std::wregex(m_sBugtraqRegex2);
+        std::tr1::wregex r2 = std::tr1::wregex(m_sBugtraqRegex2);
         UNREFERENCED_PARAMETER(r2);
     }
-    catch (std::exception&)
+    catch (std::exception)
     {
         ShowEditBalloon(IDC_BUGTRAQLOGREGEX2, IDS_ERR_INVALIDREGEX, IDS_ERR_ERROR);
         return;
@@ -231,7 +231,7 @@ void CEditPropBugtraq::OnOK()
     std::string propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sBugtraqUrl);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_URL, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_URL, pVal));
 
     // bugtraq:warnifnoissue
     if (m_bWarnIfNoIssue)
@@ -239,19 +239,19 @@ void CEditPropBugtraq::OnOK()
     else
         pVal.value = "";
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_WARNIFNOISSUE, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_WARNIFNOISSUE, pVal));
 
     // bugtraq:message
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sBugtraqMessage);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_MESSAGE, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_MESSAGE, pVal));
 
     // bugtraq:label
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sBugtraqLabel);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_LABEL, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_LABEL, pVal));
 
     // bugtraq:number
     int checked = GetCheckedRadioButton(IDC_TEXTRADIO, IDC_NUMERICRADIO);
@@ -260,7 +260,7 @@ void CEditPropBugtraq::OnOK()
     else
         pVal.value.clear();
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_NUMBER, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_NUMBER, pVal));
 
     // bugtraq:append
     checked = GetCheckedRadioButton(IDC_TOPRADIO, IDC_BOTTOMRADIO);
@@ -269,7 +269,7 @@ void CEditPropBugtraq::OnOK()
     else
         pVal.value.clear();
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_APPEND, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_APPEND, pVal));
 
     // bugtraq:logregex
     CString sLogRegex = m_sBugtraqRegex2 + L"\n" + m_sBugtraqRegex1;
@@ -282,25 +282,25 @@ void CEditPropBugtraq::OnOK()
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)sLogRegex);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_LOGREGEX, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_LOGREGEX, pVal));
 
     // bugtraq:providerparams
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sProviderParams);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_PROVIDERPARAMS, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_PROVIDERPARAMS, pVal));
 
     // bugtraq:provideruuid
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sProviderUUID);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_PROVIDERUUID, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_PROVIDERUUID, pVal));
 
     // bugtraq:provideruuid64
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sProviderUUID64);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.emplace(BUGTRAQPROPNAME_PROVIDERUUID64, pVal);
+    newProps.insert(std::make_pair(BUGTRAQPROPNAME_PROVIDERUUID64, pVal));
 
     m_bChanged = true;
 

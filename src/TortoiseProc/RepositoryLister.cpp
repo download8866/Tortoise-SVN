@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2015, 2018 - TortoiseSVN
+// Copyright (C) 2009-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 #include "SVNHelpers.h"
 
 #include "RepositoryInfo.h"
-#include <functional>
+#include <xfunctional>
 
 /////////////////////////////////////////////////////////////////////
 // CRepositoryLister::CQuery
@@ -428,7 +428,9 @@ void CRepositoryLister::CompactDumpster()
 
 void CRepositoryLister::ClearDumpster()
 {
-    std::for_each(dumpster.begin(), dumpster.end(), [](auto obj) { obj->WaitUntilDone(true); });
+    std::for_each ( dumpster.begin()
+                  , dumpster.end()
+                  , std::bind2nd (std::mem_fun (&CQuery::WaitUntilDone), true));
 
     CompactDumpster();
 }

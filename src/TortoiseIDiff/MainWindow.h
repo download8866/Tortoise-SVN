@@ -1,6 +1,6 @@
 // TortoiseIDiff - an image diff viewer in TortoiseSVN
 
-// Copyright (C) 2006-2007, 2009, 2011-2013, 2015-2016 - TortoiseSVN
+// Copyright (C) 2006-2007, 2009, 2011-2013, 2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ enum FileType
 class CMainWindow : public CWindow
 {
 public:
-    CMainWindow(HINSTANCE hInstance, const WNDCLASSEX* wcx = nullptr) : CWindow(hInstance, wcx)
+    CMainWindow(HINSTANCE hInstance, const WNDCLASSEX* wcx = NULL) : CWindow(hInstance, wcx)
         , picWindow1(hInstance)
         , picWindow2(hInstance)
         , picWindow3(hInstance)
@@ -64,7 +64,7 @@ public:
         , transparentColor(::GetSysColor(COLOR_WINDOW))
         , m_BlendType(CPicWindow::BLEND_ALPHA)
         , hwndTB(0)
-        , hToolbarImgList(nullptr)
+        , hToolbarImgList(NULL)
         , bSelectionMode(false)
     {
         SetWindowTitle((LPCTSTR)ResString(hResource, IDS_APP_TITLE));
@@ -78,11 +78,11 @@ public:
     /**
      * Sets the image path and title for the left image view.
      */
-    void SetLeft(const tstring& leftpath, const tstring& lefttitle) { leftpicpath = leftpath; leftpictitle = lefttitle; }
+    void SetLeft(tstring leftpath, tstring lefttitle) {leftpicpath=leftpath; leftpictitle=lefttitle;}
     /**
      * Sets the image path and the title for the right image view.
      */
-    void SetRight(const tstring& rightpath, const tstring& righttitle) { rightpicpath = rightpath; rightpictitle = righttitle; }
+    void SetRight(tstring rightpath, tstring righttitle) {rightpicpath=rightpath; rightpictitle=righttitle;}
 
     /**
      * Sets the image path and title for selection mode. In selection mode, the images
@@ -100,7 +100,7 @@ protected:
     LRESULT                             DoCommand(int id, LPARAM lParam);
 
     /// Positions the child windows. Call this after the window sizes/positions have changed.
-    void                                PositionChildren(RECT* clientrect = nullptr);
+    void                                PositionChildren(RECT * clientrect = NULL);
     /// Shows the "Open images" dialog where the user can select the images to diff
     bool                                OpenDialog();
     static BOOL CALLBACK                OpenDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2011, 2013, 2015, 2017 - TortoiseSVN
+// Copyright (C) 2009-2011, 2013, 2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ private:
 
     /// if empty, use sub-string matching
 
-    std::vector<std::regex> patterns;
+    std::vector<std::tr1::regex> patterns;
 
     /// sub-string matching info
 
@@ -119,7 +119,7 @@ private:
 
     bool ValidateRegexp
         ( const char* regexp_str
-        , std::vector<std::regex>& pattrns);
+        , std::vector<std::tr1::regex>& pattrns);
 
     // construction utility
 
@@ -166,7 +166,7 @@ public:
     bool operator== (const CLogDlgFilter& rhs) const;
     bool operator!= (const CLogDlgFilter& rhs) const;
 
-    /// std::regex is very slow when running concurrently
+    /// tr1::regex is very slow when running concurrently
     /// in multiple threads. Empty filters don't need MT as well.
 
     bool BenefitsFromMT() const;

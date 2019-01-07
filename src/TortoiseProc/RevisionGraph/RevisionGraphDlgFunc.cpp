@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2015, 2018 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,6 @@
 #include "RevisionGraph/StandardLayout.h"
 #include "RevisionGraph/ShowWC.h"
 #include "RevisionGraph/ShowWCModification.h"
-#include "DPIAware.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4458) // declaration of 'xxx' hides class member
@@ -70,8 +69,8 @@ void CRevisionGraphWnd::BuildPreview()
     float origZoom = m_fZoomFactor;
 
     CRect clientRect = GetClientRect();
-    CSize preViewSize (max (CDPIAware::Instance().Scale(REVGRAPH_PREVIEW_WIDTH), clientRect.Width() / 4)
-                      ,max (CDPIAware::Instance().Scale(REVGRAPH_PREVIEW_HEIGHT), clientRect.Height() / 4));
+    CSize preViewSize (max (REVGRAPH_PREVIEW_WIDTH, clientRect.Width() / 4)
+                      ,max (REVGRAPH_PREVIEW_HEIGHT, clientRect.Height() / 4));
 
     // zoom the graph so that it is completely visible in the window
     CRect graphRect = GetGraphRect();
@@ -81,8 +80,8 @@ void CRevisionGraphWnd::BuildPreview()
 
     // make sure the preview window has a minimal size
 
-    m_previewWidth  = min((int)max(graphRect.Width() * m_previewZoom, 30.0f), (int)preViewSize.cx);
-    m_previewHeight = min((int)max(graphRect.Height() * m_previewZoom, 30.0f), (int)preViewSize.cy);
+    m_previewWidth = (int)min (max (graphRect.Width() * m_previewZoom, 30), preViewSize.cx);
+    m_previewHeight = (int)min (max (graphRect.Height() * m_previewZoom, 30), preViewSize.cy);
 
     CClientDC ddc(this);
     CDC dc;
@@ -355,12 +354,12 @@ void CRevisionGraphWnd::CompareRevs(bool bHead)
     {
         SVNDiff diff (svn.get(), this->m_hWnd);
         diff.SetAlternativeTool (alternativeTool);
-        diff.ShowCompare (url1, rev1, url2, rev2, peg, false, true, L"");
+        diff.ShowCompare (url1, rev1, url2, rev2, peg, false, L"");
     }
     else
     {
         CAppUtils::StartShowCompare (m_hWnd, url1, rev1,
-            url2, rev2, peg, SVNRev(), false, true, L"", alternativeTool);
+            url2, rev2, peg, SVNRev(), false, L"", alternativeTool);
     }
 }
 
@@ -385,13 +384,13 @@ void CRevisionGraphWnd::UnifiedDiffRevs(bool bHead)
     {
         SVNDiff diff (svn.get(), this->m_hWnd);
         diff.SetAlternativeTool (alternativeTool);
-        diff.ShowUnifiedDiff (url1, rev1, url2, rev2, peg, true, L"", false, false, false);
+        diff.ShowUnifiedDiff (url1, rev1, url2, rev2, peg, L"", false, false, false);
     }
     else
     {
         CAppUtils::StartShowUnifiedDiff(m_hWnd, url1, rev1,
             url2, rev2, peg,
-            SVNRev(), true, L"", alternativeTool, false, false, false);
+            SVNRev(), L"", alternativeTool, false, false, false);
     }
 }
 
@@ -402,7 +401,7 @@ void CRevisionGraphWnd::DoZoom (float fZoomFactor, bool updateScrollbars)
 
     m_nFontSize = max(1, int(DEFAULT_ZOOM_FONT * fZoomFactor));
     if (m_nFontSize < SMALL_ZOOM_FONT_THRESHOLD)
-        m_nFontSize = min((int)SMALL_ZOOM_FONT_THRESHOLD, int(SMALL_ZOOM_FONT * fZoomFactor));
+        m_nFontSize = min (SMALL_ZOOM_FONT_THRESHOLD, int(SMALL_ZOOM_FONT * fZoomFactor));
 
     for (int i=0; i<MAXFONTS; i++)
     {

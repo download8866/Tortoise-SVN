@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?include Includes.wxi?>
@@ -51,25 +51,68 @@
           </Component>
 
           <Directory Id="D__Bin" Name="bin" >
+            <Component Id="C__ucrt" Guid="$(var.GuidUCRT)" Win64="$(var.Win64YesNo)">
+              <File Id="F__ucrtdll1" Name="api-ms-win-core-console-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-console-l1-1-0.dll" />
+              <File Id="F__ucrtdll2" Name="api-ms-win-core-datetime-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-datetime-l1-1-0.dll" />
+              <File Id="F__ucrtdll3" Name="api-ms-win-core-debug-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-debug-l1-1-0.dll" />
+              <File Id="F__ucrtdll4" Name="api-ms-win-core-errorhandling-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-errorhandling-l1-1-0.dll" />
+              <File Id="F__ucrtdll5" Name="api-ms-win-core-file-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-file-l1-1-0.dll" />
+              <File Id="F__ucrtdll6" Name="api-ms-win-core-file-l1-2-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-file-l1-2-0.dll" />
+              <File Id="F__ucrtdll7" Name="api-ms-win-core-file-l2-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-file-l2-1-0.dll" />
+              <File Id="F__ucrtdll8" Name="api-ms-win-core-handle-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-handle-l1-1-0.dll" />
+              <File Id="F__ucrtdll9" Name="api-ms-win-core-heap-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-heap-l1-1-0.dll" />
+              <File Id="F__ucrtdll10" Name="api-ms-win-core-interlocked-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-interlocked-l1-1-0.dll" />
+              <File Id="F__ucrtdll11" Name="api-ms-win-core-libraryloader-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-libraryloader-l1-1-0.dll" />
+              <File Id="F__ucrtdll12" Name="api-ms-win-core-localization-l1-2-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-localization-l1-2-0.dll" />
+              <File Id="F__ucrtdll13" Name="api-ms-win-core-memory-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-memory-l1-1-0.dll" />
+              <File Id="F__ucrtdll14" Name="api-ms-win-core-namedpipe-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-namedpipe-l1-1-0.dll" />
+              <File Id="F__ucrtdll15" Name="api-ms-win-core-processenvironment-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-processenvironment-l1-1-0.dll" />
+              <File Id="F__ucrtdll16" Name="api-ms-win-core-processthreads-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-processthreads-l1-1-0.dll" />
+              <File Id="F__ucrtdll17" Name="api-ms-win-core-processthreads-l1-1-1.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-processthreads-l1-1-1.dll" />
+              <File Id="F__ucrtdll18" Name="api-ms-win-core-profile-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-profile-l1-1-0.dll" />
+              <File Id="F__ucrtdll19" Name="api-ms-win-core-rtlsupport-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-rtlsupport-l1-1-0.dll" />
+              <File Id="F__ucrtdll20" Name="api-ms-win-core-string-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-string-l1-1-0.dll" />
+              <File Id="F__ucrtdll21" Name="api-ms-win-core-synch-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-synch-l1-1-0.dll" />
+              <File Id="F__ucrtdll22" Name="api-ms-win-core-synch-l1-2-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-synch-l1-2-0.dll" />
+              <File Id="F__ucrtdll23" Name="api-ms-win-core-sysinfo-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-sysinfo-l1-1-0.dll" />
+              <File Id="F__ucrtdll24" Name="api-ms-win-core-timezone-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-timezone-l1-1-0.dll" />
+              <File Id="F__ucrtdll25" Name="api-ms-win-core-util-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-core-util-l1-1-0.dll" />
+              <File Id="F__ucrtdll26" Name="api-ms-win-crt-conio-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-conio-l1-1-0.dll" />
+              <File Id="F__ucrtdll27" Name="api-ms-win-crt-convert-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-convert-l1-1-0.dll" />
+              <File Id="F__ucrtdll28" Name="api-ms-win-crt-environment-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-environment-l1-1-0.dll" />
+              <File Id="F__ucrtdll29" Name="api-ms-win-crt-filesystem-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-filesystem-l1-1-0.dll" />
+              <File Id="F__ucrtdll30" Name="api-ms-win-crt-heap-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-heap-l1-1-0.dll" />
+              <File Id="F__ucrtdll31" Name="api-ms-win-crt-locale-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-locale-l1-1-0.dll" />
+              <File Id="F__ucrtdll32" Name="api-ms-win-crt-math-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-math-l1-1-0.dll" />
+              <File Id="F__ucrtdll33" Name="api-ms-win-crt-multibyte-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-multibyte-l1-1-0.dll" />
+              <File Id="F__ucrtdll34" Name="api-ms-win-crt-private-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-private-l1-1-0.dll" />
+              <File Id="F__ucrtdll35" Name="api-ms-win-crt-process-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-process-l1-1-0.dll" />
+              <File Id="F__ucrtdll36" Name="api-ms-win-crt-runtime-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-runtime-l1-1-0.dll" />
+              <File Id="F__ucrtdll37" Name="api-ms-win-crt-stdio-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-stdio-l1-1-0.dll" />
+              <File Id="F__ucrtdll38" Name="api-ms-win-crt-string-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-string-l1-1-0.dll" />
+              <File Id="F__ucrtdll39" Name="api-ms-win-crt-time-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-time-l1-1-0.dll" />
+              <File Id="F__ucrtdll40" Name="api-ms-win-crt-utility-l1-1-0.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\api-ms-win-crt-utility-l1-1-0.dll" />
+              <File Id="F__ucrtdll41" Name="ucrtbase.dll" DiskId="1" Source="ucrt\DLLs\$(env.Platform)\ucrtbase.dll" />
+            </Component>
             <Component Id="C__crtmfc" Guid="$(var.GuidCRTMFC)" Win64="$(var.Win64YesNo)">
-              <File Id="F__concrt140" Name="concrt140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.CRT\concrt140.dll" />
-              <File Id="F__msvcp140" Name="msvcp140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.CRT\msvcp140.dll" />
-              <File Id="F__vccorlib140" Name="vccorlib140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.CRT\vccorlib140.dll" />
-              <File Id="F__vcruntime140" Name="vcruntime140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.CRT\vcruntime140.dll" />
-              <File Id="F__vcamp140" Name="vcamp140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.CXXAMP\vcamp140.dll" />
-              <File Id="F__vcomp140" Name="vcomp140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.OPENMP\vcomp140.dll" />
-              <File Id="F__mfc140u" Name="mfc140u.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFC\mfc140u.dll" />
-              <File Id="F__mfcm140u" Name="mfcm140u.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFC\mfcm140u.dll" />
-              <File Id="F__mfc140chs" Name="mfc140chs.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140chs.dll" />
-              <File Id="F__mfc140cht" Name="mfc140cht.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140cht.dll" />
-              <File Id="F__mfc140deu" Name="mfc140deu.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140deu.dll" />
-              <File Id="F__mfc140enu" Name="mfc140enu.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140enu.dll" />
-              <File Id="F__mfc140esn" Name="mfc140esn.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140esn.dll" />
-              <File Id="F__mfc140fra" Name="mfc140fra.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140fra.dll" />
-              <File Id="F__mfc140ita" Name="mfc140ita.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140ita.dll" />
-              <File Id="F__mfc140jpn" Name="mfc140jpn.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140jpn.dll" />
-              <File Id="F__mfc140kor" Name="mfc140kor.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140kor.dll" />
-              <File Id="F__mfc140rus" Name="mfc140rus.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC150.MFCLOC\mfc140rus.dll" />
+              <File Id="F__concrt140" Name="concrt140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.CRT\concrt140.dll" />
+              <File Id="F__msvcp140" Name="msvcp140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.CRT\msvcp140.dll" />
+              <File Id="F__vccorlib140" Name="vccorlib140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.CRT\vccorlib140.dll" />
+              <File Id="F__vcruntime140" Name="vcruntime140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.CRT\vcruntime140.dll" />
+              <File Id="F__vcamp140" Name="vcamp140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.CXXAMP\vcamp140.dll" />
+              <File Id="F__vcomp140" Name="vcomp140.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.OPENMP\vcomp140.dll" />
+              <File Id="F__mfc140u" Name="mfc140u.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFC\mfc140u.dll" />
+              <File Id="F__mfcm140u" Name="mfcm140u.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFC\mfcm140u.dll" />
+              <File Id="F__mfc140chs" Name="mfc140chs.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140chs.dll" />
+              <File Id="F__mfc140cht" Name="mfc140cht.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140cht.dll" />
+              <File Id="F__mfc140deu" Name="mfc140deu.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140deu.dll" />
+              <File Id="F__mfc140enu" Name="mfc140enu.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140enu.dll" />
+              <File Id="F__mfc140esn" Name="mfc140esn.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140esn.dll" />
+              <File Id="F__mfc140fra" Name="mfc140fra.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140fra.dll" />
+              <File Id="F__mfc140ita" Name="mfc140ita.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140ita.dll" />
+              <File Id="F__mfc140jpn" Name="mfc140jpn.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140jpn.dll" />
+              <File Id="F__mfc140kor" Name="mfc140kor.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140kor.dll" />
+              <File Id="F__mfc140rus" Name="mfc140rus.dll" DiskId="1" Source="crtmfc\$(env.Platform)\Microsoft.VC140.MFCLOC\mfc140rus.dll" />
             </Component>
 
             <Component Id="C__apr" Guid="$(var.GuidAPR)" Win64="$(var.Win64YesNo)">
@@ -141,7 +184,6 @@
               <File Id="F__TSVNSnippet" Name="snippet.txt" DiskId="1" Source="include\snippet.txt" />
               <File Id="F__websiteurl" Name="Website.url" Source="include\Website.url" DiskId="1" />
               <File Id="F__tsvntilexml" Name="TortoiseProc.VisualElementsManifest.xml" Source="include\TortoiseProc.VisualElementsManifest.xml" DiskId="1" />
-              <File Id="F__tsvnlogopng" Name="tsvn-logo.png" Source="include\tsvn-logo.png" DiskId="1" />
 
               <File Id="F__SubWCRev" Name="SubWCRev.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\SubWCRev.exe" />
               <File Id="F__SubWCRevCOM" Name="SubWCRevCOM.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\SubWCRevCOM.exe" />
@@ -1044,10 +1086,7 @@
               <Shortcut Id="S__TortoiseRepoBrowser" Directory="D_TortoisePrgMenu" Name="TortoiseSVN Repository Browser" Advertise="no"
               Target="[INSTALLDIR]bin\TortoiseProc.exe" Description="TortoiseSVN Repository Browser" Arguments="/command:repobrowser" Show="normal" />
               <Shortcut Id="S__TortoiseMonitor" Directory="D_TortoisePrgMenu" Name="TortoiseSVN Project Monitor" Advertise="no"
-              Target="[INSTALLDIR]bin\TortoiseProc.exe" Description="TortoiseSVN Project Monitor" Arguments="/command:monitor" Show="normal">
-                <!-- Set the AppID in order to get toasts to work -->
-                <ShortcutProperty Key="System.AppUserModel.ID" Value="TSVN.MONITOR.1"></ShortcutProperty>
-              </Shortcut>
+              Target="[INSTALLDIR]bin\TortoiseProc.exe" Description="TortoiseSVN Project Monitor" Arguments="/command:monitor" Show="normal" />
             </Component>
 
             <Component Id="C__TortoiseMerge" Guid="$(var.GuidTortoiseMerge)" Win64="$(var.Win64YesNo)">
@@ -1328,62 +1367,6 @@
                     <File Id="F__Win10AddedIcon" Name="AddedIcon.ico" DiskId="1" Source="..\Resources\Icons\Win10\AddedIcon.ico" />
                     <File Id="F__Win10IgnoredIcon" Name="IgnoredIcon.ico" DiskId="1" Source="..\Resources\Icons\Win10\IgnoredIcon.ico" />
                     <File Id="F__Win10UnversionedIcon" Name="UnversionedIcon.ico" DiskId="1" Source="..\Resources\Icons\Win10\UnversionedIcon.ico" />
-                  </Component>
-                </Directory>
-
-                <Directory Id="D__iconsflat" Name="Flat" >
-                  <Component Id="C__iconsflat" Guid="$(var.GuidIconsFlat)" Win64="$(var.Win64YesNo)">
-                    <File Id="F__FlatConflictIcon" Name="ConflictIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\ConflictIcon.ico" KeyPath="yes" />
-                    <File Id="F__FlatInSubversionIcon" Name="NormalIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\NormalIcon.ico" />
-                    <File Id="F__FlatModifiedIcon" Name="ModifiedIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\ModifiedIcon.ico" />
-                    <File Id="F__FlatReadOnlyIcon" Name="ReadOnlyIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\ReadOnlyIcon.ico" />
-                    <File Id="F__FlatDeletedIcon" Name="DeletedIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\DeletedIcon.ico" />
-                    <File Id="F__FlatLockedIcon" Name="LockedIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\LockedIcon.ico" />
-                    <File Id="F__FlatAddedIcon" Name="AddedIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\AddedIcon.ico" />
-                    <File Id="F__FlatIgnoredIcon" Name="IgnoredIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\IgnoredIcon.ico" />
-                    <File Id="F__FlatUnversionedIcon" Name="UnversionedIcon.ico" DiskId="1" Source="..\Resources\Icons\Flat\UnversionedIcon.ico" />
-                  </Component>
-                </Directory>
-
-                <Directory Id="D__iconsillustration" Name="Illustration" >
-                  <Component Id="C__iconsillustration" Guid="$(var.GuidIconsIllustration)" Win64="$(var.Win64YesNo)">
-                    <File Id="F__IllustrationConflictIcon" Name="ConflictIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\ConflictIcon.ico" KeyPath="yes" />
-                    <File Id="F__IllustrationInSubversionIcon" Name="NormalIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\NormalIcon.ico" />
-                    <File Id="F__IllustrationModifiedIcon" Name="ModifiedIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\ModifiedIcon.ico" />
-                    <File Id="F__IllustrationReadOnlyIcon" Name="ReadOnlyIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\ReadOnlyIcon.ico" />
-                    <File Id="F__IllustrationDeletedIcon" Name="DeletedIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\DeletedIcon.ico" />
-                    <File Id="F__IllustrationLockedIcon" Name="LockedIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\LockedIcon.ico" />
-                    <File Id="F__IllustrationAddedIcon" Name="AddedIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\AddedIcon.ico" />
-                    <File Id="F__IllustrationIgnoredIcon" Name="IgnoredIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\IgnoredIcon.ico" />
-                    <File Id="F__IllustrationUnversionedIcon" Name="UnversionedIcon.ico" DiskId="1" Source="..\Resources\Icons\Illustration\UnversionedIcon.ico" />
-                  </Component>
-                </Directory>
-
-                <Directory Id="D__iconsprofessional" Name="Professional" >
-                  <Component Id="C__iconsprofessional" Guid="$(var.GuidIconsProfessional)" Win64="$(var.Win64YesNo)">
-                    <File Id="F__ProfessionalConflictIcon" Name="ConflictIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\ConflictIcon.ico" KeyPath="yes" />
-                    <File Id="F__ProfessionalInSubversionIcon" Name="NormalIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\NormalIcon.ico" />
-                    <File Id="F__ProfessionalModifiedIcon" Name="ModifiedIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\ModifiedIcon.ico" />
-                    <File Id="F__ProfessionalReadOnlyIcon" Name="ReadOnlyIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\ReadOnlyIcon.ico" />
-                    <File Id="F__ProfessionalDeletedIcon" Name="DeletedIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\DeletedIcon.ico" />
-                    <File Id="F__ProfessionalLockedIcon" Name="LockedIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\LockedIcon.ico" />
-                    <File Id="F__ProfessionalAddedIcon" Name="AddedIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\AddedIcon.ico" />
-                    <File Id="F__ProfessionalIgnoredIcon" Name="IgnoredIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\IgnoredIcon.ico" />
-                    <File Id="F__ProfessionalUnversionedIcon" Name="UnversionedIcon.ico" DiskId="1" Source="..\Resources\Icons\Professional\UnversionedIcon.ico" />
-                  </Component>
-                </Directory>
-
-                <Directory Id="D__iconsribbon" Name="Ribbon" >
-                  <Component Id="C__iconsribbon" Guid="$(var.GuidIconsRibbon)" Win64="$(var.Win64YesNo)">
-                    <File Id="F__RibbonConflictIcon" Name="ConflictIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\ConflictIcon.ico" KeyPath="yes" />
-                    <File Id="F__RibbonInSubversionIcon" Name="NormalIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\NormalIcon.ico" />
-                    <File Id="F__RibbonModifiedIcon" Name="ModifiedIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\ModifiedIcon.ico" />
-                    <File Id="F__RibbonReadOnlyIcon" Name="ReadOnlyIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\ReadOnlyIcon.ico" />
-                    <File Id="F__RibbonDeletedIcon" Name="DeletedIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\DeletedIcon.ico" />
-                    <File Id="F__RibbonLockedIcon" Name="LockedIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\LockedIcon.ico" />
-                    <File Id="F__RibbonAddedIcon" Name="AddedIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\AddedIcon.ico" />
-                    <File Id="F__RibbonIgnoredIcon" Name="IgnoredIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\IgnoredIcon.ico" />
-                    <File Id="F__RibbonUnversionedIcon" Name="UnversionedIcon.ico" DiskId="1" Source="..\Resources\Icons\Ribbon\UnversionedIcon.ico" />
                   </Component>
                 </Directory>
 

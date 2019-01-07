@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2013, 2017 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 //
 #include "stdafx.h"
 #include "SplitterControl.h"
-#include "MyMemDC.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -44,17 +43,10 @@ CSplitterControl::CSplitterControl()
     , m_nY(0)
     , m_nSavePos(0)
 {
-    m_AnimVarHot = Animator::Instance().CreateAnimationVariable(0.0);
-
-    // GDI+ initialization
-    Gdiplus::GdiplusStartupInput input;
-    Gdiplus::GdiplusStartup(&m_gdiPlusToken, &input, NULL);
 }
 
 CSplitterControl::~CSplitterControl()
 {
-    // GDI+ cleanup
-    Gdiplus::GdiplusShutdown(m_gdiPlusToken);
 }
 
 
@@ -66,6 +58,7 @@ BEGIN_MESSAGE_MAP(CSplitterControl, CStatic)
     ON_WM_LBUTTONUP()
     ON_WM_ERASEBKGND()
     ON_MESSAGE(WM_MOUSELEAVE, OnMouseLeave)
+    ON_WM_CAPTURECHANGED()
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -87,70 +80,30 @@ int CSplitterControl::GetSplitterStyle()
 
 void CSplitterControl::OnPaint()
 {
-    CPaintDC dcreal(this); // device context for painting
+    CPaintDC dc(this); // device context for painting
+    CRect rcClient;
+    GetClientRect(rcClient);
+    if (m_bMouseOverControl)
     {
-        CRect rcClient;
-        GetClientRect(rcClient);
-        Gdiplus::Rect rc(rcClient.left, rcClient.top, rcClient.Width(), rcClient.Height());
-        Gdiplus::Graphics g(dcreal);
+        CPen pen, *pOP;
 
-        Gdiplus::Color c1;
-        c1.SetFromCOLORREF(GetSysColor(COLOR_3DFACE));
-        Gdiplus::Color c2;
-        c2.SetFromCOLORREF(GetSysColor(COLOR_BTNSHADOW));
+        rcClient.DeflateRect(1,1,1,1);
 
-        Gdiplus::SolidBrush bkgBrush(c1);
-        g.FillRectangle(&bkgBrush, rc);
+        pen.CreatePen(0, 1, GetSysColor(COLOR_3DSHADOW));
+        pOP = dc.SelectObject(&pen);
 
-        // m_AnimVarHot changes from 0.0 (not hot) to 1.0 (hot)
-        auto alpha = Animator::GetValue(m_AnimVarHot);
-        c1.SetValue(Gdiplus::Color::MakeARGB(BYTE(alpha*255.0), c1.GetRed(), c1.GetBlue(), c1.GetGreen()));
-        c2.SetValue(Gdiplus::Color::MakeARGB(BYTE(alpha*255.0), c2.GetRed(), c2.GetBlue(), c2.GetGreen()));
+        dc.MoveTo(rcClient.left, rcClient.top);
+        dc.LineTo(rcClient.right, rcClient.top);
+        dc.MoveTo(rcClient.left, rcClient.bottom);
+        dc.LineTo(rcClient.right, rcClient.bottom);
 
-        if (m_nType == SPS_VERTICAL)
-        {
-            Gdiplus::LinearGradientBrush b1(Gdiplus::Point(rc.GetLeft(), rc.GetBottom()), Gdiplus::Point(rc.GetLeft() + rc.Width/2, rc.GetBottom()),
-                                            c1, c2);
-
-            Gdiplus::LinearGradientBrush b2(Gdiplus::Point(rc.GetLeft() + rc.Width / 2, rc.GetBottom()), Gdiplus::Point(rc.GetRight(), rc.GetBottom()),
-                                            c2, c1);
-
-            g.FillRectangle(&b1, Gdiplus::Rect(rcClient.left, rcClient.top, rcClient.Width()/2, rcClient.Height()));
-            g.FillRectangle(&b2, Gdiplus::Rect(rcClient.left+rcClient.Width()/2, rcClient.top, rcClient.Width()/2, rcClient.Height()));
-        }
-        else
-        {
-            Gdiplus::LinearGradientBrush b1(Gdiplus::Point(rc.GetLeft(), rc.GetBottom()), Gdiplus::Point(rc.GetLeft(), rc.GetTop() + rc.Height / 2),
-                                            c1, c2);
-
-            Gdiplus::LinearGradientBrush b2(Gdiplus::Point(rc.GetLeft(), rc.GetTop() + rc.Height / 2), Gdiplus::Point(rc.GetLeft(), rc.GetTop()),
-                                            c2, c1);
-
-            g.FillRectangle(&b1, Gdiplus::Rect(rcClient.left, rcClient.top + rcClient.Height() / 2, rcClient.Width(), rcClient.Height()));
-            g.FillRectangle(&b2, Gdiplus::Rect(rcClient.left, rcClient.top, rcClient.Width(), rcClient.Height() / 2));
-        }
-
-
-        //dc.SetBkColor(GetSysColor(COLOR_3DFACE));
-        //dc.ExtTextOut(0, 0, ETO_OPAQUE, &rcClient, NULL, 0, NULL);
-
-        //auto c2 = ::GetSysColor(COLOR_BTNSHADOW);
-        //auto c1 = ::GetSysColor(COLOR_3DFACE);
-
-        //// m_AnimVarHot changes from 0.0 (not hot) to 1.0 (hot)
-        //auto fraction = Animator::GetValue(m_AnimVarHot);
-
-        //int r1 = (int)GetRValue(c1); int g1 = (int)GetGValue(c1); int b1 = (int)GetBValue(c1);
-        //int r2 = (int)GetRValue(c2); int g2 = (int)GetGValue(c2); int b2 = (int)GetBValue(c2);
-        //auto clr = RGB((r2 - r1)*fraction + r1, (g2 - g1)*fraction + g1, (b2 - b1)*fraction + b1);
-
-        //CBrush brush;
-        //brush.CreateHatchBrush(HS_DIAGCROSS, clr);
-
-        //auto oldBrush = dc.SelectObject(&brush);
-        //rcClient.DeflateRect(1, 1, 1, 1);
-        //dc.FillRect(&rcClient, &brush);
-        //dc.SelectObject(&oldBrush);
+        // Restore pen
+        dc.SelectObject(pOP);
+    }
+    else
+    {
+        dc.SetBkColor(GetSysColor(COLOR_3DFACE));
+        dc.ExtTextOut(0, 0, ETO_OPAQUE, &rcClient, NULL, 0, NULL);
     }
 }
 
@@ -159,56 +112,28 @@ void CSplitterControl::OnMouseMove(UINT nFlags, CPoint point)
     if (m_bIsPressed)
     {
         CWnd * pParent = GetParent();
-        {
-            CPoint pt = point;
-            ClientToScreen(&pt);
-            pParent->ScreenToClient(&pt);
+        CDC * pDC = pParent->GetDC();
+        DrawLine(pDC);
 
-            if (pt.x < m_nMin)
-                pt.x = m_nMin;
-            if (pt.y < m_nMin)
-                pt.y = m_nMin;
+        CPoint pt = point;
+        ClientToScreen(&pt);
+        pParent->ScreenToClient(&pt);
 
-            if (pt.x > m_nMax)
-                pt.x = m_nMax;
-            if (pt.y > m_nMax)
-                pt.y = m_nMax;
+        if (pt.x < m_nMin)
+            pt.x = m_nMin;
+        if (pt.y < m_nMin)
+            pt.y = m_nMin;
 
-            GetParent()->ClientToScreen(&pt);
-            m_nX = pt.x;
-            m_nY = pt.y;
-        }
-        CPoint pt(m_nX, m_nY);
-        CWnd *pOwner = GetOwner();
-        if (pOwner && IsWindow(pOwner->m_hWnd))
-        {
-            CRect rc;
-            int delta;
-            pOwner->GetClientRect(rc);
-            pOwner->ScreenToClient(&pt);
-            MoveWindowTo(pt);
+        if (pt.x > m_nMax)
+            pt.x = m_nMax;
+        if (pt.y > m_nMax)
+            pt.y = m_nMax;
 
-            if (m_nType == SPS_VERTICAL)
-                delta = m_nX - m_nSavePos;
-            else
-                delta = m_nY - m_nSavePos;
-
-
-            SPC_NMHDR nmsp;
-
-            nmsp.hdr.hwndFrom = m_hWnd;
-            nmsp.hdr.idFrom = GetDlgCtrlID();
-            nmsp.hdr.code = SPN_SIZED;
-            nmsp.delta = delta;
-
-            pOwner->SendMessage(WM_NOTIFY, nmsp.hdr.idFrom, (LPARAM)&nmsp);
-            if (m_nType == SPS_VERTICAL)
-                m_nSavePos = m_nX;
-            else
-                m_nSavePos = m_nY;
-            pOwner->Invalidate();
-        }
-
+        GetParent()->ClientToScreen(&pt);
+        m_nX = pt.x;
+        m_nY = pt.y;
+        DrawLine(pDC);
+        pParent->ReleaseDC(pDC);
     }
     else if (!m_bMouseOverControl)
     {
@@ -219,30 +144,15 @@ void CSplitterControl::OnMouseMove(UINT nFlags, CPoint point)
         TrackMouseEvent(&Tme);
 
         m_bMouseOverControl = true;
-        auto transHot = Animator::Instance().CreateLinearTransition(0.3, 1.0);
-        auto storyBoard = Animator::Instance().CreateStoryBoard();
-        storyBoard->AddTransition(m_AnimVarHot, transHot);
-        Animator::Instance().RunStoryBoard(storyBoard, [this]()
-        {
-            InvalidateRect(nullptr, false);
-        });
+        Invalidate();
     }
     CStatic::OnMouseMove(nFlags, point);
 }
 
 LRESULT CSplitterControl::OnMouseLeave(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
-    if (m_bMouseOverControl)
-    {
-        auto transHot = Animator::Instance().CreateLinearTransition(0.3, 0.0);
-        auto storyBoard = Animator::Instance().CreateStoryBoard();
-        storyBoard->AddTransition(m_AnimVarHot, transHot);
-        Animator::Instance().RunStoryBoard(storyBoard, [this]()
-        {
-            InvalidateRect(nullptr, false);
-        });
-    }
     m_bMouseOverControl = false;
+    Invalidate();
     return 0;
 }
 
@@ -262,7 +172,7 @@ void CSplitterControl::OnLButtonDown(UINT nFlags, CPoint point)
 {
     CStatic::OnLButtonDown(nFlags, point);
 
-    m_bIsPressed = true;
+    m_bIsPressed = TRUE;
     SetCapture();
     CRect rcWnd;
     GetWindowRect(rcWnd);
@@ -277,13 +187,94 @@ void CSplitterControl::OnLButtonDown(UINT nFlags, CPoint point)
         m_nSavePos = m_nX;
     else
         m_nSavePos = m_nY;
+
+    CWnd * pParent = GetParent();
+    CDC * pDC = pParent->GetDC();
+    DrawLine(pDC);
+    pParent->ReleaseDC(pDC);
 }
 
 void CSplitterControl::OnLButtonUp(UINT nFlags, CPoint point)
 {
     CStatic::OnLButtonUp(nFlags, point);
-    m_bIsPressed = false;
     ReleaseCapture();
+}
+
+void CSplitterControl::OnCaptureChanged(CWnd *pWnd)
+{
+    if (m_bIsPressed)
+    {
+        CWnd * pParent = GetParent();
+        CDC * pDC = pParent->GetDC();
+
+        DrawLine(pDC);
+        pParent->ReleaseDC(pDC);
+        CPoint pt(m_nX, m_nY);
+        m_bIsPressed = FALSE;
+        CWnd *pOwner = GetOwner();
+        if (pOwner && IsWindow(pOwner->m_hWnd))
+        {
+            CRect rc;
+            int delta;
+            pOwner->GetClientRect(rc);
+            pOwner->ScreenToClient(&pt);
+            MoveWindowTo(pt);
+
+            if (m_nType == SPS_VERTICAL)
+                delta = m_nX - m_nSavePos;
+            else
+                delta = m_nY - m_nSavePos;
+
+
+            SPC_NMHDR nmsp;
+
+            nmsp.hdr.hwndFrom = m_hWnd;
+            nmsp.hdr.idFrom   = GetDlgCtrlID();
+            nmsp.hdr.code     = SPN_SIZED;
+            nmsp.delta = delta;
+
+            pOwner->SendMessage(WM_NOTIFY, nmsp.hdr.idFrom, (LPARAM)&nmsp);
+        }
+    }
+
+    CStatic::OnCaptureChanged(pWnd);
+}
+
+void CSplitterControl::DrawLine(CDC* pDC)
+{
+    int nRop = pDC->SetROP2(R2_NOTXORPEN);
+
+    CRect rcWnd;
+    const int d = 1;
+    GetWindowRect(rcWnd);
+    GetParent()->ScreenToClient(&rcWnd);
+    CPoint pt;
+    pt.x = m_nX;
+    pt.y = m_nY;
+    GetParent()->ScreenToClient(&pt);
+
+    CPen  pen;
+    pen.CreatePen(0, 1, ::GetSysColor(COLOR_GRAYTEXT));
+    CPen *pOP = pDC->SelectObject(&pen);
+
+    if (m_nType == SPS_VERTICAL)
+    {
+        pDC->MoveTo(pt.x - d, rcWnd.top);
+        pDC->LineTo(pt.x - d, rcWnd.bottom);
+
+        pDC->MoveTo(pt.x + d, rcWnd.top);
+        pDC->LineTo(pt.x + d, rcWnd.bottom);
+    }
+    else // m_nType == SPS_HORIZONTAL
+    {
+        pDC->MoveTo(rcWnd.left, pt.y - d);
+        pDC->LineTo(rcWnd.right, pt.y - d);
+
+        pDC->MoveTo(rcWnd.left, pt.y + d);
+        pDC->LineTo(rcWnd.right, pt.y + d);
+    }
+    pDC->SetROP2(nRop);
+    pDC->SelectObject(pOP);
 }
 
 void CSplitterControl::MoveWindowTo(CPoint pt)
@@ -311,7 +302,7 @@ void CSplitterControl::MoveWindowTo(CPoint pt)
     MoveWindow(rc);
 }
 
-HDWP CSplitterControl::ChangeRect(HDWP hdwp, CWnd * pWnd, int dleft, int dtop, int dright, int dbottom)
+void CSplitterControl::ChangeWidth(CWnd *pWnd, int dx, DWORD dwFlag)
 {
     CWnd* pParent = pWnd->GetParent();
     if (pParent && ::IsWindow(pParent->m_hWnd))
@@ -319,15 +310,42 @@ HDWP CSplitterControl::ChangeRect(HDWP hdwp, CWnd * pWnd, int dleft, int dtop, i
         CRect rcWnd;
         pWnd->GetWindowRect(rcWnd);
         pParent->ScreenToClient(rcWnd);
-        rcWnd.left += dleft;
-        rcWnd.top += dtop;
-        rcWnd.right += dright;
-        rcWnd.bottom += dbottom;
-
-        return DeferWindowPos(hdwp, pWnd->GetSafeHwnd(), nullptr, rcWnd.left, rcWnd.top, rcWnd.Width(), rcWnd.Height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOREDRAW | SWP_NOZORDER);
-        //pWnd->MoveWindow(rcWnd);
+        if (dwFlag == CW_LEFTALIGN)
+            rcWnd.right += dx;
+        else if (dwFlag == CW_RIGHTALIGN)
+            rcWnd.left -= dx;
+        pWnd->MoveWindow(rcWnd);
     }
-    return hdwp;
+}
+
+void CSplitterControl::ChangeHeight(CWnd *pWnd, int dy, DWORD dwFlag)
+{
+    CWnd* pParent = pWnd->GetParent();
+    if (pParent && ::IsWindow(pParent->m_hWnd))
+    {
+        CRect rcWnd;
+        pWnd->GetWindowRect(rcWnd);
+        pParent->ScreenToClient(rcWnd);
+        if (dwFlag == CW_TOPALIGN)
+            rcWnd.bottom += dy;
+        else if (dwFlag == CW_BOTTOMALIGN)
+            rcWnd.top -= dy;
+        pWnd->MoveWindow(rcWnd);
+    }
+}
+
+void CSplitterControl::ChangePos(CWnd* pWnd, int dx, int dy)
+{
+    CWnd* pParent = pWnd->GetParent();
+    if (pParent && ::IsWindow(pParent->m_hWnd))
+    {
+        CRect rcWnd;
+        pWnd->GetWindowRect(rcWnd);
+        pParent->ScreenToClient(rcWnd);
+        rcWnd.OffsetRect(-dx, dy);
+
+        pWnd->MoveWindow(rcWnd);
+    }
 }
 
 void CSplitterControl::SetRange(int nMin, int nMax)
@@ -356,7 +374,8 @@ void CSplitterControl::SetRange(int nSubtraction, int nAddition, int nRoot)
 void CSplitterControl::PreSubclassWindow()
 {
     // Enable notifications - CStatic has this disabled by default
-    ModifyStyle(0, SS_NOTIFY);
+    DWORD dwStyle = GetStyle();
+    ::SetWindowLong(GetSafeHwnd(), GWL_STYLE, dwStyle | SS_NOTIFY);
 
     CRect rc;
     GetClientRect(rc);

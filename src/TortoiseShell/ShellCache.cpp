@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2017 - TortoiseSVN
+// Copyright (C) 2010-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 ShellCache::ShellCache()
 {
     cachetype = CRegStdDWORD(L"Software\\TortoiseSVN\\CacheType", GetSystemMetrics(SM_REMOTESESSION) ? dll : exe, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
-    onlynonelevated = CRegStdDWORD(L"Software\\TortoiseSVN\\ShowOverlaysOnlyNonElevated", FALSE, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     showrecursive = CRegStdDWORD(L"Software\\TortoiseSVN\\RecursiveOverlay", TRUE, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     folderoverlay = CRegStdDWORD(L"Software\\TortoiseSVN\\FolderOverlay", TRUE, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     driveremote = CRegStdDWORD(L"Software\\TortoiseSVN\\DriveMaskRemote", 0, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
@@ -41,16 +40,35 @@ ShellCache::ShellCache()
     getlocktop = CRegStdDWORD(L"Software\\TortoiseSVN\\GetLockTop", TRUE, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     excludedasnormal = CRegStdDWORD(L"Software\\TortoiseSVN\\ShowExcludedFoldersAsNormal", FALSE, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     alwaysextended = CRegStdDWORD(L"Software\\TortoiseSVN\\AlwaysExtendedMenu", FALSE, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
+    cachetypeticker = GetTickCount64();
+    recursiveticker = cachetypeticker;
+    folderoverlayticker = cachetypeticker;
+    driveticker = cachetypeticker;
     drivetypeticker = 0;
+    langticker = cachetypeticker;
+    columnrevformatticker = cachetypeticker;
+    pathfilterticker = 0;
+    shellmenuacceleratorsticker = cachetypeticker;
+    unversionedasmodifiedticker = cachetypeticker;
+    ignoreoncommitignoredticker = cachetypeticker;
+    columnseverywhereticker = cachetypeticker;
+    getlocktopticker = cachetypeticker;
+    excludedasnormalticker = cachetypeticker;
+    alwaysextendedticker = cachetypeticker;
+    hidemenusforunversioneditemsticker = cachetypeticker;
+    layoutticker = cachetypeticker;
+    menumaskticker = cachetypeticker;
+    blockstatusticker = cachetypeticker;
+    excontextticker = 0;
     menulayoutlow = CRegStdDWORD(L"Software\\TortoiseSVN\\ContextMenuEntries", MENUCHECKOUT | MENUUPDATE | MENUCOMMIT, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     menulayouthigh = CRegStdDWORD(L"Software\\TortoiseSVN\\ContextMenuEntrieshigh", 0, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     menumasklow_lm = CRegStdDWORD(L"Software\\TortoiseSVN\\ContextMenuEntriesMaskLow", 0, FALSE, HKEY_LOCAL_MACHINE, KEY_WOW64_64KEY);
     menumaskhigh_lm = CRegStdDWORD(L"Software\\TortoiseSVN\\ContextMenuEntriesMaskHigh", 0, FALSE, HKEY_LOCAL_MACHINE, KEY_WOW64_64KEY);
     menumasklow_cu = CRegStdDWORD(L"Software\\TortoiseSVN\\ContextMenuEntriesMaskLow", 0, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     menumaskhigh_cu = CRegStdDWORD(L"Software\\TortoiseSVN\\ContextMenuEntriesMaskHigh", 0, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
-    langid = CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", 1033, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
-    blockstatus = CRegStdDWORD(L"Software\\TortoiseSVN\\BlockStatus", 0, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
-    columnseverywhere = CRegStdDWORD(L"Software\\TortoiseSVN\\ColumnsEveryWhere", FALSE, false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
+    langid = CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", 1033);
+    blockstatus = CRegStdDWORD(L"Software\\TortoiseSVN\\BlockStatus", 0);
+    columnseverywhere = CRegStdDWORD(L"Software\\TortoiseSVN\\ColumnsEveryWhere", FALSE);
     std::fill_n(drivetypecache, 27, (UINT)-1);
     if (DWORD(drivefloppy) == 0)
     {
@@ -59,6 +77,7 @@ ShellCache::ShellCache()
         drivetypecache[1] = DRIVE_REMOVABLE;
     }
     TCHAR szBuffer[5] = { 0 };
+    columnrevformatticker = GetTickCount64();
     SecureZeroMemory(&columnrevformat, sizeof(NUMBERFMT));
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, &szDecSep[0], _countof(szDecSep));
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, &szThousandsSep[0], _countof(szThousandsSep));
@@ -68,69 +87,14 @@ ShellCache::ShellCache()
     columnrevformat.Grouping = _wtoi(szBuffer);
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], _countof(szBuffer));
     columnrevformat.NegativeOrder = _wtoi(szBuffer);
-    columnrevformatticker = GetTickCount64();
     nocontextpaths = CRegStdString(L"Software\\TortoiseSVN\\NoContextPaths", L"", false, HKEY_CURRENT_USER, KEY_WOW64_64KEY);
     drivetypepathcache[0] = 0;
     m_critSec.Init();
-    // Use RegNotifyChangeKeyValue() to get a notification event whenever a registry value
-    // below HKCU\Software\TortoiseSVN is changed. If a value has changed, re-read all
-    // the registry variables to ensure we use the latest ones
-    RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\TortoiseSVN", 0, KEY_NOTIFY | KEY_WOW64_64KEY, &m_hNotifyRegKey);
-    m_registryChangeEvent = CreateEvent(NULL, true, false, NULL);
-    if (RegNotifyChangeKeyValue(m_hNotifyRegKey, false, REG_NOTIFY_CHANGE_LAST_SET, m_registryChangeEvent, TRUE) != ERROR_SUCCESS)
-    {
-        CloseHandle(m_registryChangeEvent);
-        m_registryChangeEvent = NULL;
-        RegCloseKey(m_hNotifyRegKey);
-        m_hNotifyRegKey = 0;
-    }
-
-    // find out if we're elevated
-    isElevated = false;
-    HANDLE hToken = NULL;
-    if (::OpenProcessToken(::GetCurrentProcess(), TOKEN_QUERY, &hToken))
-    {
-        TOKEN_ELEVATION te = { 0 };
-        DWORD dwReturnLength = 0;
-
-        if (::GetTokenInformation(hToken, TokenElevation, &te, sizeof(te), &dwReturnLength))
-        {
-            isElevated = (te.TokenIsElevated != 0);
-        }
-        ::CloseHandle(hToken);
-    }
 }
 
-ShellCache::~ShellCache()
+void ShellCache::ForceRefresh()
 {
-    if (m_registryChangeEvent)
-        CloseHandle(m_registryChangeEvent);
-    m_registryChangeEvent = NULL;
-    if (m_hNotifyRegKey)
-        RegCloseKey(m_hNotifyRegKey);
-    m_hNotifyRegKey = 0;
-}
-
-bool ShellCache::RefreshIfNeeded()
-{
-    // don't wait for the registry change event but only test if such an event
-    // has occurred since the last time we got here.
-    // if the event has occurred, re-read all registry variables and of course
-    // re-set the notification event to get further notifications of registry changes.
-    bool signalled = WaitForSingleObjectEx(m_registryChangeEvent, 0, true) != WAIT_TIMEOUT;
-    if (!signalled)
-        return signalled;
-
-    if (RegNotifyChangeKeyValue(m_hNotifyRegKey, false, REG_NOTIFY_CHANGE_LAST_SET, m_registryChangeEvent, TRUE) != ERROR_SUCCESS)
-    {
-        CloseHandle(m_registryChangeEvent);
-        m_registryChangeEvent = NULL;
-        RegCloseKey(m_hNotifyRegKey);
-        m_hNotifyRegKey = 0;
-    }
-
     cachetype.read();
-    onlynonelevated.read();
     showrecursive.read();
     folderoverlay.read();
     driveremote.read();
@@ -158,140 +122,183 @@ bool ShellCache::RefreshIfNeeded()
     menumaskhigh_cu.read();
     nocontextpaths.read();
 
-    Locker lock(m_critSec);
     pathFilter.Refresh();
-    return signalled;
 }
 
 ShellCache::CacheType ShellCache::GetCacheType()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - cachetypeticker) > REGISTRYTIMEOUT)
+    {
+        cachetypeticker = GetTickCount64();
+        cachetype.read();
+    }
     return CacheType(DWORD((cachetype)));
 }
 
 DWORD ShellCache::BlockStatus()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - blockstatusticker) > REGISTRYTIMEOUT)
+    {
+        blockstatusticker = GetTickCount64();
+        blockstatus.read();
+    }
     return (blockstatus);
 }
 
 unsigned __int64 ShellCache::GetMenuLayout()
 {
-    RefreshIfNeeded();
-    unsigned __int64 temp = unsigned __int64(DWORD(menulayouthigh)) << 32;
+    if ((GetTickCount64() - layoutticker) > REGISTRYTIMEOUT)
+    {
+        layoutticker = GetTickCount64();
+        menulayoutlow.read();
+        menulayouthigh.read();
+    }
+    unsigned __int64 temp = unsigned __int64(DWORD(menulayouthigh))<<32;
     temp |= unsigned __int64(DWORD(menulayoutlow));
     return temp;
 }
 
 unsigned __int64 ShellCache::GetMenuMask()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - menumaskticker) > REGISTRYTIMEOUT)
+    {
+        menumaskticker = GetTickCount64();
+        menumasklow_lm.read();
+        menumaskhigh_lm.read();
+        menumasklow_cu.read();
+        menumaskhigh_cu.read();
+    }
     DWORD low = (DWORD)menumasklow_lm | (DWORD)menumasklow_cu;
     DWORD high = (DWORD)menumaskhigh_lm | (DWORD)menumaskhigh_cu;
-    unsigned __int64 temp = unsigned __int64(high) << 32;
+    unsigned __int64 temp = unsigned __int64(high)<<32;
     temp |= unsigned __int64(low);
     return temp;
 }
 
-bool ShellCache::IsProcessElevated()
-{
-    return isElevated;
-}
-
-BOOL ShellCache::IsOnlyNonElevated()
-{
-    RefreshIfNeeded();
-    return (onlynonelevated);
-}
-
 BOOL ShellCache::IsRecursive()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - recursiveticker)>REGISTRYTIMEOUT)
+    {
+        recursiveticker = GetTickCount64();
+        showrecursive.read();
+    }
     return (showrecursive);
 }
 
 BOOL ShellCache::IsFolderOverlay()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - folderoverlayticker)>REGISTRYTIMEOUT)
+    {
+        folderoverlayticker = GetTickCount64();
+        folderoverlay.read();
+    }
     return (folderoverlay);
 }
 
 
 BOOL ShellCache::HasShellMenuAccelerators()
 {
-    RefreshIfNeeded();
-    return (shellmenuaccelerators != 0);
+    if ((GetTickCount64() - shellmenuacceleratorsticker)>REGISTRYTIMEOUT)
+    {
+        shellmenuacceleratorsticker = GetTickCount64();
+        shellmenuaccelerators.read();
+    }
+    return (shellmenuaccelerators!=0);
 }
 
 BOOL ShellCache::IsUnversionedAsModified()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - unversionedasmodifiedticker)>REGISTRYTIMEOUT)
+    {
+        unversionedasmodifiedticker = GetTickCount64();
+        unversionedasmodified.read();
+    }
     return (unversionedasmodified);
 }
 
 BOOL ShellCache::IsIgnoreOnCommitIgnored()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - ignoreoncommitignoredticker)>REGISTRYTIMEOUT)
+    {
+        ignoreoncommitignoredticker = GetTickCount64();
+        ignoreoncommitignored.read();
+    }
     return (ignoreoncommitignored);
 }
 
 BOOL ShellCache::IsGetLockTop()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - getlocktopticker)>REGISTRYTIMEOUT)
+    {
+        getlocktopticker = GetTickCount64();
+        getlocktop.read();
+    }
     return (getlocktop);
 }
 
 BOOL ShellCache::ShowExcludedAsNormal()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - excludedasnormalticker)>REGISTRYTIMEOUT)
+    {
+        excludedasnormalticker = GetTickCount64();
+        excludedasnormal.read();
+    }
     return (excludedasnormal);
 }
 
 BOOL ShellCache::AlwaysExtended()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - alwaysextendedticker)>REGISTRYTIMEOUT)
+    {
+        alwaysextendedticker = GetTickCount64();
+        alwaysextended.read();
+    }
     return (alwaysextended);
 }
 
 BOOL ShellCache::HideMenusForUnversionedItems()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - hidemenusforunversioneditemsticker)>REGISTRYTIMEOUT)
+    {
+        hidemenusforunversioneditemsticker = GetTickCount64();
+        hidemenusforunversioneditems.read();
+    }
     return (hidemenusforunversioneditems);
 }
 
 BOOL ShellCache::IsRemote()
 {
-    RefreshIfNeeded();
+    DriveValid();
     return (driveremote);
 }
 
 BOOL ShellCache::IsFixed()
 {
-    RefreshIfNeeded();
+    DriveValid();
     return (drivefixed);
 }
 
 BOOL ShellCache::IsCDRom()
 {
-    RefreshIfNeeded();
+    DriveValid();
     return (drivecdrom);
 }
 
 BOOL ShellCache::IsRemovable()
 {
-    RefreshIfNeeded();
+    DriveValid();
     return (driveremove);
 }
 
 BOOL ShellCache::IsRAM()
 {
-    RefreshIfNeeded();
+    DriveValid();
     return (driveram);
 }
 
 BOOL ShellCache::IsUnknown()
 {
-    RefreshIfNeeded();
+    DriveValid();
     return (driveunknown);
 }
 
@@ -303,13 +310,13 @@ BOOL ShellCache::IsContextPathAllowed(LPCTSTR path)
     {
         if (I->empty())
             continue;
-        if (!I->empty() && I->at(I->size() - 1) == '*')
+        if (!I->empty() && I->at(I->size()-1)=='*')
         {
-            tstring str = I->substr(0, I->size() - 1);
-            if (_wcsnicmp(str.c_str(), path, str.size()) == 0)
+            tstring str = I->substr(0, I->size()-1);
+            if (_wcsnicmp(str.c_str(), path, str.size())==0)
                 return FALSE;
         }
-        else if (_wcsicmp(I->c_str(), path) == 0)
+        else if (_wcsicmp(I->c_str(), path)==0)
             return FALSE;
     }
     return TRUE;
@@ -319,18 +326,18 @@ BOOL ShellCache::IsPathAllowed(LPCTSTR path)
 {
     ValidatePathFilter();
     Locker lock(m_critSec);
-    svn_tristate_t allowed = pathFilter.IsPathAllowed(path);
+    svn_tristate_t allowed = pathFilter.IsPathAllowed (path);
     if (allowed != svn_tristate_unknown)
         return allowed == svn_tristate_true ? TRUE : FALSE;
 
     UINT drivetype = 0;
     int drivenumber = PathGetDriveNumber(path);
-    if ((drivenumber >= 0) && (drivenumber < 25))
+    if ((drivenumber >=0)&&(drivenumber < 25))
     {
         drivetype = drivetypecache[drivenumber];
-        if ((drivetype == -1) || ((GetTickCount64() - drivetypeticker)>DRIVETYPETIMEOUT))
+        if ((drivetype == -1)||((GetTickCount64() - drivetypeticker)>DRIVETYPETIMEOUT))
         {
-            if ((DWORD(drivefloppy) == 0) && ((drivenumber == 0) || (drivenumber == 1)))
+            if ((DWORD(drivefloppy) == 0)&&((drivenumber == 0)||(drivenumber == 1)))
                 drivetypecache[drivenumber] = DRIVE_REMOVABLE;
             else
             {
@@ -355,7 +362,7 @@ BOOL ShellCache::IsPathAllowed(LPCTSTR path)
         {
             PathStripToRoot(pathbuf);
             PathAddBackslash(pathbuf);
-            if (wcsncmp(pathbuf, drivetypepathcache, MAX_PATH - 1) == 0)       // MAX_PATH ok.
+            if (wcsncmp(pathbuf, drivetypepathcache, MAX_PATH-1)==0)       // MAX_PATH ok.
                 drivetype = drivetypecache[26];
             else
             {
@@ -366,17 +373,17 @@ BOOL ShellCache::IsPathAllowed(LPCTSTR path)
             }
         }
     }
-    if ((drivetype == DRIVE_REMOVABLE) && (!IsRemovable()))
+    if ((drivetype == DRIVE_REMOVABLE)&&(!IsRemovable()))
         return FALSE;
-    if ((drivetype == DRIVE_FIXED) && (!IsFixed()))
+    if ((drivetype == DRIVE_FIXED)&&(!IsFixed()))
         return FALSE;
-    if (((drivetype == DRIVE_REMOTE) || (drivetype == DRIVE_NO_ROOT_DIR)) && (!IsRemote()))
+    if (((drivetype == DRIVE_REMOTE)||(drivetype == DRIVE_NO_ROOT_DIR))&&(!IsRemote()))
         return FALSE;
-    if ((drivetype == DRIVE_CDROM) && (!IsCDRom()))
+    if ((drivetype == DRIVE_CDROM)&&(!IsCDRom()))
         return FALSE;
-    if ((drivetype == DRIVE_RAMDISK) && (!IsRAM()))
+    if ((drivetype == DRIVE_RAMDISK)&&(!IsRAM()))
         return FALSE;
-    if ((drivetype == DRIVE_UNKNOWN) && (IsUnknown()))
+    if ((drivetype == DRIVE_UNKNOWN)&&(IsUnknown()))
         return FALSE;
 
     return TRUE;
@@ -384,7 +391,11 @@ BOOL ShellCache::IsPathAllowed(LPCTSTR path)
 
 DWORD ShellCache::GetLangID()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - langticker) > REGISTRYTIMEOUT)
+    {
+        langticker = GetTickCount64();
+        langid.read();
+    }
     return (langid);
 }
 
@@ -409,12 +420,12 @@ NUMBERFMT * ShellCache::GetNumberFmt()
 
 BOOL ShellCache::IsVersioned(LPCTSTR path, bool bIsDir, bool mustbeok)
 {
-    tstring folder(path);
-    if (!bIsDir)
+    tstring folder (path);
+    if (! bIsDir)
     {
-        size_t pos = folder.rfind('\\');
+        size_t pos = folder.rfind ('\\');
         if (pos != tstring::npos)
-            folder.erase(pos);
+            folder.erase (pos);
     }
     std::map<tstring, BoolTimeout>::iterator iter;
     if ((iter = admindircache.find(folder)) != admindircache.end())
@@ -435,32 +446,51 @@ BOOL ShellCache::IsVersioned(LPCTSTR path, bool bIsDir, bool mustbeok)
 
 bool ShellCache::IsColumnsEveryWhere()
 {
-    RefreshIfNeeded();
+    if ((GetTickCount64() - columnseverywhereticker) > REGISTRYTIMEOUT)
+    {
+        columnseverywhereticker = GetTickCount64();
+        columnseverywhere.read();
+    }
     return !!(DWORD)columnseverywhere;
+}
+
+void ShellCache::DriveValid()
+{
+    if ((GetTickCount64() - driveticker)>REGISTRYTIMEOUT)
+    {
+        driveticker = GetTickCount64();
+        driveremote.read();
+        drivefixed.read();
+        drivecdrom.read();
+        driveremove.read();
+        drivefloppy.read();
+    }
 }
 
 void ShellCache::ExcludeContextValid()
 {
-    if (RefreshIfNeeded())
+    if ((GetTickCount64() - excontextticker)>EXCLUDELISTTIMEOUT)
     {
         Locker lock(m_critSec);
-        if (excludecontextstr.compare((tstring)nocontextpaths) == 0)
+        excontextticker = GetTickCount64();
+        nocontextpaths.read();
+        if (excludecontextstr.compare((tstring)nocontextpaths)==0)
             return;
         excludecontextstr = (tstring)nocontextpaths;
         excontextvector.clear();
         size_t pos = 0, pos_ant = 0;
-        pos = excludecontextstr.find(L'\n', pos_ant);
+        pos = excludecontextstr.find(L"\n", pos_ant);
         while (pos != tstring::npos)
         {
-            tstring token = excludecontextstr.substr(pos_ant, pos - pos_ant);
+            tstring token = excludecontextstr.substr(pos_ant, pos-pos_ant);
             if (!token.empty())
                 excontextvector.push_back(token);
-            pos_ant = pos + 1;
-            pos = excludecontextstr.find(L'\n', pos_ant);
+            pos_ant = pos+1;
+            pos = excludecontextstr.find(L"\n", pos_ant);
         }
         if (!excludecontextstr.empty())
         {
-            tstring token = excludecontextstr.substr(pos_ant, excludecontextstr.size() - 1);
+            tstring token = excludecontextstr.substr(pos_ant, excludecontextstr.size()-1);
             if (!token.empty())
                 excontextvector.push_back(token);
         }
@@ -470,14 +500,20 @@ void ShellCache::ExcludeContextValid()
 
 void ShellCache::ValidatePathFilter()
 {
-    RefreshIfNeeded();
+    ULONGLONG ticks = GetTickCount64();
+    if ((ticks - pathfilterticker) > EXCLUDELISTTIMEOUT)
+    {
+        Locker lock(m_critSec);
+
+        pathfilterticker = ticks;
+        pathFilter.Refresh();
+    }
 }
 
 // construct \ref data content
 
-void ShellCache::CPathFilter::AddEntry(const tstring& s, bool include)
+void ShellCache::CPathFilter::AddEntry (const tstring& s, bool include)
 {
-    static wchar_t pathbuf[MAX_PATH*4] = { 0 };
     if (s.empty())
         return;
 
@@ -488,34 +524,31 @@ void ShellCache::CPathFilter::AddEntry(const tstring& s, bool include)
     entry.recursive = lastChar != '?';
     entry.included = include ? svn_tristate_true : svn_tristate_false;
     entry.subPathIncluded = include == entry.recursive
-        ? svn_tristate_true
-        : svn_tristate_false;
+                          ? svn_tristate_true
+                          : svn_tristate_false;
 
     entry.path = s;
     if ((lastChar == '?') || (lastChar == '*'))
-        entry.path.erase(s.length() - 1);
+        entry.path.erase (s.length()-1);
     if (!entry.path.empty() && (*entry.path.rbegin() == '\\'))
-        entry.path.erase(entry.path.length() - 1);
+        entry.path.erase (entry.path.length()-1);
 
-    auto ret = ExpandEnvironmentStrings(entry.path.c_str(), pathbuf, _countof(pathbuf));
-    if ((ret > 0) && (ret < _countof(pathbuf)))
-        entry.path = pathbuf;
-    data.push_back(entry);
+    data.push_back (entry);
 }
 
-void ShellCache::CPathFilter::AddEntries(const tstring& s, bool include)
+void ShellCache::CPathFilter::AddEntries (const tstring& s, bool include)
 {
     size_t pos = 0, pos_ant = 0;
     pos = s.find('\n', pos_ant);
     while (pos != tstring::npos)
     {
-        AddEntry(s.substr(pos_ant, pos - pos_ant), include);
-        pos_ant = pos + 1;
+        AddEntry (s.substr(pos_ant, pos-pos_ant), include);
+        pos_ant = pos+1;
         pos = s.find('\n', pos_ant);
     }
 
     if (!s.empty())
-        AddEntry(s.substr(pos_ant, s.size() - 1), include);
+        AddEntry (s.substr(pos_ant, s.size()-1), include);
 }
 
 // for all paths, have at least one entry in data
@@ -525,7 +558,7 @@ void ShellCache::CPathFilter::PostProcessData()
     if (data.empty())
         return;
 
-    std::sort(data.begin(), data.end());
+    std::sort (data.begin(), data.end());
 
     // update subPathIncluded props and remove duplicate entries
 
@@ -534,7 +567,7 @@ void ShellCache::CPathFilter::PostProcessData()
     TData::iterator dest = begin;
     for (TData::iterator source = begin; source != end; ++source)
     {
-        if (_wcsicmp(source->path.c_str(), dest->path.c_str()) == 0)
+        if (_wcsicmp (source->path.c_str(), dest->path.c_str()) == 0)
         {
             // multiple entries for the same path -> merge them
 
@@ -543,7 +576,7 @@ void ShellCache::CPathFilter::PostProcessData()
 
             if (!source->recursive)
                 source->subPathIncluded
-                = IsPathAllowed(source->path.c_str(), begin, dest);
+                    = IsPathAllowed (source->path.c_str(), begin, dest);
 
             // multiple specs for the same path
             // -> merge them into the existing entry @ dest
@@ -574,12 +607,12 @@ void ShellCache::CPathFilter::PostProcessData()
 
             size_t destSize = dest->path.size();
             dest->hasSubFolderEntries
-                = (source->path.size() > destSize)
-                && (source->path[destSize] == '\\')
-                && (_wcsnicmp(source->path.substr(0, destSize).c_str()
-                              , dest->path.c_str()
-                              , destSize)
-                    == 0);
+                =   (source->path.size() > destSize)
+                 && (source->path[destSize] == '\\')
+                 && (_wcsnicmp ( source->path.substr (0, destSize).c_str()
+                               , dest->path.c_str()
+                               , destSize)
+                     == 0);
 
             *++dest = *source;
 
@@ -588,7 +621,7 @@ void ShellCache::CPathFilter::PostProcessData()
 
             if (!dest->recursive)
                 dest->subPathIncluded
-                = IsPathAllowed(source->path.c_str(), begin, dest);
+                    = IsPathAllowed (source->path.c_str(), begin, dest);
         }
     }
 
@@ -604,9 +637,9 @@ void ShellCache::CPathFilter::PostProcessData()
 // lookup for C:\some\deeper\path
 
 svn_tristate_t ShellCache::CPathFilter::IsPathAllowed
-(LPCTSTR path
- , TData::const_iterator begin
- , TData::const_iterator end) const
+    ( LPCTSTR path
+    , TData::const_iterator begin
+    , TData::const_iterator end) const
 {
     svn_tristate_t result = svn_tristate_unknown;
 
@@ -615,7 +648,7 @@ svn_tristate_t ShellCache::CPathFilter::IsPathAllowed
     if (begin == end)
         return result;
 
-    size_t maxLength = wcslen(path);
+    size_t maxLength = wcslen (path);
     if (maxLength == 0)
         return result;
 
@@ -624,18 +657,18 @@ svn_tristate_t ShellCache::CPathFilter::IsPathAllowed
     size_t pos = 0;
     do
     {
-        LPCTSTR backslash = wcschr(path + pos + 1, _T('\\'));
+        LPCTSTR backslash = wcschr (path + pos + 1, _T ('\\'));
         pos = backslash == NULL ? maxLength : backslash - path;
 
-        std::pair<LPCTSTR, size_t> toFind(path, pos);
+        std::pair<LPCTSTR, size_t> toFind (path, pos);
         TData::const_iterator iter
-            = std::lower_bound(begin, end, toFind);
+            = std::lower_bound (begin, end, toFind);
 
         // found a relevant entry?
 
-        if ((iter != end)
+        if (   (iter != end)
             && (iter->path.length() == pos)
-            && (_wcsnicmp(iter->path.c_str(), path, pos) == 0))
+            && (_wcsnicmp (iter->path.c_str(), path, pos) == 0))
         {
             // exact match?
 
@@ -663,8 +696,9 @@ svn_tristate_t ShellCache::CPathFilter::IsPathAllowed
 
         // set a (potentially) closer upper limit
 
-        end = std::upper_bound(begin, end, toFind);
-    } while ((pos < maxLength) && (begin != end));
+        end = std::upper_bound (begin, end, toFind);
+    }
+    while ((pos < maxLength) && (begin != end));
 
     // nothing more specific found
 
@@ -687,8 +721,8 @@ void ShellCache::CPathFilter::Refresh()
     excludelist.read();
     includelist.read();
 
-    if ((excludeliststr.compare((tstring)excludelist) == 0)
-        && (includeliststr.compare((tstring)includelist) == 0))
+    if (   (excludeliststr.compare ((tstring)excludelist)==0)
+        && (includeliststr.compare ((tstring)includelist)==0))
     {
         return;
     }
@@ -696,15 +730,15 @@ void ShellCache::CPathFilter::Refresh()
     excludeliststr = (tstring)excludelist;
     includeliststr = (tstring)includelist;
     data.clear();
-    AddEntries(excludeliststr, false);
-    AddEntries(includeliststr, true);
+    AddEntries (excludeliststr, false);
+    AddEntries (includeliststr, true);
 
     PostProcessData();
 }
 
 // data access
 
-svn_tristate_t ShellCache::CPathFilter::IsPathAllowed(LPCTSTR path) const
+svn_tristate_t ShellCache::CPathFilter::IsPathAllowed (LPCTSTR path) const
 {
     if (path == NULL)
         return svn_tristate_unknown;
@@ -721,5 +755,5 @@ svn_tristate_t ShellCache::CPathFilter::IsPathAllowed(LPCTSTR path) const
         if ((*(pFound + 14) == '\0') || (*(pFound + 14) == '\\'))
             return svn_tristate_false;
     }
-    return IsPathAllowed(path, data.begin(), data.end());
+    return IsPathAllowed (path, data.begin(), data.end());
 }

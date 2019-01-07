@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2014, 2016, 2018 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@ CSettingsTBlame::CSettingsTBlame()
     m_regOldLinesColor = CRegDWORD(L"Software\\TortoiseSVN\\BlameOldColor", BLAMEOLDCOLOR);
     m_regNewLinesColorBar = CRegDWORD(L"Software\\TortoiseSVN\\BlameLocatorNewColor", BLAMENEWCOLORBAR);
     m_regOldLinesColorBar = CRegDWORD(L"Software\\TortoiseSVN\\BlameLocatorOldColor", BLAMEOLDCOLORBAR);
-    m_regFontName = CRegString(L"Software\\TortoiseSVN\\BlameFontName", L"Consolas");
+    m_regFontName = CRegString(L"Software\\TortoiseSVN\\BlameFontName", L"Courier New");
     m_regFontSize = CRegDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10);
     m_regTabSize = CRegDWORD(L"Software\\TortoiseSVN\\BlameTabSize", 4);
 
@@ -194,7 +194,6 @@ BOOL CSettingsTBlame::OnInitDialog()
     }
     m_cFontNames.Setup(DEVICE_FONTTYPE|RASTER_FONTTYPE|TRUETYPE_FONTTYPE, 1, FIXED_PITCH);
     m_cFontNames.SelectFont(m_sFontName);
-    m_cFontNames.SendMessage(CB_SETITEMHEIGHT, (WPARAM)-1, m_cFontSizes.GetItemHeight(-1));
 
     UpdateData(FALSE);
     return TRUE;

@@ -8,7 +8,9 @@
 #ifndef LEXACCESSOR_H
 #define LEXACCESSOR_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 enum EncodingType { enc8bit, encUnicode, encDBCS };
 
@@ -77,8 +79,11 @@ public:
 		}
 		return buf[position - startPos];
 	}
-	IDocument *MultiByteAccess() const {
-		return pAccess;
+	IDocumentWithLineEnd *MultiByteAccess() const {
+		if (documentVersion >= dvLineEnd) {
+			return static_cast<IDocumentWithLineEnd *>(pAccess);
+		}
+		return 0;
 	}
 	/** Safe version of operator[], returning a defined value for invalid position. */
 	char SafeGetCharAt(Sci_Position position, char chDefault=' ') {
@@ -106,7 +111,7 @@ public:
 		return true;
 	}
 	char StyleAt(Sci_Position position) const {
-		return pAccess->StyleAt(position);
+		return static_cast<char>(pAccess->StyleAt(position));
 	}
 	Sci_Position GetLine(Sci_Position position) const {
 		return pAccess->LineFromPosition(position);
@@ -114,8 +119,18 @@ public:
 	Sci_Position LineStart(Sci_Position line) const {
 		return pAccess->LineStart(line);
 	}
-	Sci_Position LineEnd(Sci_Position line) const {
-		return pAccess->LineEnd(line);
+	Sci_Position LineEnd(Sci_Position line) {
+		if (documentVersion >= dvLineEnd) {
+			return (static_cast<IDocumentWithLineEnd *>(pAccess))->LineEnd(line);
+		} else {
+			// Old interface means only '\r', '\n' and '\r\n' line ends.
+			Sci_Position startNext = pAccess->LineStart(line+1);
+			char chLineEnd = SafeGetCharAt(startNext-1);
+			if (chLineEnd == '\n' && (SafeGetCharAt(startNext-2)  == '\r'))
+				return startNext - 2;
+			else
+				return startNext - 1;
+		}
 	}
 	int LevelAt(Sci_Position line) const {
 		return pAccess->GetLevel(line);
@@ -138,7 +153,7 @@ public:
 	}
 	// Style setting
 	void StartAt(Sci_PositionU start) {
-		pAccess->StartStyling(start);
+		pAccess->StartStyling(start, '\377');
 		startPosStyling = start;
 	}
 	Sci_PositionU GetStartSegment() const {
@@ -157,14 +172,13 @@ public:
 
 			if (validLen + (pos - startSeg + 1) >= bufferSize)
 				Flush();
-			const char attr = static_cast<char>(chAttr);
 			if (validLen + (pos - startSeg + 1) >= bufferSize) {
 				// Too big for buffer so send directly
-				pAccess->SetStyleFor(pos - startSeg + 1, attr);
+				pAccess->SetStyleFor(pos - startSeg + 1, static_cast<char>(chAttr));
 			} else {
 				for (Sci_PositionU i = startSeg; i <= pos; i++) {
 					assert((startPosStyling + validLen) < Length());
-					styleBuf[validLen++] = attr;
+					styleBuf[validLen++] = static_cast<char>(chAttr);
 				}
 			}
 		}
@@ -183,13 +197,8 @@ public:
 	}
 };
 
-struct LexicalClass {
-	int value;
-	const char *name;
-	const char *tags;
-	const char *description;
-};
-
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

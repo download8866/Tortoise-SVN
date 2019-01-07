@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2018 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@ namespace LogCache
     /// revision number
     typedef index_t revision_t;
 
-    enum : revision_t
+    enum
     {
         /// invalid/unknown index
         NO_INDEX = (index_t)(-1),

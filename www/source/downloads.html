@@ -1,438 +1,456 @@
----
-layout: default
-title: Downloads
-id: downloads
-description: download TortoiseSVN
-lang: en
----
+@@include("_includes/header.html", {
+    "title": "Downloads",
+    "metaDescription": "<meta name=\"description\" content=\"download TortoiseSVN\">",
+    "metaKeywords": "<meta name=\"keywords\" content=\"download\">"
+})
+<body>
+<ul class="langselection">
+    <li><a href="downloads.html">EN</a></li>
+    <li><a href="downloads.de.html">DE</a></li>
+    <li><a href="downloads.zh.html">ZH</a></li>
+</ul>
+<div class="wrapper">
+    @@include("_includes/menu.html")
+    @@include("_includes/sidebar.html")
 
-<div class="post">
-    <h1 class="title">Downloads</h1>
-    <div class="entry">
-        <h1>The current version is {{ site.version.short }}</h1>
-        <p>For detailed info on what's new, read the
-        <a href="/Changelog.txt">changelog</a>
-        and the <a href="/tsvn_1.11_releasenotes.html">release notes</a>.
-        </p>
+    <div class="page clearfix">
+        <div class="content">
+            <div class="post">
+                <h1 class="title">Downloads</h1>
+                <div class="entry">
+                    <h1>The current version is @@TSVNSHORTVERSION</h1>
+                    <p>For detailed info on what's new, read the
+                    <a href="Changelog.txt">changelog</a>
+                    and the <a href="tsvn_1.8_releasenotes.html">release notes</a>.
+                    </p>
+@@include("_includes/adsense_inpage.html")
+                    <p>The current version @@TSVNSHORTVERSION is linked against
+                    the Subversion library @@SVNVERSION.</p>
+                    <p>Please make sure that you choose the
+                    right installer for your PC, otherwise the setup will fail.
+                    </p>
 
-        {% include adsense_inpage.html %}
+                    <table class="downloads-table">
+                        <tr>
+                            <td><strong>for 32-bit OS</strong></td>
+                            <td><strong>for 64-bit OS</strong></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="https://sourceforge.net/projects/tortoisesvn/files/@@TSVNSHORTVERSION/Application/TortoiseSVN-@@TSVNVERSION-win32-svn-@@SVNVERSION.msi/download"
+                                   title="Download TortoiseSVN @@TSVNSHORTVERSION - 32-bit, linked to SVN @@SVNVERSION"
+                                   class="sourceforge_accelerator_link btn">
+                                   TortoiseSVN <span>@@TSVNSHORTVERSION</span> - <span>32-bit</span>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="https://sourceforge.net/projects/tortoisesvn/files/@@TSVNSHORTVERSION/Application/TortoiseSVN-@@TSVNVERSION-x64-svn-@@SVNVERSION.msi/download"
+                                   title="Download TortoiseSVN @@TSVNSHORTVERSION - 64-bit, linked to SVN @@SVNVERSION"
+                                   class="sourceforge_accelerator_link btn">
+                                   TortoiseSVN <span>@@TSVNSHORTVERSION</span> - <span>64-bit</span>
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
 
-        <p>The current version {{ site.version.short }} is linked against
-        the Subversion library {{ site.version.svn }}.</p>
-        <p>Please make sure that you choose the
-        right installer for your PC, otherwise the setup will fail.
-        </p>
+                    <p>
+                    To verify the file integrity follow
+                    <a href="msiverify.html">these instructions</a>.
+                    </p>
 
-        <table class="downloads-table">
-            <thead>
-            <tr>
-                <td><strong>for 32-bit OS</strong></td>
-                <td><strong>for 64-bit OS</strong></td>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>
-                    <a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Application/TortoiseSVN-{{ site.version.long }}-win32-svn-{{ site.version.svn }}.msi"
-                       title="Download TortoiseSVN {{ site.version.short }} - 32-bit, linked to SVN {{ site.version.svn }}"
-                       class="btn">
-                       TortoiseSVN <span>{{ site.version.short }}</span> - <span>32-bit</span>
+                    <!-- SmartSVN advert -->
+                    <a class="smartsvn" href="http://www.smartsvn.com/download?source=tortoisesvn" target="_blank">
+                        <img src="/img/smartsvn-download-ad.jpg" alt="SmartSVN" width="592" height="66">
                     </a>
-                </td>
-                <td>
-                    <a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Application/TortoiseSVN-{{ site.version.long }}-x64-svn-{{ site.version.svn }}.msi"
-                       title="Download TortoiseSVN {{ site.version.short }} - 64-bit, linked to SVN {{ site.version.svn }}"
-                       class="btn">
-                       TortoiseSVN <span>{{ site.version.short }}</span> - <span>64-bit</span>
+
+                    <div class="important">
+                    <h3>Windows XP</h3>
+                    <p>
+                    If you're installing TortoiseSVN 1.8 on Windows XP SP3,
+                    you must have the latest MSI installer installed.
+                    You can get that installer from Microsoft:<br/>
+                    <a href="http://www.microsoft.com/en-us/download/details.aspx?id=8483">Windows Installer 4.5 Redistributable</a>
+                    </p>
+                    </div>
+                    <div class="important">
+                    <h3>Pre-Release Builds</h3>
+                    <p>
+                    If there is a bug in the latest released version which you really cannot live with, and which has
+                    already been reported as fixed, then you can try installing a <a href="#prerelease">pre-release build</a>
+                    from the stable release branch.
+                    </p>
+                    </div>
+                    <br/>
+                </div>
+            </div>
+
+            <div class="post">
+                <h1 class="title">Language packs</h1>
+                <div class="entry">
+                    <table class="table-hover left-aligned">
+                    <tr>
+                        <th></th>
+                        <th>Country</th>
+                        <th>32 Bit</th>
+                        <th>64 Bit</th>
+                        <th colspan="2">Separate manual (PDF)</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Arabic</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-ar.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-ar.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/ar/">Translate to Arabic</a></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Bulgarian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-bg.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-bg.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/bg/">Translate to Bulgarian</a></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Catalan</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-ca.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-ca.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/ca/">Translate to Catalan</a></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Chinese, simplified</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-zh_CN.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-zh_CN.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-zh_CN.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-zh_CN.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Chinese, traditional</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-zh_TW.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-zh_TW.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/zh_TW/">Translate to trad. Chinese</a></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Croatian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-hr.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-hr.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/hr/">Translate to Croatian</a></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Czech</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-cs.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-cs.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-cs.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-cs.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Danish</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-da.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-da.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/da/">Translate to Danish</a></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Dutch</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-nl.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-nl.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-nl.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-nl.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Finnish</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-fi.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-fi.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-fi.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-fi.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>French</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-fr.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-fr.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-fr.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-fr.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>Georgian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-ka.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-ka.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/ka/">Translate to Georgian</a></td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td>German</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-de.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-de.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-de.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-de.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td>Greek</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-el.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-el.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/el/">Translate to Greek</a></td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td>Hungarian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-hu.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-hu.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/hu/">Translate to Hungarian</a></td>
+                    </tr>
+                    <tr>
+                        <td>16</td>
+                        <td>Indonesian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-id.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-id.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-id.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-id.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>17</td>
+                        <td>Italian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-it.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-it.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/it/">Translate to Italian</a></td>
+                    </tr>
+                    <tr>
+                        <td>18</td>
+                        <td>Japanese</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-ja.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-ja.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-ja.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-ja.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>19</td>
+                        <td>Korean</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-ko.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-ko.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/ko/">Translate to Korean</a></td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td>Latvian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-lv.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-lv.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/lv/">Translate to Latvian</a></td>
+                    </tr>
+                    <tr>
+                        <td>21</td>
+                        <td>Lithuanian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-lt.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-lt.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/lt/">Translate to Lithuanian</a></td>
+                    </tr>
+                    <tr>
+                        <td>22</td>
+                        <td>Macedonian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-mk.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-mk.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/mk/">Translate to Macedonian</a></td>
+                    </tr>
+                    <tr>
+                        <td>23</td>
+                        <td>Malayalam</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-ml.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-ml.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/bg/">Translate to Malayalam</a></td>
+                    </tr>
+                    <tr>
+                        <td>24</td>
+                        <td>Norwegian, bokmål</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-nb.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-nb.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/nb/">Translate to Norwegian</a></td>
+                    </tr>
+                    <tr>
+                        <td>25</td>
+                        <td>Persian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-fa.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-fa.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/fa/">Translate to Persian</a></td>
+                    </tr>
+                    <tr>
+                        <td>26</td>
+                        <td>Polish</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-pl.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-pl.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-pl.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-pl.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>27</td>
+                        <td>Portuguese, Brazil</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-pt_BR.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-pt_BR.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-pt_BR.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-pt_BR.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>28</td>
+                        <td>Portuguese, Portugal</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-pt.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-pt.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-pt.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-pt.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>29</td>
+                        <td>Romanian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-ro.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-ro.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/ro/">Translate to Romanian</a></td>
+                    </tr>
+                    <tr>
+                        <td>30</td>
+                        <td>Russian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-ru.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-ru.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-ru.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-ru.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>31</td>
+                        <td>Serbian, cyrillic</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-sr.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-sr.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-sr.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-sr.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>32</td>
+                        <td>Serbian, latin</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-sr@latin.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-sr@latin.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-sr@latin.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-sr@latin.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>33</td>
+                        <td>Slovak</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-sk.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-sk.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-sk.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-sk.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>34</td>
+                        <td>Slovenian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-sl.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-sl.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-sl.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-sl.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>35</td>
+                        <td>Spanish</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-es.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-es.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-es.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-es.pdf?download">TMerge</a></td>
+                    </tr>
+                    <tr>
+                        <td>36</td>
+                        <td>Swedish</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-sv.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-sv.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/sv/">Translate to Swedish</a></td>
+                    </tr>
+                    <tr>
+                        <td>37</td>
+                        <td>Thai</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-th.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-th.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/th/">Translate to Thai</a></td>
+                    </tr>
+                    <tr>
+                        <td>38</td>
+                        <td>Turkish</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-tr.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-tr.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/tr/">Translate to Turkish</a></td>
+                    </tr>
+                    <tr>
+                        <td>39</td>
+                        <td>Ukrainian</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-uk.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-uk.msi?download">Setup</a></td>
+                        <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn/team/uk/">Translate to Ukrainian</a></td>
+                    </tr>
+                    <tr>
+                        <td>40</td>
+                        <td>Vietnamese</td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-win32-vi.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/LanguagePack_@@TSVNVERSION-x64-vi.msi?download">Setup</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseSVN-@@TSVNSHORTVERSION-vi.pdf?download">TSVN</a></td>
+                        <td><a href="https://downloads.sourceforge.net/tortoisesvn/TortoiseMerge-@@TSVNSHORTVERSION-vi.pdf?download">TMerge</a></td>
+                    </tr>
+                    </table>
+                </div>
+            </div>
+@@include("_includes/adsense_inpage.html")
+            <div class="post">
+                <h1 class="title">Other Releases</h1>
+                <div class="entry">
+                    <h1>Forthcoming Releases</h1>
+                    <p>To find out what is happening with the project and when
+                    you can expect the next major release, take a look at our
+                    <a href="status.html">project status</a> page.</p>
+
+                    <h1 id="prerelease">Stable Branch Builds</h1>
+                    <p>We maintain ongoing
+                    <a href="http://nightlybuilds.tortoisesvn.net/1.8.x/">Release Candidates</a>
+                    as well. These contain the latest official release plus latest bugfixes and will eventually become
+                    the next official release. They are not built nightly, but on demand from the current release branch,
+                    typically once a week if there has been any significant bugfix activity. If you find that a
+                    certain bug has been fixed and you do not want to wait until the next release, install one of these.
+                    Because they are built from the stable branch they should be completely compatible with
+                    the current official release and with other compatible Subversion clients.
+                    You would also help us tremendously by installing and testing release candidates.
+                    Note that the stable branch accepts bugfixes only, not new features.</p>
+
+                    <h1>Trunk Nightly Builds</h1>
+                    <p><a href="http://nightlybuilds.tortoisesvn.net/latest/">Nightly Builds</a> are
+                    available too. They are built from the current development head and are for testing only.
+                    This represents the bleeding edge and may be linked against a newer version of the subversion
+                    libraries than is used for the current release. Working copies may be upgraded automatically
+                    and become incompatible with the official release and with other subversion clients.
+                    We would love you to test these builds, but you should be aware of the potential problems
+                    and install only on a machine where your working copies are not critical.
+                    Note: This requires Windows Vista SP2 or above. Windows 7 must have SP1 installed.</p>
+
+                    <h1>Older Releases</h1>
+                    <p>Older releases are available from the
+                    <a href="https://sourceforge.net/projects/tortoisesvn/files/">SourceForge files</a> section.</p>
+
+                    <h1>Source Code</h1>
+                    <p>TortoiseSVN is under the GPL license. That means you can
+                    get the whole source code and build the program yourself.
+                    <br/>
+                    The source code is hosted on
+                    <a href="https://sourceforge.net/">SourceForge.net</a>
+                    in our own Subversion repository. You can browse the
+                    source code with your favorite web browser directly on the
+                    <a href="https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/">repository</a>.
+                    <br/>
+                    If you have TortoiseSVN installed, you can check out the
+                    whole source code by clicking on the tortoise icon below:
+                    <br/>
+                    <a href="tsvn:https://svn.code.sf.net/p/tortoisesvn/code/trunk">
+                        <img src="/img/TortoiseCheckout.png" alt="Tortoise logo" title="Click me to get the source code!" width="48" height="48">
                     </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                    </p>
+                </div>
+            </div>
+        </div> <!-- .content -->
 
-        <p>
-        To verify the file integrity follow
-        <a href="/msiverify.html">these instructions</a>.
-        </p>
-        <div class="important">
-        <h3>Context menu in file-open/save dialogs on x64 OS</h3>
-        <p>
-        On x64 versions of Windows 7 and 8, the TortoiseSVN context menu and overlays
-        won't show for 32-bit applications in their file-open/save dialogs until
-        you install the
-        <a href="https://aka.ms/vs/15/release/vc_redist.x86.exe">2017 C-runtime for x86</a>.
-        (select the <em>vc_redist.x86.exe</em> file for download).
-        </p>
-        <p>
-        Note: this only applies to 32-bit applications on x64 OS. The Windows explorer
-        is not affected by this.
-        </p>
-        </div>
-
-        <div class="important">
-        <h3>Pre-Release Builds</h3>
-        <p>
-        If there is a bug in the latest released version which you really cannot live with, and which has
-        already been reported as fixed, then you can try installing a <a href="#prerelease">pre-release build</a>
-        from the stable release branch.
-        </p>
-        </div>
-        <br/>
-    </div>
-</div>
-
-<div class="post">
-    <h1 class="title">Language packs</h1>
-    <div class="entry">
-        <table class="table-hover left-aligned">
-        <thead>
-        <tr>
-            <th>Country</th>
-            <th>32 Bit</th>
-            <th>64 Bit</th>
-            <th colspan="2">Separate manual (PDF)</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td class="flag-al">Albanian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-sq.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-sq.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Albanian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-sa">Arabic</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ar.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ar.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Arabic</a></td>
-        </tr>
-        <tr>
-            <td class="flag-be">Belarussian (Tarask)</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-be@tarask.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-be@tarask.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Belarussian (Tarask)</a></td>
-        </tr>
-        <tr>
-            <td class="flag-bg">Bulgarian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-bg.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-bg.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Bulgarian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ca_ES">Catalan</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ca.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ca.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Catalan</a></td>
-        </tr>
-        <tr>
-            <td class="flag-zh_CN">Chinese, simplified</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-zh_CN.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-zh_CN.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-zh_CN.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-zh_CN.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-zh_TW">Chinese, traditional</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-zh_TW.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-zh_TW.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to trad. Chinese</a></td>
-        </tr>
-        <tr>
-            <td class="flag-hr">Croatian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-hr.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-hr.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Croatian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-cs">Czech</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-cs.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-cs.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-cs.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-cs.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-da">Danish</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-da.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-da.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Danish</a></td>
-        </tr>
-        <tr>
-            <td class="flag-nl">Dutch</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-nl.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-nl.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-nl.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-nl.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-fi">Finnish</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-fi.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-fi.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-fi.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-fi.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-fr">French</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-fr.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-fr.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-fr.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-fr.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ka">Georgian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ka.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ka.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Georgian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-de">German</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-de.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-de.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-de.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-de.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-el">Greek</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-el.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-el.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Greek</a></td>
-        </tr>
-        <tr>
-            <td class="flag-hu">Hungarian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-hu.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-hu.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Hungarian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-id">Indonesian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-id.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-id.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-id.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-id.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-it">Italian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-it.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-it.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Italian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ja">Japanese</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ja.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ja.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-ja.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-ja.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ko">Korean</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ko.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ko.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Korean</a></td>
-        </tr>
-        <tr>
-            <td class="flag-lv">Latvian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-lv.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-lv.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Latvian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-lt">Lithuanian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-lt.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-lt.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Lithuanian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-mk">Macedonian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-mk.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-mk.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Macedonian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ml_IN">Malayalam</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ml.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ml.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Malayalam</a></td>
-        </tr>
-        <tr>
-            <td class="flag-nb">Norwegian, bokmål</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-nb.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-nb.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Norwegian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-oc">Occitan</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-oc.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-oc.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Occitan</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ir">Persian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-fa.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-fa.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Persian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-pl">Polish</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-pl.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-pl.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-pl.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-pl.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-pt_BR">Portuguese, Brazil</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-pt_BR.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-pt_BR.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-pt_BR.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-pt_BR.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-pt_PT">Portuguese, Portugal</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-pt.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-pt.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-pt.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-pt.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ro">Romanian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ro.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ro.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Romanian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ru">Russian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ru.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ru.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-ru.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-ru.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-sr_spc">Serbian, cyrillic</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-sr.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-sr.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-sr.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-sr.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-sr_spl">Serbian, latin</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-sr@latin.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-sr@latin.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-sr@latin.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-sr@latin.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-sk">Slovak</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-sk.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-sk.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-sk.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-sk.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-sl">Slovenian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-sl.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-sl.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-sl.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-sl.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-es">Spanish</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-es.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-es.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-es.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-es.pdf">TMerge</a></td>
-        </tr>
-        <tr>
-            <td class="flag-sv">Swedish</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-sv.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-sv.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Swedish</a></td>
-        </tr>
-        <tr>
-            <td class="flag-ta">Tamil, India</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-ta_IN.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-ta_IN.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Tamil, India</a></td>
-        </tr>
-        <tr>
-            <td class="flag-th">Thai</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-th.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-th.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Thai</a></td>
-        </tr>
-        <tr>
-            <td class="flag-tr">Turkish</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-tr.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-tr.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Turkish</a></td>
-        </tr>
-        <tr>
-            <td class="flag-uk">Ukrainian</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-uk.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-uk.msi">Setup</a></td>
-            <td colspan="2"><a href="https://www.transifex.com/projects/p/tortoisesvn">Translate to Ukrainian</a></td>
-        </tr>
-        <tr>
-            <td class="flag-vn">Vietnamese</td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-win32-vi.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Language%20Packs/LanguagePack_{{ site.version.long }}-x64-vi.msi">Setup</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseSVN-{{ site.version.short }}-vi.pdf">TSVN</a></td>
-            <td><a href="https://osdn.net/projects/tortoisesvn/storage/{{ site.version.short }}/Documentation/TortoiseMerge-{{ site.version.short }}-vi.pdf">TMerge</a></td>
-        </tr>
-        </tbody>
-        </table>
-    </div>
-</div>
-
-{% include adsense_inpage.html %}
-
-<div class="post">
-    <h1 class="title">Other Releases</h1>
-    <div class="entry">
-        <h1>Forthcoming Releases</h1>
-        <p>To find out what is happening with the project and when
-        you can expect the next major release, take a look at our
-        <a href="/status.html">project status</a> page.</p>
-
-        <h1 id="prerelease">Stable Branch Builds</h1>
-        <p>We maintain ongoing
-        <a href="https://nightlybuilds.tortoisesvn.net/1.11.x/">Release Candidates</a>
-        as well. These contain the latest official release plus latest bugfixes and will eventually become
-        the next official release. They are not built nightly, but on demand from the current release branch,
-        typically once a week if there has been any significant bugfix activity. If you find that a
-        certain bug has been fixed and you do not want to wait until the next release, install one of these.
-        Because they are built from the stable branch they should be completely compatible with
-        the current official release and with other compatible Subversion clients.
-        You would also help us tremendously by installing and testing release candidates.
-        Note that the stable branch accepts bugfixes only, not new features.</p>
-
-        <h1>Trunk Nightly Builds</h1>
-        <p><a href="https://nightlybuilds.tortoisesvn.net/latest/">Nightly Builds</a> are
-        available too. They are built from the current development head and are for testing only.
-        This represents the bleeding edge and may be linked against a newer version of the subversion
-        libraries than is used for the current release. Working copies may be upgraded automatically
-        and become incompatible with the official release and with other subversion clients.
-        We would love you to test these builds, but you should be aware of the potential problems
-        and install only on a machine where your working copies are not critical.
-        Note: This requires Windows Vista SP2 or above. Windows 7 must have SP1 installed.</p>
-
-        <h1>Older Releases</h1>
-        <p>Older releases are available from the
-        <a href="https://osdn.net/projects/tortoisesvn/storage/">OSDN.net files</a> section.</p>
-
-        <h1>Source Code</h1>
-        <p>TortoiseSVN is under the GPL license. That means you can
-        get the whole source code and build the program yourself.
-        <br/>
-        The source code is hosted on
-        <a href="https://osdn.net/">osdn.net</a>
-        in our own Subversion repository. You can browse the
-        source code with your favorite web browser directly on the
-        <a href="https://osdn.net/projects/tortoisesvn/scm/svn/">repository</a>.
-        <br/>
-        If you have TortoiseSVN installed, you can check out the
-        whole source code by clicking on the tortoise icon below:
-        <br/>
-        <a href="tsvn:https://svn.osdn.net/svnroot/tortoisesvn/trunk">
-            <img src="/assets/img/TortoiseCheckout.png" alt="Tortoise logo" title="Click me to get the source code!" width="48" height="48">
-        </a>
-        </p>
-    </div>
-</div>
+    @@include("_includes/sf-accel.html")
+    @@include("_includes/footer.html")

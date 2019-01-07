@@ -8,66 +8,50 @@
 #ifndef UNICONVERSION_H
 #define UNICONVERSION_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 const int UTF8MaxBytes = 4;
 
 const int unicodeReplacementChar = 0xFFFD;
 
-size_t UTF8Length(std::wstring_view wsv);
-size_t UTF8PositionFromUTF16Position(std::string_view u8Text, size_t positionUTF16) noexcept;
-void UTF8FromUTF16(std::wstring_view wsv, char *putf, size_t len);
-void UTF8FromUTF32Character(int uch, char *putf);
-size_t UTF16Length(std::string_view sv);
-size_t UTF16FromUTF8(std::string_view sv, wchar_t *tbuf, size_t tlen);
-size_t UTF32FromUTF8(std::string_view sv, unsigned int *tbuf, size_t tlen);
-unsigned int UTF16FromUTF32Character(unsigned int val, wchar_t *tbuf) noexcept;
-bool UTF8IsValid(std::string_view sv) noexcept;
-std::string FixInvalidUTF8(const std::string &text);
+unsigned int UTF8Length(const wchar_t *uptr, unsigned int tlen);
+void UTF8FromUTF16(const wchar_t *uptr, unsigned int tlen, char *putf, unsigned int len);
+unsigned int UTF8CharLength(unsigned char ch);
+size_t UTF16Length(const char *s, size_t len);
+size_t UTF16FromUTF8(const char *s, size_t len, wchar_t *tbuf, size_t tlen);
+unsigned int UTF32FromUTF8(const char *s, unsigned int len, unsigned int *tbuf, unsigned int tlen);
+unsigned int UTF16FromUTF32Character(unsigned int val, wchar_t *tbuf);
 
-extern const unsigned char UTF8BytesOfLead[256];
+extern int UTF8BytesOfLead[256];
+void UTF8BytesOfLeadInitialise();
 
-inline int UnicodeFromUTF8(const unsigned char *us) noexcept {
-	switch (UTF8BytesOfLead[us[0]]) {
-	case 1:
-		return us[0];
-	case 2:
-		return ((us[0] & 0x1F) << 6) + (us[1] & 0x3F);
-	case 3:
-		return ((us[0] & 0xF) << 12) + ((us[1] & 0x3F) << 6) + (us[2] & 0x3F);
-	default:
-		return ((us[0] & 0x7) << 18) + ((us[1] & 0x3F) << 12) + ((us[2] & 0x3F) << 6) + (us[3] & 0x3F);
-	}
-}
-
-inline constexpr bool UTF8IsTrailByte(unsigned char ch) noexcept {
+inline bool UTF8IsTrailByte(int ch) {
 	return (ch >= 0x80) && (ch < 0xc0);
 }
 
-inline constexpr bool UTF8IsAscii(int ch) noexcept {
+inline bool UTF8IsAscii(int ch) {
 	return ch < 0x80;
 }
 
 enum { UTF8MaskWidth=0x7, UTF8MaskInvalid=0x8 };
-int UTF8Classify(const unsigned char *us, size_t len) noexcept;
-inline int UTF8Classify(std::string_view sv) noexcept {
-	return UTF8Classify(reinterpret_cast<const unsigned char *>(sv.data()), sv.length());
-}
+int UTF8Classify(const unsigned char *us, int len);
 
 // Similar to UTF8Classify but returns a length of 1 for invalid bytes
 // instead of setting the invalid flag
-int UTF8DrawBytes(const unsigned char *us, int len) noexcept;
+int UTF8DrawBytes(const unsigned char *us, int len);
 
 // Line separator is U+2028 \xe2\x80\xa8
 // Paragraph separator is U+2029 \xe2\x80\xa9
 const int UTF8SeparatorLength = 3;
-inline bool UTF8IsSeparator(const unsigned char *us) noexcept {
+inline bool UTF8IsSeparator(const unsigned char *us) {
 	return (us[0] == 0xe2) && (us[1] == 0x80) && ((us[2] == 0xa8) || (us[2] == 0xa9));
 }
 
 // NEL is U+0085 \xc2\x85
 const int UTF8NELLength = 2;
-inline bool UTF8IsNEL(const unsigned char *us) noexcept {
+inline bool UTF8IsNEL(const unsigned char *us) {
 	return (us[0] == 0xc2) && (us[1] == 0x85);
 }
 
@@ -77,14 +61,12 @@ enum { SURROGATE_TRAIL_FIRST = 0xDC00 };
 enum { SURROGATE_TRAIL_LAST = 0xDFFF };
 enum { SUPPLEMENTAL_PLANE_FIRST = 0x10000 };
 
-inline constexpr unsigned int UTF16CharLength(wchar_t uch) noexcept {
+inline unsigned int UTF16CharLength(wchar_t uch) {
 	return ((uch >= SURROGATE_LEAD_FIRST) && (uch <= SURROGATE_LEAD_LAST)) ? 2 : 1;
 }
 
-inline constexpr unsigned int UTF16LengthFromUTF8ByteCount(unsigned int byteCount) noexcept {
-	return (byteCount < 4) ? 1 : 2;
+#ifdef SCI_NAMESPACE
 }
-
-}
+#endif
 
 #endif

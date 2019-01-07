@@ -1,4 +1,4 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // External Cache Copyright (C) 2007-2012, 2014-2015 - TortoiseSVN
 
@@ -233,7 +233,7 @@ void CPathWatcher::WorkerThread()
                         break;
                     }
 
-                    std::unique_ptr<CDirWatchInfo> pDirInfo (new CDirWatchInfo(std::move(hDir), watchedPaths[i]));// the new CDirWatchInfo object owns the handle now
+                    std::unique_ptr<CDirWatchInfo> pDirInfo (new CDirWatchInfo(hDir.Detach(), watchedPaths[i]));// the new CDirWatchInfo object owns the handle now
                     m_hCompPort = CreateIoCompletionPort(pDirInfo->m_hDir, m_hCompPort, (ULONG_PTR)pDirInfo.get(), 0);
                     if (m_hCompPort == NULL)
                     {
@@ -292,7 +292,7 @@ void CPathWatcher::WorkerThread()
                             pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
                             continue;
                         }
-                        buf[min((decltype((pnotify->FileNameLength / sizeof(WCHAR)))) bufferSize - 1, pdi->m_DirPath.GetLength() + (pnotify->FileNameLength / sizeof(WCHAR)))] = L'\0';
+                        buf[min(bufferSize-1, pdi->m_DirPath.GetLength()+(pnotify->FileNameLength/sizeof(WCHAR)))] = 0;
                         pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
                         CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": change notification: %s\n", buf);
                         {
@@ -351,11 +351,11 @@ void CPathWatcher::ClearInfoMap()
     m_hCompPort.CloseHandle();
 }
 
-CPathWatcher::CDirWatchInfo::CDirWatchInfo(CAutoFile && hDir, const CTSVNPath& DirectoryName)
-    : m_hDir(std::move(hDir))
+CPathWatcher::CDirWatchInfo::CDirWatchInfo(HANDLE hDir, const CTSVNPath& DirectoryName)
+    : m_hDir(hDir)
     , m_DirName(DirectoryName)
 {
-    ATLASSERT( m_hDir && !DirectoryName.IsEmpty());
+    ATLASSERT( hDir && !DirectoryName.IsEmpty());
     m_Buffer[0] = 0;
     SecureZeroMemory(&m_Overlapped, sizeof(m_Overlapped));
     m_DirPath = m_DirName.GetWinPathString();

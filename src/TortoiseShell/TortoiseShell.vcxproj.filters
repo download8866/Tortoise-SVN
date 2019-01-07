@@ -90,6 +90,9 @@
     <ClCompile Include="..\Utils\SVNTrace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utils\SysInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="TortoiseSVN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -115,9 +118,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\PreserveChdir.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\LoadIconEx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -325,6 +325,9 @@
     <ClInclude Include="..\Utils\SVNTrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utils\SysInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\SVN\TSVNPath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -346,9 +349,6 @@
     <ClInclude Include="..\Utils\PreserveChdir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utils\LoadIconEx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -362,12 +362,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\copy.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\menushelve.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\menuunshelve.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 #include "stdafx.h"
 #include "SmartHandle.h"
 #include "../Utils/CrashReport.h"
-#include "../Utils/PathUtils.h"
 
 #include <iostream>
 #include <tchar.h>
@@ -94,9 +93,9 @@ $WCREV$         Highest committed revision number\n\
 $WCREV&$        Highest committed revision number ANDed with the number\n\
                 after the &\n\
 $WCREV+$        Highest committed revision number added with the number\n\
-                after the +\n\
+                after the &\n\
 $WCREV-$        Highest committed revision number subtracted with the\n\
-                number after the -\n\
+                number after the &\n\
 $WCDATE$        Date of highest committed revision\n\
 $WCDATE=$       Like $WCDATE$ with an added strftime format after the =\n\
 $WCRANGE$       Update revision range\n\
@@ -119,7 +118,7 @@ TrueText if the tested condition is true, and FalseText if false.\n\
 $WCMODS$        True if local modifications found\n\
 $WCMIXED$       True if mixed update revisions found\n\
 $WCEXTALLFIXED$ True if all externals are fixed to an explicit revision\n\
-$WCISTAGGED$    True if the repository URL contains the tags pattern\n\
+$WCISTAGGED$    True if the repository URL contains the tags classification pattern\n\
 $WCINSVN$       True if the item is versioned\n\
 $WCNEEDSLOCK$   True if the svn:needs-lock property is set\n\
 $WCISLOCKED$    True if the item is locked\n"
@@ -225,6 +224,7 @@ bool InsertRevision(char * def, char * pBuf, size_t & index,
             return false; // value specifier too big
         }
         exp = pEnd - pStart + 1;
+        SecureZeroMemory(format, sizeof(format));
         memcpy(format,pStart,pEnd - pStart);
         unsigned long number = strtoul(format, NULL, 0);
         if (strcmp(def,VERDEFAND) == 0)
@@ -297,7 +297,7 @@ bool InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
     ptrdiff_t exp = 0;
     if ((wcscmp(def,TEXT(VERDEFAND)) == 0) || (wcscmp(def,TEXT(VERDEFOFFSET1)) == 0) || (wcscmp(def,TEXT(VERDEFOFFSET2)) == 0))
     {
-        wchar_t format[1024] = { 0 };
+        wchar_t format[1024];
         wchar_t * pStart = pBuf + index + wcslen(def);
         wchar_t * pEnd = pStart;
 
@@ -312,6 +312,7 @@ bool InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
             return false; // Format specifier too big
         }
         exp = pEnd - pStart + 1;
+        SecureZeroMemory(format, sizeof(format));
         memcpy(format,pStart,(pEnd - pStart)*sizeof(wchar_t));
         unsigned long number = wcstoul(format, NULL, 0);
         if (wcscmp(def,TEXT(VERDEFAND)) == 0)
@@ -359,13 +360,13 @@ bool InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
     ptrdiff_t Expansion = wcslen(destbuf) - exp - wcslen(def);
     if (Expansion < 0)
     {
-        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf) * sizeof(wchar_t)));
+        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf)));
     }
     else if (Expansion > 0)
     {
         // Check for buffer overflow
-        if (maxlength < Expansion * sizeof(wchar_t) + filelength) return false;
-        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf) * sizeof(wchar_t)));
+        if (maxlength < Expansion + filelength) return false;
+        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf)));
     }
     memmove(pBuild, destbuf, wcslen(destbuf)*sizeof(wchar_t));
     filelength += (Expansion*sizeof(wchar_t));
@@ -432,6 +433,7 @@ bool InsertDate(char * def, char * pBuf, size_t & index,
         {
             return false; // Format specifier too big
         }
+        SecureZeroMemory(format, sizeof(format));
         memcpy(format,pStart,pEnd - pStart);
 
         // to avoid wcsftime aborting if the user specified an invalid time format,
@@ -511,7 +513,7 @@ bool InsertDateW(wchar_t * def, wchar_t * pBuf, size_t & index,
         (wcscmp(def,TEXT(DATEWFMTDEFUTC)) == 0) || (wcscmp(def,TEXT(NOWWFMTDEFUTC)) == 0) || (wcscmp(def,TEXT(LOCKWFMTDEFUTC)) == 0))
     {
         // Format the date/time according to the supplied strftime format string
-        wchar_t format[1024] = { 0 };
+        wchar_t format[1024];
         wchar_t * pStart = pBuf + index + wcslen(def);
         wchar_t * pEnd = pStart;
 
@@ -525,6 +527,7 @@ bool InsertDateW(wchar_t * def, wchar_t * pBuf, size_t & index,
         {
             return false; // Format specifier too big
         }
+        SecureZeroMemory(format, sizeof(format));
         memcpy(format,pStart,(pEnd - pStart)*sizeof(wchar_t));
 
         // to avoid wcsftime aborting if the user specified an invalid time format,
@@ -558,13 +561,13 @@ bool InsertDateW(wchar_t * def, wchar_t * pBuf, size_t & index,
     // Replace the def string with the actual commit date
     if (Expansion < 0)
     {
-        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf) * sizeof(wchar_t)));
+        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf)));
     }
     else if (Expansion > 0)
     {
         // Check for buffer overflow
-        if (maxlength < Expansion * sizeof(wchar_t) + filelength) return false;
-        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf) * sizeof(wchar_t)));
+        if (maxlength < Expansion + filelength) return false;
+        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf)));
     }
     memmove(pBuild, destbuf, wcslen(destbuf)*sizeof(wchar_t));
     filelength += Expansion*sizeof(wchar_t);
@@ -613,13 +616,13 @@ bool InsertUrlW(wchar_t * def, wchar_t * pBuf, size_t & index,
     ptrdiff_t Expansion = wcslen(pUrl) - wcslen(def);
     if (Expansion < 0)
     {
-        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf) * sizeof(wchar_t)));
+        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf)));
     }
     else if (Expansion > 0)
     {
         // Check for buffer overflow
-        if (maxlength < Expansion * sizeof(wchar_t) + filelength) return false;
-        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf) * sizeof(wchar_t)));
+        if (maxlength < Expansion + filelength) return false;
+        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf)));
     }
     memmove(pBuild, pUrl, wcslen(pUrl)*sizeof(wchar_t));
     filelength += Expansion*sizeof(wchar_t);
@@ -711,17 +714,17 @@ bool InsertBooleanW(wchar_t * def, wchar_t * pBuf, size_t & index, size_t & file
         filelength -= ((pEnd + 1 - pSplit)*sizeof(wchar_t));
         // Remove $WCxxx?
         size_t deflen = wcslen(def);
-        memmove(pBuild, pBuild + deflen, (filelength - (pBuild + deflen - pBuf) * sizeof(wchar_t)));
+        memmove(pBuild, pBuild + deflen, (filelength - (pBuild + deflen - pBuf)));
         filelength -= (deflen*sizeof(wchar_t));
     }
     else
     {
         // Replace $WCxxx?TrueText:FalseText$ with FalseText
         // Remove terminating $
-        memmove(pEnd, pEnd + 1, (filelength - (pEnd + 1 - pBuf) * sizeof(wchar_t)));
+        memmove(pEnd, pEnd + 1, (filelength - (pEnd + 1 - pBuf)));
         filelength -= sizeof(wchar_t);
         // Remove $WCxxx?TrueText:
-        memmove(pBuild, pSplit + 1, (filelength - (pSplit + 1 - pBuf) * sizeof(wchar_t)));
+        memmove(pBuild, pSplit + 1, (filelength - (pSplit + 1 - pBuf)));
         filelength -= ((pSplit + 1 - pBuild)*sizeof(wchar_t));
     }
     return true;
@@ -856,17 +859,43 @@ int _tmain(int argc, _TCHAR* argv[])
         }
     }
     wc = wcfullPath.get();
-    std::wstring dstfullPath;
+    std::unique_ptr<TCHAR[]> dstfullPath = nullptr;
     if (dst)
     {
-        dstfullPath = CPathUtils::GetLongPathname(dst);
-        dst = dstfullPath.c_str();
+        reqLen = GetFullPathName(dst, 0, NULL, NULL);
+        dstfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
+        GetFullPathName(dst, reqLen, dstfullPath.get(), NULL);
+        shortlen = GetShortPathName(dstfullPath.get(), NULL, 0);
+        if (shortlen)
+        {
+            auto shortPath = std::make_unique<TCHAR[]>(shortlen + 1);
+            if (GetShortPathName(dstfullPath.get(), shortPath.get(), shortlen+1))
+            {
+                reqLen = GetLongPathName(shortPath.get(), NULL, 0);
+                dstfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
+                GetLongPathName(shortPath.get(), dstfullPath.get(), reqLen);
+            }
+        }
+        dst = dstfullPath.get();
     }
-    std::wstring srcfullPath;
+    std::unique_ptr<TCHAR[]> srcfullPath = nullptr;
     if (src)
     {
-        srcfullPath = CPathUtils::GetLongPathname(src);
-        src = srcfullPath.c_str();
+        reqLen = GetFullPathName(src, 0, NULL, NULL);
+        srcfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
+        GetFullPathName(src, reqLen, srcfullPath.get(), NULL);
+        shortlen = GetShortPathName(srcfullPath.get(), NULL, 0);
+        if (shortlen)
+        {
+            auto shortPath = std::make_unique<TCHAR[]>(shortlen + 1);
+            if (GetShortPathName(srcfullPath.get(), shortPath.get(), shortlen+1))
+            {
+                reqLen = GetLongPathName(shortPath.get(), NULL, 0);
+                srcfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
+                GetLongPathName(shortPath.get(), srcfullPath.get(), reqLen);
+            }
+        }
+        src = srcfullPath.get();
     }
 
     if (!PathFileExists(wc))
@@ -970,10 +999,9 @@ int _tmain(int argc, _TCHAR* argv[])
     GetFullPathName(wc, MAX_PATH, wcfullpath, &dummy);
     apr_status_t e = 0;
     if (svnerr)
-    {
         e = svnerr->apr_err;
+    if (svnerr)
         svn_error_clear(svnerr);
-    }
     apr_terminate2();
     if (svnerr)
     {

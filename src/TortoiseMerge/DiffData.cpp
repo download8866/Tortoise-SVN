@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2017 - TortoiseSVN
+// Copyright (C) 2006-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -326,13 +326,13 @@ BOOL CDiffData::Load()
         return FALSE;
     }
 
-    apr_pool_t* pool = nullptr;
-    apr_pool_create_ex(&pool, nullptr, abort_on_pool_failure, nullptr);
+    apr_pool_t * pool = NULL;
+    apr_pool_create_ex (&pool, NULL, abort_on_pool_failure, NULL);
 
     // Is this a two-way diff?
     if (IsBaseFileInUse() && IsYourFileInUse() && !IsTheirFileInUse())
     {
-        if (!DoTwoWayDiff(sConvertedBaseFilename, sConvertedYourFilename, dwIgnoreWS, bIgnoreEOL, !!bIgnoreCase, bIgnoreComments, pool))
+        if (!DoTwoWayDiff(sConvertedBaseFilename, sConvertedYourFilename, dwIgnoreWS, bIgnoreEOL, pool))
         {
             apr_pool_destroy (pool);                    // free the allocated memory
             return FALSE;
@@ -349,7 +349,7 @@ BOOL CDiffData::Load()
     {
         m_Diff3.Reserve(lengthHint);
 
-        if (!DoThreeWayDiff(sConvertedBaseFilename, sConvertedYourFilename, sConvertedTheirFilename, dwIgnoreWS, bIgnoreEOL, !!bIgnoreCase, bIgnoreComments, pool))
+        if (!DoThreeWayDiff(sConvertedBaseFilename, sConvertedYourFilename, sConvertedTheirFilename, dwIgnoreWS, bIgnoreEOL, !!bIgnoreCase, pool))
         {
             apr_pool_destroy (pool);                    // free the allocated memory
             return FALSE;
@@ -367,20 +367,20 @@ BOOL CDiffData::Load()
 }
 
 bool
-CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, bool bIgnoreCase, bool bIgnoreComments, apr_pool_t * pool)
+CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, apr_pool_t * pool)
 {
     svn_diff_file_options_t * options = CreateDiffFileOptions(dwIgnoreWS, bIgnoreEOL, pool);
     // convert CString filenames (UTF-16 or ANSI) to UTF-8
     CStringA sBaseFilenameUtf8 = CUnicodeUtils::GetUTF8(sBaseFilename);
     CStringA sYourFilenameUtf8 = CUnicodeUtils::GetUTF8(sYourFilename);
 
-    svn_diff_t* diffYourBase = nullptr;
+    svn_diff_t * diffYourBase = NULL;
     svn_error_t * svnerr = svn_diff_file_diff_2(&diffYourBase, sBaseFilenameUtf8, sYourFilenameUtf8, options, pool);
 
     if (svnerr)
         return HandleSvnError(svnerr);
 
-    tsvn_svn_diff_t_extension* movedBlocks = nullptr;
+    tsvn_svn_diff_t_extension * movedBlocks = NULL;
     if(m_bViewMovedBlocks)
         movedBlocks = MovedBlocksDetect(diffYourBase, dwIgnoreWS, pool); // Side effect is that diffs are now splitted
 
@@ -455,7 +455,7 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
         tempdiff = tempdiff->next;
     }
 
-    HideUnchangedSections(&m_YourBaseBoth, nullptr, nullptr);
+    HideUnchangedSections(&m_YourBaseBoth, NULL, NULL);
 
     tempdiff = diffYourBase;
     baseline = 0;
@@ -477,12 +477,13 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
                 EOL endingBase = m_arBaseFile.GetLineEnding(baseline);
                 if (sCurrentBaseLine != sCurrentYourLine)
                 {
-                    bool changedNonWS = false;
-                    auto ds = DIFFSTATE_NORMAL;
-
-                    if (dwIgnoreWS == 1)
+                    bool changedWS = false;
+                    bool bWhiteSpaceChanges = true;
+                    if (dwIgnoreWS == 2 || dwIgnoreWS == 3)
+                        changedWS = CompareWithIgnoreWS(sCurrentBaseLine, sCurrentYourLine, dwIgnoreWS);
+                    else if (dwIgnoreWS == 0)
                     {
-                        // the strings could be identical in relation to a filter.
+                        // the strings could be identical in relation to the regex filter.
                         // so to find out if there are whitespace changes, we have to strip the strings
                         // of all non-whitespace chars and then compare them.
                         // Note: this is not really fast! So we only do that if the lines are not too long (arbitrary value)
@@ -515,24 +516,26 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
                                 ++pLine2;
                             }
                             *pS2 = '\0';
-                            auto hasWhitespaceChanges = wcscmp(s1.get(), s2.get()) != 0;
-                            if (hasWhitespaceChanges)
-                                ds = DIFFSTATE_WHITESPACE;
+                            bWhiteSpaceChanges = wcscmp(s1.get(), s2.get()) != 0;
                         }
                     }
-                    if (dwIgnoreWS == 2 || dwIgnoreWS == 3)
-                        changedNonWS = CompareWithIgnoreWS(sCurrentBaseLine, sCurrentYourLine, dwIgnoreWS);
-                    if (!changedNonWS)
+                    if (changedWS || ((dwIgnoreWS == 0) && bWhiteSpaceChanges))
                     {
-                        ds = DIFFSTATE_NORMAL;
+                        auto ds = DIFFSTATE_WHITESPACE;
+                        if (!bWhiteSpaceChanges && (dwIgnoreWS == 0))
+                        {
+                            // if there are no whitespace changes but diffs only because of a regex filter,
+                            // mark the lines as normal and not with whitespace changes.
+                            ds = DIFFSTATE_NORMAL;
+                        }
+                        m_YourBaseLeft.AddData(sCurrentBaseLine, ds, baseline, endingBase, HIDESTATE_SHOWN, -1);
+                        m_YourBaseRight.AddData(sCurrentYourLine, ds, yourline, endingYours, HIDESTATE_SHOWN, -1);
                     }
-                    if ((ds == DIFFSTATE_NORMAL) && (!m_rx._Empty() || bIgnoreCase || bIgnoreComments))
+                    else
                     {
-                        ds = DIFFSTATE_FILTEREDDIFF;
+                        m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, baseline, endingBase, HIDESTATE_HIDDEN, -1);
+                        m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_NORMAL, yourline, endingYours, HIDESTATE_HIDDEN, -1);
                     }
-
-                    m_YourBaseLeft.AddData(sCurrentBaseLine, ds, baseline, endingBase, HIDESTATE_SHOWN, -1);
-                    m_YourBaseRight.AddData(sCurrentYourLine, ds, yourline, endingYours, HIDESTATE_SHOWN, -1);
                 }
                 else
                 {
@@ -669,13 +672,13 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 
     TRACE(L"done with 2-way diff\n");
 
-    HideUnchangedSections(&m_YourBaseLeft, &m_YourBaseRight, nullptr);
+    HideUnchangedSections(&m_YourBaseLeft, &m_YourBaseRight, NULL);
 
     return true;
 }
 
 bool
-CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFilename, const CString& sTheirFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, bool bIgnoreCase, bool bIgnoreComments, apr_pool_t * pool)
+CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFilename, const CString& sTheirFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, bool bIgnoreCase, apr_pool_t * pool)
 {
     // the following three arrays are used to check for conflicts even in case the
     // user has ignored spaces/eols.
@@ -697,7 +700,7 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
     CStringA sYourFilenameUtf8  = CUnicodeUtils::GetUTF8(sYourFilename);
     CStringA sTheirFilenameUtf8 = CUnicodeUtils::GetUTF8(sTheirFilename);
 
-    svn_diff_t* diffTheirYourBase = nullptr;
+    svn_diff_t * diffTheirYourBase = NULL;
     svn_error_t * svnerr = svn_diff_file_diff3_2(&diffTheirYourBase, sBaseFilenameUtf8, sTheirFilenameUtf8, sYourFilenameUtf8, options, pool);
     if (svnerr)
         return HandleSvnError(svnerr);
@@ -976,7 +979,7 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 
     } // while (tempdiff)
 
-    if ((options->ignore_space != svn_diff_file_ignore_space_none)||(bIgnoreCase||bIgnoreEOL||bIgnoreComments||!m_rx._Empty()))
+    if ((options->ignore_space != svn_diff_file_ignore_space_none)||(bIgnoreCase)||(bIgnoreEOL))
     {
         // If whitespaces are ignored, a conflict could have been missed
         // We now go through all lines again and check if they're identical.
@@ -1024,7 +1027,7 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 
 void CDiffData::HideUnchangedSections(CViewData * data1, CViewData * data2, CViewData * data3) const
 {
-    if (!data1)
+    if (data1 == NULL)
         return;
 
     CRegDWORD contextLines = CRegDWORD(L"Software\\TortoiseMerge\\ContextLines", 1);

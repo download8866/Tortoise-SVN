@@ -1,6 +1,6 @@
-﻿// TortoiseBlame - a Viewer for Subversion Blames
+// TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,16 +26,13 @@
 #include <ClipboardHelper.h>
 #include "TaskbarUUID.h"
 #include "BlameIndexColors.h"
-#include "CrashReport.h"
-#include "DebugOutput.h"
-#include "DPIAware.h"
-#include "LoadIconEx.h"
+#include "../Utils/CrashReport.h"
+#include "../Utils/SysInfo.h"
 
 #include <algorithm>
 #include <cctype>
 #include <regex>
 #include <strsafe.h>
-#include <VersionHelpers.h>
 
 #define MAX_LOADSTRING 1000
 
@@ -88,7 +85,6 @@ TortoiseBlame::TortoiseBlame()
     , m_ttVisible(false)
     , m_font(0)
     , m_italicFont(0)
-    , m_uiFont(0)
     , m_blameWidth(0)
     , m_revWidth(0)
     , m_dateWidth(0)
@@ -130,11 +126,6 @@ TortoiseBlame::TortoiseBlame()
     m_selectedRevColor = GetSysColor(COLOR_HIGHLIGHT);
     m_selectedAuthorColor = InterColor(m_selectedRevColor, m_textHighLightColor, 35);
     SecureZeroMemory(&m_fr, sizeof(m_fr));
-
-    NONCLIENTMETRICS metrics = { 0 };
-    metrics.cbSize = sizeof(NONCLIENTMETRICS);
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &metrics, FALSE);
-    m_uiFont = CreateFontIndirect(&metrics.lfMessageFont);
 }
 
 TortoiseBlame::~TortoiseBlame()
@@ -143,8 +134,6 @@ TortoiseBlame::~TortoiseBlame()
         DeleteObject(m_font);
     if (m_italicFont)
         DeleteObject(m_italicFont);
-    if (m_uiFont)
-        DeleteObject(m_uiFont);
 }
 
 std::wstring TortoiseBlame::GetAppDirectory()
@@ -213,7 +202,7 @@ void TortoiseBlame::SetTitle()
                 str2 = str2.substr(0, MAX_PATH - 2);
             PathCompactPathEx(pathbuf, str2.c_str(), MAX_PATH_LENGTH - (UINT)wcslen(szTitle), 0);
         }
-        catch (std::exception&)
+        catch (std::exception)
         {
             PathCompactPathEx(pathbuf, szViewtitle.c_str(), MAX_PATH_LENGTH - (UINT)wcslen(szTitle), 0);
         }
@@ -242,27 +231,20 @@ void TortoiseBlame::SetTitle()
 BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
 {
     SendEditor(SCI_SETREADONLY, FALSE);
-    SendEditor(SCI_SETCODEPAGE, SC_CP_UTF8);
     SendEditor(SCI_CLEARALL);
+    SendEditor(EM_EMPTYUNDOBUFFER);
     SetTitle();
     SendEditor(SCI_SETSAVEPOINT);
     SendEditor(SCI_CANCEL);
     SendEditor(SCI_SETUNDOCOLLECTION, 0);
-    SendEditor(EM_EMPTYUNDOBUFFER);
+    SendEditor(SCI_SETCODEPAGE, SC_CP_UTF8);
     ::ShowWindow(wEditor, SW_HIDE);
-
-    int stringBufLen = 4096;
-    auto stringbuf = std::make_unique<char[]>(stringBufLen);
-    int wideBufLen = 4096;
-    auto wideBuf = std::make_unique<wchar_t[]>(wideBufLen);
-    int utf8BufLen = 4096;
-    auto utf8Buf = std::make_unique<char[]>(utf8BufLen);
 
     FILE * File = NULL;
     int retrycount = 10;
     while (retrycount)
     {
-        _tfopen_s(&File, fileName, L"rbS");
+        _tfopen_s(&File, fileName, L"rb");
         if (File == 0)
         {
             Sleep(500);
@@ -273,16 +255,6 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
     }
     if (File == NULL)
         return FALSE;
-
-    ProfileTimer profiler(L"Blame: OpenFile");
-
-    //m_revs.reserve(100000);
-    //m_mergedRevs.reserve(100000);
-    //m_dates.reserve(100000);
-    //m_mergedDates.reserve(100000);
-    //m_authors.reserve(100000);
-    //m_mergedAuthors.reserve(100000);
-    //m_mergedPaths.reserve(100000);
 
     m_lowestRev = LONG_MAX;
     m_highestRev = 0;
@@ -311,18 +283,13 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
             break;
         if (strLen)
         {
-            if (strLen >= stringBufLen)
-            {
-                stringBufLen = strLen + 1024;
-                stringbuf = std::make_unique<char[]>(stringBufLen + 1);
-            }
+            std::unique_ptr<char[]> stringbuf(new char[strLen+1]);
             len = fread(stringbuf.get(), sizeof(char), strLen, File);
             if (len == 0)
                 break;
             stringbuf[strLen] = 0;
-            auto author = CUnicodeUtils::StdGetUnicode(stringbuf.get());
-            m_authors.push_back(author);
-            m_authorset.insert(author);
+            m_authors.push_back(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
+            m_authorset.insert(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
         }
         else
         {
@@ -335,11 +302,7 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
             break;
         if (strLen)
         {
-            if (strLen >= stringBufLen)
-            {
-                stringBufLen = strLen + 1024;
-                stringbuf = std::make_unique<char[]>(stringBufLen + 1);
-            }
+            std::unique_ptr<char[]> stringbuf(new char[strLen+1]);
             len = fread(stringbuf.get(), sizeof(char), strLen, File);
             if (len == 0)
                 break;
@@ -369,11 +332,7 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
             break;
         if (strLen)
         {
-            if (strLen >= stringBufLen)
-            {
-                stringBufLen = strLen + 1024;
-                stringbuf = std::make_unique<char[]>(stringBufLen + 1);
-            }
+            std::unique_ptr<char[]> stringbuf(new char[strLen+1]);
             len = fread(stringbuf.get(), sizeof(char), strLen, File);
             if (len == 0)
                 break;
@@ -388,11 +347,7 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
             break;
         if (strLen)
         {
-            if (strLen >= stringBufLen)
-            {
-                stringBufLen = strLen + 1024;
-                stringbuf = std::make_unique<char[]>(stringBufLen + 1);
-            }
+            std::unique_ptr<char[]> stringbuf(new char[strLen+1]);
             len = fread(stringbuf.get(), sizeof(char), strLen, File);
             if (len == 0)
                 break;
@@ -407,11 +362,7 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
             break;
         if (strLen)
         {
-            if (strLen >= stringBufLen)
-            {
-                stringBufLen = strLen + 1024;
-                stringbuf = std::make_unique<char[]>(stringBufLen + 1);
-            }
+            std::unique_ptr<char[]> stringbuf(new char[strLen+1]);
             len = fread(stringbuf.get(), sizeof(char), strLen, File);
             if (len == 0)
                 break;
@@ -425,11 +376,7 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
         len = fread(&strLen, sizeof(int), 1, File);
         if (strLen)
         {
-            if (strLen >= stringBufLen)
-            {
-                stringBufLen = strLen + 1024;
-                stringbuf = std::make_unique<char[]>(stringBufLen + 1);
-            }
+            std::unique_ptr<char[]> stringbuf(new char[strLen+1]);
             len = fread(stringbuf.get(), sizeof(char), strLen, File);
             if (len == 0)
                 break;
@@ -525,31 +472,11 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
             }
             if (!bUTF8)
             {
-                if (strLen >= wideBufLen)
-                {
-                    wideBufLen = strLen * 2 + 1024;
-                    wideBuf = std::make_unique<wchar_t[]>(wideBufLen + 1);
-                }
-
-                int mblen = MultiByteToWideChar(CP_ACP, 0, lineptr, strLen, wideBuf.get(), wideBufLen);
-                if (mblen)
-                {
-                    if (mblen >= utf8BufLen)
-                    {
-                        utf8BufLen = mblen + 1024;
-                        utf8Buf = std::make_unique<char[]>(utf8BufLen + 1);
-                    }
-                    mblen = WideCharToMultiByte(CP_UTF8, 0, wideBuf.get(), mblen, utf8Buf.get(), utf8BufLen, 0, NULL);
-                    if (mblen)
-                        SendEditor(SCI_APPENDTEXT, mblen, reinterpret_cast<LPARAM>(utf8Buf.get()));
-                    else
-                        SendEditor(SCI_APPENDTEXT, strlen(lineptr), reinterpret_cast<LPARAM>(static_cast<char *>(lineptr)));
-                }
-                else
-                    SendEditor(SCI_APPENDTEXT, strlen(lineptr), reinterpret_cast<LPARAM>(static_cast<char *>(lineptr)));
+                std::string utf8line = CUnicodeUtils::StdAnsiToUTF8(lineptr);
+                SendEditor(SCI_ADDTEXT, utf8line.length(), reinterpret_cast<LPARAM>(utf8line.c_str()));
             }
             else
-                SendEditor(SCI_APPENDTEXT, strlen(lineptr), reinterpret_cast<LPARAM>(static_cast<char *>(lineptr)));
+                SendEditor(SCI_ADDTEXT, strlen(lineptr), reinterpret_cast<LPARAM>(static_cast<char *>(lineptr)));
         }
         if (len == 0)
             break;
@@ -558,26 +485,18 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
             break;
         if (strLen)
         {
-            if (strLen >= stringBufLen)
-            {
-                stringBufLen = strLen + 1024;
-                stringbuf = std::make_unique<char[]>(stringBufLen + 1);
-            }
+            std::unique_ptr<char[]> stringbuf(new char[strLen+1]);
             len = fread(stringbuf.get(), sizeof(char), strLen, File);
             stringbuf[strLen] = 0;
+            tstring msg = CUnicodeUtils::StdGetUnicode(stringbuf.get());
             if (rev)
             {
-                auto foundIt = m_logMessages.find(rev);
-                if (foundIt == m_logMessages.end())
+                if (msg.size() > MAX_LOG_LENGTH)
                 {
-                    auto msg = CUnicodeUtils::StdGetUnicode(stringbuf.get());
-                    if (msg.size() > MAX_LOG_LENGTH)
-                    {
-                        msg = msg.substr(0, MAX_LOG_LENGTH-5);
-                        msg = msg + L"\n...";
-                    }
-                    m_logMessages[rev] = msg;
+                    msg = msg.substr(0, MAX_LOG_LENGTH-5);
+                    msg = msg + L"\n...";
                 }
+                m_logMessages[rev] = msg;
             }
         }
         len = fread(&strLen, sizeof(int), 1, File);
@@ -585,30 +504,22 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
             break;
         if (strLen)
         {
-            if (strLen >= stringBufLen)
-            {
-                stringBufLen = strLen + 1024;
-                stringbuf = std::make_unique<char[]>(stringBufLen + 1);
-            }
+            std::unique_ptr<char[]> stringbuf(new char[strLen+1]);
             len = fread(stringbuf.get(), sizeof(char), strLen, File);
             stringbuf[strLen] = 0;
+            tstring msg = CUnicodeUtils::StdGetUnicode(stringbuf.get());
             if (merged_rev)
             {
-                auto foundIt = m_logMessages.find(merged_rev);
-                if (foundIt == m_logMessages.end())
+                if (msg.size() > MAX_LOG_LENGTH)
                 {
-                    auto msg = CUnicodeUtils::StdGetUnicode(stringbuf.get());
-                    if (msg.size() > MAX_LOG_LENGTH)
-                    {
-                        msg = msg.substr(0, MAX_LOG_LENGTH-5);
-                        msg = msg + L"\n...";
-                    }
-                    m_logMessages[merged_rev] = msg;
+                    msg = msg.substr(0, MAX_LOG_LENGTH-5);
+                    msg = msg + L"\n...";
                 }
+                m_logMessages[merged_rev] = msg;
             }
         }
 
-        SendEditor(SCI_APPENDTEXT, 1, (LPARAM)"\n");
+        SendEditor(SCI_ADDTEXT, 2, (LPARAM)"\r\n");
     };
 
     fclose(File);
@@ -619,21 +530,6 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
     SendEditor(SCI_SETSAVEPOINT);
     SendEditor(SCI_GOTOPOS, 0);
     SendEditor(SCI_SETSCROLLWIDTHTRACKING, TRUE);
-    int numDigits = 0;
-    int lineCount = (int)m_authors.size();
-    while (lineCount)
-    {
-        lineCount /= 10;
-        numDigits++;
-    }
-    numDigits = max(numDigits, 3);
-    {
-        int pixelWidth = int(8 + numDigits * SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"8"));
-        if (ShowLine)
-            SendEditor(SCI_SETMARGINWIDTHN, 0, pixelWidth);
-        else
-            SendEditor(SCI_SETMARGINWIDTHN, 0);
-    }
     SendEditor(SCI_SETREADONLY, TRUE);
 
     //check which lexer to use, depending on the filetype
@@ -690,10 +586,10 @@ void TortoiseBlame::InitialiseEditor()
     m_directPointer = SendMessage(wEditor, SCI_GETDIRECTPOINTER, 0, 0);
     CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
     bool enabled2d = false;
-    if (IsWindows7OrGreater() && DWORD(used2d))
+    if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
         enabled2d = true;
     // Set up the global default style. These attributes are used wherever no explicit choices are made.
-    std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Consolas");
+    std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Courier New");
     std::string fontName = CUnicodeUtils::StdGetUTF8(fontNameW);
     SetAStyle(STYLE_DEFAULT, black, white, (DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10), fontName.c_str());
     //SetAStyle(STYLE_MARK, black, ::GetSysColor(COLOR_HIGHLIGHT));
@@ -811,7 +707,7 @@ void TortoiseBlame::StartSearch()
 void TortoiseBlame::DoSearchNext()
 {
     m_fr.Flags |= FR_DOWN;
-    if (m_szFindWhat[0] == 0)
+    if (wcslen(m_szFindWhat) == 0)
         return StartSearchSel();
     DoSearch(m_szFindWhat, m_fr.Flags);
 }
@@ -819,7 +715,7 @@ void TortoiseBlame::DoSearchNext()
 void TortoiseBlame::DoSearchPrev()
 {
     m_fr.Flags &= ~FR_DOWN;
-    if (m_szFindWhat[0] == 0)
+    if (wcslen(m_szFindWhat) == 0)
         return StartSearchSelReverse();
     DoSearch(m_szFindWhat, m_fr.Flags);
 }
@@ -845,22 +741,16 @@ bool TortoiseBlame::DoSearch(LPTSTR what, DWORD flags)
     int textSelEnd = 0;
     TCHAR buf[20] = { 0 };
     int i=0;
-    int linebufsize = 4096;
-    auto linebuf = std::make_unique<char[]>(linebufsize + 1);
     for (i = line; (bSearchDown ? (i < (int)m_authors.size()) : (i >= 0)) && (!bFound); bSearchDown ? ++i : --i)
     {
         const int bufsize = (int)SendEditor(SCI_GETLINE, i);
-        if (bufsize >= linebufsize)
-        {
-            linebufsize = bufsize + 1024;
-            linebuf = std::make_unique<char[]>(linebufsize + 1);
-        }
+        std::unique_ptr<char[]> linebuf(new char[bufsize+1]);
         SecureZeroMemory(linebuf.get(), bufsize+1);
         SendEditor(SCI_GETLINE, i, (LPARAM)linebuf.get());
         tstring sLine = CUnicodeUtils::StdGetUnicode(linebuf.get());
         if (!bCaseSensitive)
         {
-            std::transform(sLine.begin(), sLine.end(), sLine.begin(), ::towlower);
+            std::transform(sLine.begin(), sLine.end(), sLine.begin(), ::tolower);
         }
         swprintf_s(buf, L"%ld", m_revs[i]);
         if (m_authors[i].compare(sWhat)==0)
@@ -882,17 +772,13 @@ bool TortoiseBlame::DoSearch(LPTSTR what, DWORD flags)
         for (bSearchDown ? i = 0 : i = (int)m_authors.size() -1; (bSearchDown ? (i < line) : (i > line)) && (!bFound); bSearchDown ? ++i : --i)
         {
             const int bufsize = (int)SendEditor(SCI_GETLINE, i);
-            if (bufsize >= linebufsize)
-            {
-                linebufsize = bufsize + 1024;
-                linebuf = std::make_unique<char[]>(linebufsize + 1);
-            }
+            std::unique_ptr<char[]> linebuf(new char[bufsize+1]);
             SecureZeroMemory(linebuf.get(), bufsize+1);
             SendEditor(SCI_GETLINE, i, (LPARAM)linebuf.get());
             tstring sLine = CUnicodeUtils::StdGetUnicode(linebuf.get());
             if (!bCaseSensitive)
             {
-                std::transform(sLine.begin(), sLine.end(), sLine.begin(), ::towlower);
+                std::transform(sLine.begin(), sLine.end(), sLine.begin(), ::tolower);
             }
             swprintf_s(buf, L"%ld", m_revs[i]);
             if (m_authors[i].compare(sWhat)==0)
@@ -1379,39 +1265,39 @@ LONG TortoiseBlame::GetBlameWidth()
     HDC hDC = ::GetDC(wBlame);
     HFONT oldfont = (HFONT)::SelectObject(hDC, m_font);
     TCHAR buf[MAX_PATH] = { 0 };
-    swprintf_s(buf, L"*%8d ", 88888888);
+    swprintf_s(buf, L"*%8ld ", 88888888);
     ::GetTextExtentPoint(hDC, buf, (int)wcslen(buf), &width);
-    m_revWidth = width.cx + CDPIAware::Instance().Scale(BLAMESPACE);
+    m_revWidth = width.cx + BLAMESPACE;
     blamewidth += m_revWidth;
     if (ShowDate)
     {
         swprintf_s(buf, L"%30s", L"31.08.2001 06:24:14");
         ::GetTextExtentPoint32(hDC, buf, (int)wcslen(buf), &width);
-        m_dateWidth = width.cx + CDPIAware::Instance().Scale(BLAMESPACE);
+        m_dateWidth = width.cx + BLAMESPACE;
         blamewidth += m_dateWidth;
     }
     if (ShowAuthor)
     {
         SIZE maxwidth = {0};
-        for (auto I = m_authors.begin(); I != m_authors.end(); ++I)
+        for (std::vector<tstring>::iterator I = m_authors.begin(); I != m_authors.end(); ++I)
         {
             ::GetTextExtentPoint32(hDC, I->c_str(), (int)I->size(), &width);
             if (width.cx > maxwidth.cx)
                 maxwidth = width;
         }
-        m_authorWidth = maxwidth.cx + CDPIAware::Instance().Scale(BLAMESPACE);
+        m_authorWidth = maxwidth.cx + BLAMESPACE;
         blamewidth += m_authorWidth;
     }
     if (ShowPath)
     {
         SIZE maxwidth = {0};
-        for (auto I = m_mergedPaths.begin(); I != m_mergedPaths.end(); ++I)
+        for (std::vector<tstring>::iterator I = m_mergedPaths.begin(); I != m_mergedPaths.end(); ++I)
         {
             ::GetTextExtentPoint32(hDC, I->c_str(), (int)I->size(), &width);
             if (width.cx > maxwidth.cx)
                 maxwidth = width;
         }
-        m_pathWidth = maxwidth.cx + CDPIAware::Instance().Scale(BLAMESPACE);
+        m_pathWidth = maxwidth.cx + BLAMESPACE;
         blamewidth += m_pathWidth;
     }
     ::SelectObject(hDC, oldfont);
@@ -1429,9 +1315,9 @@ void TortoiseBlame::CreateFont()
     LOGFONT lf = {0};
     lf.lfWeight = FW_NORMAL;
     HDC hDC = ::GetDC(wBlame);
-    lf.lfHeight = -CDPIAware::Instance().PointsToPixels((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10));
+    lf.lfHeight = -MulDiv((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10), GetDeviceCaps(hDC, LOGPIXELSY), 72);
     lf.lfCharSet = DEFAULT_CHARSET;
-    CRegStdString fontname = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Consolas");
+    CRegStdString fontname = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Courier New");
     wcscpy_s(lf.lfFaceName, ((tstring)fontname).c_str());
     m_font = ::CreateFontIndirect(&lf);
 
@@ -1558,12 +1444,12 @@ void TortoiseBlame::DrawHeader(HDC hDC)
         return;
 
     RECT rc;
-    HFONT oldfont = (HFONT)::SelectObject(hDC, m_uiFont);
+    HFONT oldfont = (HFONT)::SelectObject(hDC, GetStockObject(DEFAULT_GUI_FONT));
     GetClientRect(wHeader, &rc);
     ::SetBkColor(hDC, ::GetSysColor(COLOR_BTNFACE));
 
     RECT edgerc = rc;
-    edgerc.bottom = edgerc.top + CDPIAware::Instance().Scale(HEADER_HEIGHT) /2;
+    edgerc.bottom = edgerc.top + HEADER_HEIGHT/2;
     DrawEdge(hDC, &edgerc, EDGE_BUMP, BF_FLAT|BF_RECT|BF_ADJUST);
 
     // draw the path first
@@ -1577,25 +1463,25 @@ void TortoiseBlame::DrawHeader(HDC hDC)
         if (str2.size() >= MAX_PATH)
             str2 = str2.substr(0, MAX_PATH-2);
         wcscpy_s(pathbuf, str2.c_str());
-        PathCompactPath(hDC, pathbuf, edgerc.right-edgerc.left- CDPIAware::Instance().Scale(LOCATOR_WIDTH));
+        PathCompactPath(hDC, pathbuf, edgerc.right-edgerc.left-LOCATOR_WIDTH);
     }
     else
     {
         wcscpy_s(pathbuf, szViewtitle.c_str());
-        PathCompactPath(hDC, pathbuf, edgerc.right-edgerc.left- CDPIAware::Instance().Scale(LOCATOR_WIDTH));
+        PathCompactPath(hDC, pathbuf, edgerc.right-edgerc.left-LOCATOR_WIDTH);
     }
     DrawText(hDC, pathbuf, -1, &edgerc, DT_SINGLELINE|DT_VCENTER);
 
-    rc.top = rc.top + CDPIAware::Instance().Scale(HEADER_HEIGHT)/2;
+    rc.top = rc.top + HEADER_HEIGHT/2;
     DrawEdge(hDC, &rc, EDGE_BUMP, BF_FLAT|BF_RECT|BF_ADJUST);
 
     RECT drawRc = rc;
 
     TCHAR szText[MAX_LOADSTRING] = { 0 };
     LoadString(app.hResource, IDS_HEADER_REVISION, szText, MAX_LOADSTRING);
-    drawRc.left = CDPIAware::Instance().Scale(LOCATOR_WIDTH);
+    drawRc.left = LOCATOR_WIDTH;
     DrawText(hDC, szText, -1, &drawRc, DT_SINGLELINE|DT_VCENTER);
-    int Left = m_revWidth+ CDPIAware::Instance().Scale(LOCATOR_WIDTH);
+    int Left = m_revWidth+LOCATOR_WIDTH;
     if (ShowDate)
     {
         LoadString(app.hResource, IDS_HEADER_DATE, szText, MAX_LOADSTRING);
@@ -1641,7 +1527,7 @@ void TortoiseBlame::DrawLocatorBar(HDC hDC)
     LONG currentLine = 0;
 
     // draw the colored bar
-    for (auto it = m_revs.begin(); it != m_revs.end(); ++it)
+    for (std::vector<LONG>::const_iterator it = m_revs.begin(); it != m_revs.end(); ++it)
     {
         // get the line color
         COLORREF cr = GetLineColor(currentLine, true);
@@ -1709,7 +1595,7 @@ void TortoiseBlame::MakeLower(TCHAR* buffer, size_t len)
 void TortoiseBlame::RunCommand(const tstring& command)
 {
     tstring tortoiseProcPath = GetAppDirectory() + L"TortoiseProc.exe";
-    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), command.c_str());
+    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
 }
 
 static void ProcessWindowsMessage(HWND window, HACCEL table, MSG& message)
@@ -1867,12 +1753,12 @@ ATOM MyRegisterClass(HINSTANCE hResource)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hResource;
-    wcex.hIcon          = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEBLAME), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcex.hIcon          = LoadIcon(hResource, (LPCTSTR)IDI_TORTOISEBLAME);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = (LPCTSTR)IDC_TORTOISEBLAME;
     wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIconEx(wcex.hInstance, (LPCTSTR)IDI_TORTOISEBLAME);
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
     return RegisterClassEx(&wcex);
 }
@@ -1888,12 +1774,12 @@ ATOM MyRegisterBlameClass(HINSTANCE hResource)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hResource;
-    wcex.hIcon          = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEBLAME), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcex.hIcon          = LoadIcon(hResource, (LPCTSTR)IDI_TORTOISEBLAME);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = 0;
     wcex.lpszClassName  = L"TortoiseBlameBlame";
-    wcex.hIconSm        = LoadIconEx(wcex.hInstance, (LPCTSTR)IDI_TORTOISEBLAME);
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
     return RegisterClassEx(&wcex);
 }
@@ -1909,12 +1795,12 @@ ATOM MyRegisterHeaderClass(HINSTANCE hResource)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hResource;
-    wcex.hIcon          = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEBLAME), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcex.hIcon          = LoadIcon(hResource, (LPCTSTR)IDI_TORTOISEBLAME);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_BTNFACE+1);
     wcex.lpszMenuName   = 0;
     wcex.lpszClassName  = L"TortoiseBlameHeader";
-    wcex.hIconSm        = LoadIconEx(wcex.hInstance, (LPCTSTR)IDI_TORTOISEBLAME);
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
     return RegisterClassEx(&wcex);
 }
@@ -1930,12 +1816,12 @@ ATOM MyRegisterLocatorClass(HINSTANCE hResource)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hResource;
-    wcex.hIcon          = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEBLAME), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcex.hIcon          = LoadIcon(hResource, (LPCTSTR)IDI_TORTOISEBLAME);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = 0;
     wcex.lpszClassName  = L"TortoiseBlameLocator";
-    wcex.hIconSm        = LoadIconEx(wcex.hInstance, (LPCTSTR)IDI_TORTOISEBLAME);
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
     return RegisterClassEx(&wcex);
 }
@@ -1977,6 +1863,7 @@ BOOL InitInstance(HINSTANCE hResource, int nCmdShow)
    //Create the tooltips
 
    INITCOMMONCONTROLSEX iccex;
+   app.hwndTT;                 // handle to the ToolTip control
    TOOLINFO ti;
    RECT rect;                  // for client area coordinates
    iccex.dwICC = ICC_WIN95_CLASSES;
@@ -2039,8 +1926,8 @@ void TortoiseBlame::InitSize()
     RECT blamerc;
     RECT sourcerc;
     ::GetClientRect(wMain, &rc);
-    ::SetWindowPos(wHeader, 0, rc.left, rc.top, rc.right-rc.left, CDPIAware::Instance().Scale(HEADER_HEIGHT), 0);
-    rc.top += CDPIAware::Instance().Scale(HEADER_HEIGHT);
+    ::SetWindowPos(wHeader, 0, rc.left, rc.top, rc.right-rc.left, HEADER_HEIGHT, 0);
+    rc.top += HEADER_HEIGHT;
     blamerc.left = rc.left;
     blamerc.top = rc.top;
     LONG w = GetBlameWidth();
@@ -2052,20 +1939,20 @@ void TortoiseBlame::InitSize()
     sourcerc.right = rc.right;
     if (m_colorby != COLORBYNONE)
     {
-        ::OffsetRect(&blamerc, CDPIAware::Instance().Scale(LOCATOR_WIDTH), 0);
-        ::OffsetRect(&sourcerc, CDPIAware::Instance().Scale(LOCATOR_WIDTH), 0);
-        sourcerc.right -= CDPIAware::Instance().Scale(LOCATOR_WIDTH);
+        ::OffsetRect(&blamerc, LOCATOR_WIDTH, 0);
+        ::OffsetRect(&sourcerc, LOCATOR_WIDTH, 0);
+        sourcerc.right -= LOCATOR_WIDTH;
     }
     InvalidateRect(wMain, NULL, FALSE);
     ::SetWindowPos(wEditor, 0, sourcerc.left, sourcerc.top, sourcerc.right - sourcerc.left, sourcerc.bottom - sourcerc.top, 0);
     ::SetWindowPos(wBlame, 0, blamerc.left, blamerc.top, blamerc.right - blamerc.left, blamerc.bottom - blamerc.top, 0);
     if (m_colorby != COLORBYNONE)
-        ::SetWindowPos(wLocator, 0, 0, blamerc.top, CDPIAware::Instance().Scale(LOCATOR_WIDTH), blamerc.bottom - blamerc.top, SWP_SHOWWINDOW);
+        ::SetWindowPos(wLocator, 0, 0, blamerc.top, LOCATOR_WIDTH, blamerc.bottom - blamerc.top, SWP_SHOWWINDOW);
     else
         ::ShowWindow(wLocator, SW_HIDE);
 }
 
-COLORREF TortoiseBlame::GetLineColor(Sci_Position line, bool bLocatorBar)
+COLORREF TortoiseBlame::GetLineColor(int line, bool bLocatorBar)
 {
     switch (m_colorby)
     {

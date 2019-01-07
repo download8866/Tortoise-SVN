@@ -1,4 +1,4 @@
-﻿// MyGraph.cpp
+// MyGraph.cpp
 
 #include "stdafx.h"
 #include "MyGraph.h"
@@ -94,7 +94,7 @@ void MyGraphSeries::SetTipRegion(int nGroup, const CRect& rc)
 {
     VALIDATE;
 
-    auto prgnNew = std::make_unique<CRgn>();
+    std::unique_ptr<CRgn> prgnNew (new CRgn);
     ASSERT_VALID(prgnNew.get());
 
     VERIFY(prgnNew->CreateRectRgnIndirect(rc));
@@ -423,7 +423,7 @@ CString MyGraph::GetTipText() const
                 nGroup = pSeries->HitTest(pt,nGroup);
 
                 if (-1 != nGroup) {
-                    if(!sTip.IsEmpty()){
+                    if("" != sTip){
                         sTip += L", ";
                     }
                     sTip += m_saLegendLabels.GetAt(nGroup) + L": ";
@@ -859,7 +859,7 @@ void MyGraph::DrawLegend(CDC& dc)
     ::SecureZeroMemory(&lf, sizeof(lf));
     VERIFY(fontLegend.GetLogFont(&lf));
     // just in case the font height is invalid (zero), use min().
-    int nLabelHeight = max(1l, abs(lf.lfHeight));
+    int nLabelHeight = max(1, abs(lf.lfHeight));
 
     // Get number of legend entries
     int nLegendEntries = max(1, GetMaxSeriesSize());
@@ -1549,7 +1549,7 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
                         VERIFY(dc.BeginPath());
                         VERIFY(dc.Pie(rcPie, ptStart, ptEnd));
                         VERIFY(dc.EndPath());
-                        auto prgnWedge = std::make_unique<CRgn>();
+                        std::unique_ptr<CRgn> prgnWedge (new CRgn);
                         VERIFY(prgnWedge->CreateFromPath(&dc));
                         pSeries->SetTipRegion(nGroup, prgnWedge.release());
 

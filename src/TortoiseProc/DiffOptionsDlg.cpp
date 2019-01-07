@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011, 2013, 2016, 2018 - TortoiseSVN
+// Copyright (C) 2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,7 +31,6 @@ CDiffOptionsDlg::CDiffOptionsDlg(CWnd* pParent /*=NULL*/)
     , m_bIgnoreEOLs(FALSE)
     , m_bIgnoreWhitespaces(FALSE)
     , m_bIgnoreAllWhitespaces(FALSE)
-    , m_bPrettyPrint(TRUE)
 {
 
 }
@@ -46,49 +45,15 @@ void CDiffOptionsDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_IGNOREEOL, m_bIgnoreEOLs);
     DDX_Check(pDX, IDC_IGNOREWHITESPACE, m_bIgnoreWhitespaces);
     DDX_Check(pDX, IDC_IGNOREALLWHITESPACE, m_bIgnoreAllWhitespaces);
-    DDX_Check(pDX, IDC_PRETTYPRINT, m_bPrettyPrint);
 }
 
 
 BEGIN_MESSAGE_MAP(CDiffOptionsDlg, CStandAloneDialog)
 END_MESSAGE_MAP()
 
-void CDiffOptionsDlg::SetDiffOptions(const SVNDiffOptions & opts)
+CString CDiffOptionsDlg::GetDiffOptionsString()
 {
-    m_bIgnoreEOLs = opts.GetIgnoreEOL();
-    switch(opts.GetIgnoreSpace())
-    {
-    case svn_diff_file_ignore_space_none:
-        m_bIgnoreWhitespaces = FALSE;
-        m_bIgnoreAllWhitespaces = FALSE;
-        break;
-
-    case svn_diff_file_ignore_space_change:
-        m_bIgnoreWhitespaces = TRUE;
-        m_bIgnoreAllWhitespaces = FALSE;
-        break;
-
-    case svn_diff_file_ignore_space_all:
-        m_bIgnoreWhitespaces = FALSE;
-        m_bIgnoreAllWhitespaces = TRUE;
-        break;
-    }
-}
-
-SVNDiffOptions CDiffOptionsDlg::GetDiffOptions()
-{
-    SVNDiffOptions result;
-
-    result.SetIgnoreEOL(!!m_bIgnoreEOLs);
-
-    if (m_bIgnoreAllWhitespaces)
-        result.SetIgnoreSpace(svn_diff_file_ignore_space_all);
-    else if (m_bIgnoreWhitespaces)
-        result.SetIgnoreSpace(svn_diff_file_ignore_space_change);
-    else
-        result.SetIgnoreSpace(svn_diff_file_ignore_space_none);
-
-    return result;
+    return SVN::GetOptionsString(!!m_bIgnoreEOLs, !!m_bIgnoreWhitespaces, !!m_bIgnoreAllWhitespaces);
 }
 
 BOOL CDiffOptionsDlg::OnInitDialog()
@@ -99,13 +64,11 @@ BOOL CDiffOptionsDlg::OnInitDialog()
     m_aeroControls.SubclassControl(this, IDC_IGNOREEOL);
     m_aeroControls.SubclassControl(this, IDC_IGNOREWHITESPACE);
     m_aeroControls.SubclassControl(this, IDC_IGNOREALLWHITESPACE);
-    m_aeroControls.SubclassControl(this, IDC_PRETTYPRINT);
     m_aeroControls.SubclassOkCancel(this);
 
     AdjustControlSize(IDC_IGNOREEOL);
     AdjustControlSize(IDC_IGNOREWHITESPACE);
     AdjustControlSize(IDC_IGNOREALLWHITESPACE);
-    AdjustControlSize(IDC_PRETTYPRINT);
 
     return TRUE;
 }

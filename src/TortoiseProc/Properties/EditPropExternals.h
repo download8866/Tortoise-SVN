@@ -45,7 +45,6 @@ protected:
     afx_msg void OnBnClickedFindhead();
     afx_msg void OnLvnGetdispinfoExternalslist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnItemchangedExternalslist(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg void OnHdnItemclickExternalslist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnNMDblclkExternalslist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
     afx_msg void OnBnClickedHelp();
@@ -54,14 +53,10 @@ protected:
 
     INT_PTR DoModal() override { return CResizableStandAloneDialog::DoModal(); }
 
-    static bool SortCompare(const SVNExternal& Data1, const SVNExternal& Data2);
-
 private:
     CHintCtrl<CListCtrl>    m_ExtList;
-    SVNExternals            m_externals;
-    TCHAR                   m_columnbuf[MAX_PATH];
-    CTSVNPath               m_url;
-    CTSVNPath               m_repoRoot;
-    static int              m_nSortedColumn;
-    static bool             m_bAscending;
+    SVNExternals    m_externals;
+    TCHAR           m_columnbuf[MAX_PATH];
+    CTSVNPath       m_url;
+    CTSVNPath       m_repoRoot;
 };

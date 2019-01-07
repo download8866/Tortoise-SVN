@@ -1,4 +1,4 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2007, 2009-2015 - TortoiseSVN
 
@@ -177,7 +177,7 @@ void CLogChangedPathArray::Add
 {
     reserve (last - first);
     for (; first != last; ++first)
-        emplace_back(first, logPath);
+        push_back (CLogChangedPath (first, logPath));
 
     // update log path to the *last* copy source we found
     // because it will also be the closed one (parent may
@@ -867,7 +867,7 @@ void CLogDataVector::Filter (const CLogDlgFilter& filter)
 
         size_t itemsPerJob
             = max ( 1 + count / (4 * async::CJobScheduler::GetSharedThreadCount())
-                  , (size_t)1000);
+                  , 1000);
 
         // start jobs
 

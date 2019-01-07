@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -54,14 +54,6 @@ svn_error_t * svn_cl__get_log_message (const char **log_msg,
 
 typedef std::map<CString, CString> RevPropHash;
 
-class ShelfInfo
-{
-public:
-    CString Name;
-    CString LogMessage;
-    std::vector<std::tuple<apr_time_t, CTSVNPathList>> versions;
-};
-
 /**
  * \ingroup SVN
  * This class provides all Subversion commands as methods and adds some helper
@@ -76,9 +68,10 @@ public:
  */
 class SVN : public SVNBase, private ILogReceiver
 {
+private:
+    SVN(const SVN&){}
+    SVN& operator=(SVN&) /*{ return *this; }*/;
 public:
-    SVN(const SVN&) = delete;
-    SVN& operator=(SVN&) = delete;
     SVN(bool suppressUI = false);
     virtual ~SVN(void);
 
@@ -105,6 +98,7 @@ public:
                             const CString& lockcomment, bool is_dav_comment,
                             apr_time_t lock_creationdate, apr_time_t lock_expirationdate,
                             const CString& absolutepath, const CString& externalParentUrl, const CString& externalTarget);
+    virtual svn_wc_conflict_choice_t ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile);
 
     struct SVNLock
     {
@@ -137,14 +131,6 @@ public:
         SVNExportIncludeUnversioned,
         SVNExportOnlyLocalChanges
     };
-
-    /**
-    * Shelving
-    */
-    bool Shelve(const CString& shelveName, const CTSVNPathList& pathlist, const CString& logMsg, svn_depth_t depth, bool revert);
-    bool Unshelve(const CString& shelveName, int version, const CTSVNPath &local_abspath);
-    ShelfInfo GetShelfInfo(const CString& shelfName, const CTSVNPath& local_abspath);
-    bool ShelvesList(std::vector<CString>& Names, const CTSVNPath &local_abspath);
 
     /**
      * Checkout a working copy of moduleName at revision, using destPath as the root
@@ -582,19 +568,19 @@ public:
         const CTSVNPath& path2, const SVNRev& revision2,
         const CTSVNPath& relativeToDir, svn_depth_t depth,
         bool ignoreancestry, bool nodiffadded, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat,
-        bool ignoreproperties, bool propertiesonly, bool prettyprint,
+        bool ignoreproperties, bool propertiesonly,
         const CString& options, bool bAppend, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
     bool Diff(const CTSVNPath& path1, const SVNRev& revision1,
         const CTSVNPath& path2, const SVNRev& revision2,
         const CTSVNPath& relativeToDir, svn_depth_t depth, bool ignoreancestry,
         bool nodiffadded, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat,
-        bool ignoreproperties, bool propertiesonly, bool prettyprint, const CString& options,
+        bool ignoreproperties, bool propertiesonly, const CString& options,
         bool bAppend, const CTSVNPath& outputfile);
     bool CreatePatch(const CTSVNPath& path1, const SVNRev& revision1,
         const CTSVNPath& path2, const SVNRev& revision2,
         const CTSVNPath& relativeToDir, svn_depth_t depth, bool ignoreancestry,
         bool nodiffadded, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat,
-        bool ignoreproperties, bool propertiesonly, bool prettyprint, const CString& options, bool bAppend, const CTSVNPath& outputfile);
+        bool ignoreproperties, bool propertiesonly, const CString& options, bool bAppend, const CTSVNPath& outputfile);
 
     /**
      * Produce diff output which describes the delta between the file system object \a path in
@@ -608,12 +594,12 @@ public:
     bool PegDiff(const CTSVNPath& path, const SVNRev& pegrevision, const SVNRev& startrev,
         const SVNRev& endrev, const CTSVNPath& relativeToDir, svn_depth_t depth,
         bool ignoreancestry, bool nodiffadded, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat,
-        bool ignoreproperties, bool propertiesonly, bool prettyprint, const CString& options,
+        bool ignoreproperties, bool propertiesonly, const CString& options,
         bool bAppend, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
     bool PegDiff(const CTSVNPath& path, const SVNRev& pegrevision, const SVNRev& startrev,
         const SVNRev& endrev, const CTSVNPath& relativeToDir, svn_depth_t depth,
         bool ignoreancestry, bool nodiffadded, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat,
-        bool ignoreproperties, bool propertiesonly, bool prettyprint, const CString& options,
+        bool ignoreproperties, bool propertiesonly, const CString& options,
         bool bAppend, const CTSVNPath& outputfile);
 
     /**
@@ -983,21 +969,6 @@ public:
      */
     void SVNReInit();
 
-    /**
-     * Resolves tree conflict.
-     * In case there's no preferred move target, set those values to -1
-     */
-    bool ResolveTreeConflict(svn_client_conflict_t *conflict, svn_client_conflict_option_t *option, int preferred_moved_target_idx, int preferred_moved_reltarget_idx);
-    /**
-     * Resolves text conflict.
-     */
-    bool ResolveTextConflict(svn_client_conflict_t * conflict, svn_client_conflict_option_t * option);
-
-    /**
-     * Resolves property conflict.
-     */
-    bool ResolvePropConflict(svn_client_conflict_t * conflict, const CString & propName, svn_client_conflict_option_t * option);
-
 protected:
     apr_pool_t *                parentpool;     ///< the main memory pool
     apr_pool_t *                m_pool;         ///< 'root' memory pool
@@ -1022,7 +993,6 @@ protected:
     void                 Prepare();
     void                 SVNInit();
     static bool          AprTimeExplodeLocal(apr_time_exp_t *exploded_time, apr_time_t date_svn);
-    bool                 IsLogCacheEnabled();
 
     void cancel();
     static svn_error_t* cancel(void *baton);
@@ -1064,8 +1034,6 @@ protected:
                                        const svn_io_dirent2_t *dirent,
                                        apr_pool_t *scratch_pool);
 
-    static svn_error_t * shelved_func(void *baton, const char *path, const svn_client_status_t *status, apr_pool_t *pool);
-    static svn_error_t * not_shelved_func(void *baton, const char *path, const svn_client_status_t *status, apr_pool_t *pool);
 
     // implement ILogReceiver
 

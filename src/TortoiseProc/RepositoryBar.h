@@ -67,7 +67,7 @@ public:
     /**
      * Show the given \a svn_url in the URL combo and the revision button.
      */
-    void ShowUrl(const CString& url, const SVNRev& rev);
+    void ShowUrl(const CString& url, SVNRev rev);
 
     /**
      * Show the given \a svn_url in the URL combo and the revision button,
@@ -75,7 +75,7 @@ public:
      * is given, the current values are used (which effectively refreshes
      * the tree).
      */
-    void GotoUrl(const CString& url = CString(), const SVNRev& rev = SVNRev(), bool bAlreadyChecked = false);
+    void GotoUrl(const CString& url = CString(), SVNRev rev = SVNRev(), bool bAlreadyChecked = false);
 
     /**
      * Returns the current URL.
@@ -95,7 +95,7 @@ public:
     /**
      * Set the revision
      */
-    void SetRevision(const SVNRev& rev);
+    void SetRevision(SVNRev rev);
 
     /**
      * Sets the head revision for the tooltip

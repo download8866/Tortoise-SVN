@@ -33,21 +33,6 @@ static char THIS_FILE[] = __FILE__;
 
 namespace TreePropSheet
 {
-    int CALLBACK PropSheetProc(HWND /*hWndDlg*/, UINT uMsg, LPARAM lParam)
-    {
-        switch (uMsg)
-        {
-        case PSCB_PRECREATE:
-        {
-            LPDLGTEMPLATE pResource = (LPDLGTEMPLATE)lParam;
-            CDialogTemplate dlgTemplate(pResource);
-            dlgTemplate.SetFont(L"MS Shell Dlg 2", 9);
-            memmove((void*)lParam, dlgTemplate.m_hTemplate, dlgTemplate.m_dwTemplateSize);
-        }
-        break;
-        }
-        return 0;
-    }
 
 //-------------------------------------------------------------------
 // class CTreePropSheet
@@ -82,10 +67,7 @@ CTreePropSheet::CTreePropSheet()
     m_nPageTreeWidth(150),
     m_pwndPageTree(NULL),
     m_pFrame(NULL)
-{
-    m_psh.pfnCallback = PropSheetProc;
-    m_psh.dwFlags |= PSH_USECALLBACK;
-}
+{}
 
 
 CTreePropSheet::CTreePropSheet(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
@@ -98,8 +80,6 @@ CTreePropSheet::CTreePropSheet(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPa
     m_pwndPageTree(NULL),
     m_pFrame(NULL)
 {
-    m_psh.pfnCallback = PropSheetProc;
-    m_psh.dwFlags |= PSH_USECALLBACK;
 }
 
 
@@ -113,8 +93,6 @@ CTreePropSheet::CTreePropSheet(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelec
     m_pwndPageTree(NULL),
     m_pFrame(NULL)
 {
-    m_psh.pfnCallback = PropSheetProc;
-    m_psh.dwFlags |= PSH_USECALLBACK;
 }
 
 
@@ -751,8 +729,6 @@ void CTreePropSheet::ActivateNextPage()
 
 BOOL CTreePropSheet::OnInitDialog()
 {
-    int iconWidth = GetSystemMetrics(SM_CXSMICON);
-    int iconHeight = GetSystemMetrics(SM_CYSMICON);
     if (m_bTreeViewMode)
     {
         // be sure, there are no stacked tabs, because otherwise the
@@ -769,12 +745,12 @@ BOOL CTreePropSheet::OnInitDialog()
             m_Images.Create(ii.rcImage.right-ii.rcImage.left, ii.rcImage.bottom-ii.rcImage.top, ILC_COLOR32|ILC_MASK, 0, 1);
         }
         else
-            m_Images.Create(iconWidth, iconHeight, ILC_COLOR32 | ILC_MASK, 0, 1);
+            m_Images.Create(16, 16, ILC_COLOR32|ILC_MASK, 0, 1);
     }
 
     // perform default implementation
     BOOL bResult = CPropertySheet::OnInitDialog();
-    HighColorTab::UpdateImageList(*this, iconWidth, iconHeight);
+    HighColorTab::UpdateImageList(*this);
 
     if (!m_bTreeViewMode)
         // stop here, if we would like to use tabs
@@ -823,10 +799,13 @@ BOOL CTreePropSheet::OnInitDialog()
     rectTree.right = rectTree.left + nTreeWidth - nTreeSpace;
 
     // calculate caption height
-    NONCLIENTMETRICS metrics = { 0 };
-    metrics.cbSize = sizeof(NONCLIENTMETRICS);
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &metrics, FALSE);
-    m_pFrame->SetCaptionHeight(metrics.iCaptionHeight);
+    CTabCtrl    wndTabCtrl;
+    wndTabCtrl.Create(WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS, rectFrame, this, 0x1234);
+    wndTabCtrl.InsertItem(0, _T(""));
+    CRect   rectFrameCaption;
+    wndTabCtrl.GetItemRect(0, rectFrameCaption);
+    wndTabCtrl.DestroyWindow();
+    m_pFrame->SetCaptionHeight(rectFrameCaption.Height());
 
     // if no caption should be displayed, make the window smaller in
     // height
@@ -835,20 +814,20 @@ BOOL CTreePropSheet::OnInitDialog()
         // make frame smaller
         m_pFrame->GetWnd()->GetWindowRect(rectFrame);
         ScreenToClient(rectFrame);
-        rectFrame.top+= metrics.iCaptionHeight;
+        rectFrame.top+= rectFrameCaption.Height();
         m_pFrame->GetWnd()->MoveWindow(rectFrame);
 
         // move all child windows up
-        MoveChildWindows(0, -metrics.iCaptionHeight);
+        MoveChildWindows(0, -rectFrameCaption.Height());
 
         // modify rectangle for the tree ctrl
-        rectTree.bottom-= metrics.iCaptionHeight;
+        rectTree.bottom-= rectFrameCaption.Height();
 
         // make us smaller
         CRect   rect;
         GetWindowRect(rect);
-        rect.top+= metrics.iCaptionHeight /2;
-        rect.bottom -= metrics.iCaptionHeight - metrics.iCaptionHeight / 2;
+        rect.top+= rectFrameCaption.Height()/2;
+        rect.bottom-= rectFrameCaption.Height()-rectFrameCaption.Height()/2;
         if (GetParent())
             GetParent()->ScreenToClient(rect);
         MoveWindow(rect);

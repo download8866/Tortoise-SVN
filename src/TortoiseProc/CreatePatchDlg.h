@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2016, 2018 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "SVNStatusListCtrl.h"
-#include "SVNDiffOptions.h"
 
 /**
  * \ingroup TortoiseProc
@@ -76,7 +75,5 @@ public:
      */
     CTSVNPathList       m_filesToRevert;
 
-    SVNDiffOptions      m_diffOptions;
-
-    bool                m_bPrettyPrint;
+    CString             m_sDiffOptions;
 };

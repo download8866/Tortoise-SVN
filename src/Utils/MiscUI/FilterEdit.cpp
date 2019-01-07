@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2009, 2011-2015, 2017-2018 - TortoiseSVN
+// Copyright (C) 2007, 2009, 2011-2015, 2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +18,6 @@
 //
 #include "stdafx.h"
 #include "FilterEdit.h"
-#include "DPIAware.h"
-#include "LoadIconEx.h"
 
 
 const UINT CFilterEdit::WM_FILTEREDIT_INFOCLICKED
@@ -38,6 +36,7 @@ CFilterEdit::CFilterEdit() : m_hIconCancelNormal(NULL)
     , m_iCancelClickedMessageId(WM_FILTEREDIT_CANCELCLICKED)
     , m_pValidator(NULL)
     , m_backColor(GetSysColor(COLOR_WINDOW))
+    , m_brBack(NULL)
 {
     m_rcEditArea.SetRect(0, 0, 0, 0);
     m_rcButtonArea.SetRect(0, 0, 0, 0);
@@ -54,6 +53,8 @@ CFilterEdit::~CFilterEdit()
         DestroyIcon(m_hIconCancelPressed);
     if (m_hIconInfo)
         DestroyIcon(m_hIconInfo);
+    if (m_brBack)
+        DeleteObject(m_brBack);
 }
 
 BEGIN_MESSAGE_MAP(CFilterEdit, CEdit)
@@ -138,16 +139,13 @@ BOOL CFilterEdit::SetCueBanner(LPCWSTR lpcwText)
 {
     if (lpcwText)
     {
-        m_sCueBanner  = lpcwText;
+        size_t len = wcslen(lpcwText);
+        m_pCueBanner.reset (new TCHAR[len+1]);
+        wcscpy_s(m_pCueBanner.get(), len+1, lpcwText);
         InvalidateRect(NULL, TRUE);
         return TRUE;
     }
-    else
-    {
-        m_sCueBanner.Empty();
-        InvalidateRect(NULL, TRUE);
-        return FALSE;
-    }
+    return FALSE;
 }
 
 void CFilterEdit::ResizeWindow()
@@ -334,10 +332,11 @@ void CFilterEdit::Validate()
 {
     if (m_pValidator)
     {
-        CString text;
-        GetWindowText(text);
+        int len = GetWindowTextLength();
+        std::unique_ptr<TCHAR[]> pBuf (new TCHAR[len+1]);
+        GetWindowText(pBuf.get(), len+1);
         m_backColor = GetSysColor(COLOR_WINDOW);
-        if (!m_pValidator->Validate(text))
+        if (!m_pValidator->Validate(pBuf.get()))
         {
             // Use a background color slightly shifted to red.
             // We do this by increasing red component and decreasing green and blue.
@@ -352,9 +351,9 @@ void CFilterEdit::Validate()
             g = g * (100 - SHIFT_PRECENTAGE) / 100;
             b = b * (100 - SHIFT_PRECENTAGE) / 100;
             m_backColor = RGB(r, g, b);
-
-            m_brBack.DeleteObject();
-            m_brBack.CreateSolidBrush(m_backColor);
+            if (m_brBack)
+                DeleteObject(m_brBack);
+            m_brBack = CreateSolidBrush(m_backColor);
         }
     }
 }
@@ -380,9 +379,11 @@ void CFilterEdit::OnPaint()
 
 void CFilterEdit::DrawDimText()
 {
-    if (m_sCueBanner.IsEmpty())
+    if (m_pCueBanner.get() == NULL)
         return;
     if (GetWindowTextLength())
+        return;
+    if (m_pCueBanner[0] == 0)
         return;
     if (GetFocus() == this)
         return;
@@ -393,7 +394,7 @@ void CFilterEdit::DrawDimText()
     dcDraw.SelectObject((*GetFont()));
     dcDraw.SetTextColor(GetSysColor(COLOR_GRAYTEXT));
     dcDraw.SetBkColor(GetSysColor(COLOR_WINDOW));
-    dcDraw.DrawText(m_sCueBanner, m_sCueBanner.GetLength(), &m_rcEditArea, DT_CENTER | DT_VCENTER);
+    dcDraw.DrawText(m_pCueBanner.get(), (int)wcslen(m_pCueBanner.get()), &m_rcEditArea, DT_CENTER | DT_VCENTER);
     dcDraw.RestoreDC(iState);
     return;
 }
@@ -405,7 +406,7 @@ HICON CFilterEdit::LoadDpiScaledIcon(UINT resourceId, int cx96dpi, int cy96dpi)
     int cx = MulDiv(cx96dpi, dc.GetDeviceCaps(LOGPIXELSX), 96);
     int cy = MulDiv(cy96dpi, dc.GetDeviceCaps(LOGPIXELSY), 96);
 
-    return LoadIconEx(AfxGetResourceHandle(), MAKEINTRESOURCE(resourceId), cx, cy);
+    return (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(resourceId), IMAGE_ICON, cx, cy, LR_DEFAULTCOLOR);
 }
 
 void CFilterEdit::OnEnKillfocus()
@@ -436,8 +437,10 @@ LRESULT CFilterEdit::OnPaste(WPARAM, LPARAM)
 
         // get the current text
 
-        CString text;
-        GetWindowText(text);
+        int len = GetWindowTextLength();
+        std::unique_ptr<TCHAR[]> pBuf (new TCHAR[len+1]);
+        GetWindowText(pBuf.get(), len+1);
+        CString text = pBuf.get();
 
         // construct the new text
 

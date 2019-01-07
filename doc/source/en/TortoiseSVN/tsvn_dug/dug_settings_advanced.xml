@@ -471,19 +471,6 @@
       </listitem>
     </varlistentry>
     <varlistentry>
-      <term condition="pot">ScintillaBidirectional</term>
-      <listitem>
-        <para>
-          This option enables the bidirectional mode
-          for the commit message edit box. If enabled,
-          right-to-left language text editing is done
-          properly. Since this feature is expensive, it
-          is disabled by default. You can enable this by
-          setting this value to <literal>true</literal>.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
       <term condition="pot">ScintillaDirect2D</term>
       <listitem>
         <para>
@@ -503,62 +490,9 @@
       <term condition="pot">OutOfDateRetry</term>
       <listitem>
         <para>
-          This parameter specifies how TortoiseSVN behaves if a commit
-          fails due to an out-of-date error:
-          <variablelist>
-            <varlistentry>
-              <term condition="pot">0</term>
-              <listitem>
-                <para>
-                  The user is asked whether to update the working copy or not,
-                  and the commit dialog is not reopened after the update.
-                </para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
-              <term condition="pot">1</term>
-              <listitem>
-                <para>
-                  This is the default. The user is asked whether to update the working copy or not,
-                  and the commit dialog is reopened after the update so the user can proceed with
-                  the commit right away.
-                </para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
-              <term condition="pot">2</term>
-              <listitem>
-                <para>
-                  Similar to <literal>1</literal>, but instead of updating only the paths selected
-                  for a commit, the update is done on the working copy root. This helps to avoid
-                  inconsistent working copies.
-                </para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
-              <term condition="pot">3</term>
-              <listitem>
-                <para>
-                  The user is not asked to update the working copy. The commit simply fails with
-                  the out-of-date error message.
-                </para>
-              </listitem>
-            </varlistentry>
-          </variablelist>
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
-      <term condition="pot">PlaySound</term>
-      <listitem>
-        <para>
-          If set to <literal>true</literal>, TortoiseSVN will play a system sound
-          when an error or warning occurs, or another situation which
-          is important and requires your attention.
-          Set this to <literal>false</literal> if you want to keep
-          TortoiseSVN quiet. Note that the project monitor has its own
-          setting for playing sounds, which you can configure in its settings
-          dialog.
+          If you don't want TortoiseSVN to ask you to update
+          the working copy automatically after an <literal>Out of date</literal>
+          error, set this value to <literal>false</literal>.
         </para>
       </listitem>
     </varlistentry>
@@ -619,19 +553,6 @@
           available.
           This might be useful for company admins who don't want
           their users to update TortoiseSVN until they approve it.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
-      <term condition="pot">UseCustomWordBreak</term>
-      <listitem>
-        <para>
-          The standard edit controls do not stop on forward slashes
-          like they're found in paths and urls. TortoiseSVN uses
-          a custom word break procedure for the edit controls.
-          If you don't want that and use the default instead,
-          set this value to 0. If you only want the default
-          for edit controls in combo boxes, set this value to 1.
         </para>
       </listitem>
     </varlistentry>

@@ -1770,7 +1770,7 @@ public:
     }
 
 // COM Server methods
-    LONG Unlock() throw()
+    LONG Unlock()
     {
         LONG lRet = CComModule::Unlock();
         if(lRet == 0)

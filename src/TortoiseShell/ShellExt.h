@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -71,6 +71,11 @@ class CShellExt : public IContextMenu3,
                          IShellIconOverlayIdentifier,
                          IShellPropSheetExt,
                          ICopyHookW
+
+// COMPILER ERROR? You need the latest version of the
+// platform SDK which has references to IColumnProvider
+// in the header files.  Download it here:
+// http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
 {
 protected:
 
@@ -139,8 +144,6 @@ protected:
         ShellMenuRepoBrowse,
         ShellMenuBlame,
         ShellMenuCopyUrl,
-        ShellMenuShelve,
-        ShellMenuUnshelve,
         ShellMenuApplyPatch,
         ShellMenuCreatePatch,
         ShellMenuRevisionGraph,
@@ -219,6 +222,7 @@ protected:
     CString                         columnfolder;       ///< current folder of ColumnProvider
     typedef std::pair<std::wstring, std::string> columnuserprop; ///< type of user property of ColumnProvider
     std::vector<columnuserprop>     columnuserprops;    ///< user properties of ColumnProvider
+    CCrashReportTSVN                m_crasher;
 
 #define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, _countof(stringtablebuffer), (WORD)CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
 private:
@@ -231,7 +235,7 @@ private:
     void            GetExtraColumnStatus(const TCHAR * path, BOOL bIsDir);
     void            GetMainColumnStatus(const TCHAR * path, BOOL bIsDir);
     STDMETHODIMP    QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMenu, UINT &indexMenu);
-    bool            IsIllegalFolder(const std::wstring& folder, int * csidlarray);
+    bool            IsIllegalFolder(std::wstring folder, int * csidlarray);
     static void     RunCommand( const tstring& path, const tstring& command, const tstring& folder, LPCTSTR errorMessage );
     bool            ShouldInsertItem(const MenuInfo& pair) const;
     bool            ShouldEnableMenu(const YesNoPair& pair) const;
@@ -241,6 +245,63 @@ private:
     void            AddPathCommand(tstring& svnCmd, LPCTSTR command, bool bFilesAllowed);
     void            AddPathFileCommand(tstring& svnCmd, LPCTSTR command);
     void            AddPathFileDropCommand(tstring& svnCmd, LPCTSTR command);
+
+    /** \name IContextMenu2 wrappers
+     * IContextMenu2 wrapper functions to catch exceptions and send crash reports
+     */
+    //@{
+    STDMETHODIMP    QueryContextMenu_Wrap(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags);
+    STDMETHODIMP    InvokeCommand_Wrap(LPCMINVOKECOMMANDINFO lpcmi);
+    STDMETHODIMP    GetCommandString_Wrap(UINT_PTR idCmd, UINT uFlags, UINT FAR *reserved, LPSTR pszName, UINT cchMax);
+    STDMETHODIMP    HandleMenuMsg_Wrap(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    //@}
+
+    /** \name IContextMenu3 wrappers
+     * IContextMenu3 wrapper functions to catch exceptions and send crash reports
+     */
+    //@{
+    STDMETHODIMP    HandleMenuMsg2_Wrap(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *pResult);
+    //@}
+
+    /** \name IColumnProvider wrappers
+     * IColumnProvider wrapper functions to catch exceptions and send crash reports
+     */
+    //@{
+    STDMETHODIMP    GetColumnInfo_Wrap(DWORD dwIndex, SHCOLUMNINFO *psci);
+    STDMETHODIMP    GetItemData_Wrap(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, VARIANT *pvarData);
+    STDMETHODIMP    Initialize_Wrap(LPCSHCOLUMNINIT psci);
+    //@}
+
+    /** \name IShellExtInit wrappers
+     * IShellExtInit wrapper functions to catch exceptions and send crash reports
+     */
+    //@{
+    STDMETHODIMP    Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
+    //@}
+
+    /** \name IShellIconOverlayIdentifier wrappers
+     * IShellIconOverlayIdentifier wrapper functions to catch exceptions and send crash reports
+     */
+    //@{
+    STDMETHODIMP    GetOverlayInfo_Wrap(LPWSTR pwszIconFile, int cchMax, int *pIndex, DWORD *pdwFlags);
+    STDMETHODIMP    GetPriority_Wrap(int *pPriority);
+    STDMETHODIMP    IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD dwAttrib);
+    //@}
+
+    /** \name IShellPropSheetExt wrappers
+     * IShellPropSheetExt wrapper functions to catch exceptions and send crash reports
+     */
+    //@{
+    STDMETHODIMP    AddPages_Wrap(LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam);
+    //STDMETHODIMP    ReplacePage_Wrap(UINT, LPFNADDPROPSHEETPAGE, LPARAM);
+    //@}
+
+    /** \name ICopyHook wrapper
+     * ICopyHook wrapper functions to catch exceptions and send crash reports
+     */
+    //@{
+    STDMETHODIMP_(UINT) CopyCallback_Wrap(HWND hWnd, UINT wFunc, UINT wFlags, LPCTSTR pszSrcFile, DWORD dwSrcAttribs, LPCTSTR pszDestFile, DWORD dwDestAttribs);
+    //@}
 
 public:
     CShellExt(FileState state);

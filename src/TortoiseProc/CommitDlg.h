@@ -69,12 +69,14 @@ protected:
     virtual BOOL OnInitDialog();
     // extracted from OnInitDialog
     void ShowBalloonInCaseOfError();
+    void GetAsyncFileListStatus();
     void AddDirectoriesToPathWatcher();
     void AdjustDialogSizeAndPanes();
     void CenterWindowWhenLaunchedFromExplorer();
     void SaveDialogAndLogMessageControlRectangles();
     void AddAnchorsToFacilitateResizing();
     void LineupControlsAndAdjustSizes();
+    void ConvertStaticToLinkControl();
     void AdjustControlSizes();
     void SetCommitWindowTitleAndEnableStatus();
     void SetupLogMessageDefaultText();
@@ -114,8 +116,6 @@ protected:
     afx_msg void OnSize(UINT nType, int cx, int cy);
     afx_msg void OnBnClickedRunhook();
     void Refresh();
-    void StartStatusThread();
-    void StopStatusThread();
     void GetAutocompletionList(std::map<CString, int>& autolist);
     void ScanFile(std::map<CString, int>& autolist, const CString& sFilePath, const CString& sRegex, const CString& sExt);
     void DoSize(int delta);
@@ -169,15 +169,7 @@ private:
     CRect               m_DlgOrigRect;
     CRect               m_LogMsgOrigRect;
     CPathWatcher        m_pathwatcher;
-    CLinkControl        m_CheckAll;
-    CLinkControl        m_CheckNone;
-    CLinkControl        m_CheckUnversioned;
-    CLinkControl        m_CheckVersioned;
-    CLinkControl        m_CheckAdded;
-    CLinkControl        m_CheckDeleted;
-    CLinkControl        m_CheckModified;
-    CLinkControl        m_CheckFiles;
-    CLinkControl        m_CheckDirectories;
+    CLinkControl        m_linkControl;
     CPathEdit           m_CommitTo;
     CBugTraqAssociation m_bugtraq_association;
     CHyperLink          m_cUpdateLink;

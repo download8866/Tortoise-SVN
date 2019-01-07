@@ -1,4 +1,4 @@
-﻿// TortoiseMerge - a Diff/Patch program
+// TortoiseMerge - a Diff/Patch program
 
 // Copyright (C) 2004-2018 - TortoiseSVN
 
@@ -18,7 +18,7 @@
 //
 #include "stdafx.h"
 #include "TortoiseMerge.h"
-#include "resource.h"
+#include "CustomMFCRibbonButton.h"
 #include "OpenDlg.h"
 #include "ProgressDlg.h"
 #include "Settings.h"
@@ -40,6 +40,8 @@
 #define new DEBUG_NEW
 #endif
 
+CCustomMFCRibbonButton button1;
+
 // CMainFrame
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
 #define IDT_RELOADCHECKTIMER 123
@@ -48,7 +50,8 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_WM_CREATE()
-    ON_WM_DESTROY()
+    ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN7, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnApplicationLook)
+    ON_UPDATE_COMMAND_UI_RANGE(IDC_STYLEBUTTON, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnUpdateApplicationLook)
     // Global help commands
     ON_COMMAND(ID_HELP_FINDER, CFrameWndEx::OnHelpFinder)
     ON_COMMAND(ID_HELP, CFrameWndEx::OnHelp)
@@ -65,7 +68,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_UPDATE_COMMAND_UI(ID_VIEW_ONEWAYDIFF, OnUpdateViewOnewaydiff)
     ON_UPDATE_COMMAND_UI(ID_VIEW_WHITESPACES, OnUpdateViewWhitespaces)
     ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
-    ON_MESSAGE(WM_IDLEUPDATECMDUI, OnIdleUpdateCmdUI)
     ON_WM_CLOSE()
     ON_WM_ACTIVATE()
     ON_COMMAND(ID_FILE_RELOAD, OnFileReload)
@@ -144,8 +146,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_UPDATE_COMMAND_UI(ID_VIEW_IGNORECOMMENTS, &CMainFrame::OnUpdateViewIgnorecomments)
     ON_COMMAND_RANGE(ID_REGEXFILTER, ID_REGEXFILTER+400, &CMainFrame::OnRegexfilter)
     ON_UPDATE_COMMAND_UI_RANGE(ID_REGEXFILTER, ID_REGEXFILTER+400, &CMainFrame::OnUpdateViewRegexFilter)
-    ON_COMMAND(ID_REGEX_NO_FILTER, &CMainFrame::OnRegexNoFilter)
-    ON_UPDATE_COMMAND_UI(ID_REGEX_NO_FILTER, &CMainFrame::OnUpdateRegexNoFilter)
     ON_COMMAND(ID_INDICATOR_LEFTVIEWCOMBOENCODING, &CMainFrame::OnDummyEnabled)
     ON_COMMAND(ID_INDICATOR_RIGHTVIEWCOMBOENCODING, &CMainFrame::OnDummyEnabled)
     ON_COMMAND(ID_INDICATOR_BOTTOMVIEWCOMBOENCODING, &CMainFrame::OnDummyEnabled)
@@ -155,7 +155,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_COMMAND(ID_INDICATOR_LEFTVIEWCOMBOTABMODE, &CMainFrame::OnDummyEnabled)
     ON_COMMAND(ID_INDICATOR_RIGHTVIEWCOMBOTABMODE, &CMainFrame::OnDummyEnabled)
     ON_COMMAND(ID_INDICATOR_BOTTOMVIEWCOMBOTABMODE, &CMainFrame::OnDummyEnabled)
-    ON_UPDATE_COMMAND_UI(ID_EDIT_THREEWAY_ACTIONS, &CMainFrame::OnUpdateThreeWayActions)
     ON_COMMAND_RANGE(ID_INDICATOR_LEFTENCODINGSTART, ID_INDICATOR_LEFTENCODINGSTART+19, &CMainFrame::OnEncodingLeft)
     ON_COMMAND_RANGE(ID_INDICATOR_RIGHTENCODINGSTART, ID_INDICATOR_RIGHTENCODINGSTART+19, &CMainFrame::OnEncodingRight)
     ON_COMMAND_RANGE(ID_INDICATOR_BOTTOMENCODINGSTART, ID_INDICATOR_BOTTOMENCODINGSTART+19, &CMainFrame::OnEncodingBottom)
@@ -198,15 +197,14 @@ CMainFrame::CMainFrame()
     , m_bLineDiff(true)
     , m_bLocatorBar(true)
     , m_nMoveMovesToIgnore(0)
-    , m_pwndLeftView(nullptr)
-    , m_pwndRightView(nullptr)
-    , m_pwndBottomView(nullptr)
+    , m_pwndLeftView(NULL)
+    , m_pwndRightView(NULL)
+    , m_pwndBottomView(NULL)
     , m_bReadOnly(false)
     , m_bBlame(false)
     , m_bCheckReload(false)
     , m_bSaveRequired(false)
     , m_bSaveRequiredOnConflicts(false)
-    , m_bAskToMarkAsResolved(true)
     , resolveMsgWnd(0)
     , resolveMsgWParam(0)
     , resolveMsgLParam(0)
@@ -221,11 +219,13 @@ CMainFrame::CMainFrame()
     , m_regexIndex(-1)
 {
     m_bOneWay = (0 != ((DWORD)m_regOneWay));
+    theApp.m_nAppLook = theApp.GetInt(L"ApplicationLook", ID_VIEW_APPLOOK_VS_2005);
     m_bCollapsed = !!(DWORD)m_regCollapsed;
     m_bViewMovedBlocks = !!(DWORD)m_regViewModedBlocks;
     m_bWrapLines = !!(DWORD)m_regWrapLines;
     m_bInlineDiff = !!m_regInlineDiff;
     m_bUseRibbons = !!m_regUseRibbons;
+    CMFCVisualManagerWindows::m_b3DTabsXPTheme = TRUE;
 }
 
 CMainFrame::~CMainFrame()
@@ -244,31 +244,42 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
         return -1;
 
+    OnApplicationLook(theApp.m_nAppLook);
+
     if (m_bUseRibbons)
     {
-        HRESULT hr;
-        hr = m_pRibbonFramework.CoCreateInstance(__uuidof(UIRibbonFramework));
-        if (FAILED(hr))
+        m_wndRibbonBar.Create(this);
+        m_wndRibbonBar.LoadFromResource(IDR_RIBBON);
+
+        // enable the dialog launch button on the view panel
+        CMFCRibbonCategory * pMainCat = m_wndRibbonBar.GetCategory(1);
+        if (pMainCat)
         {
-            TRACE(L"Failed to create ribbon framework (%08x)\n", hr);
-            return -1; // fail to create
+            CMFCRibbonPanel * pPanel = pMainCat->GetPanel(0);
+            if (pPanel)
+                pPanel->EnableLaunchButton(ID_VIEW_OPTIONS);
         }
-
-        m_pRibbonApp.reset(new CNativeRibbonApp(this, m_pRibbonFramework));
-        m_pRibbonApp->SetSettingsFileName(CPathUtils::GetAppDataDirectory() + L"TortoiseMerge-RibbonSettings");
-
-        hr = m_pRibbonFramework->Initialize(m_hWnd, m_pRibbonApp.get());
-        if (FAILED(hr))
+        // now replace all buttons with our custom button class
+        for (int i = 0; i < m_wndRibbonBar.GetCategoryCount(); ++i)
         {
-            TRACE(L"Failed to initialize ribbon framework (%08x)\n", hr);
-            return -1; // fail to create
-        }
-
-        hr = m_pRibbonFramework->LoadUI(AfxGetResourceHandle(), L"TORTOISEMERGERIBBON_RIBBON");
-        if (FAILED(hr))
-        {
-            TRACE(L"Failed to load ribbon UI (%08x)\n", hr);
-            return -1; // fail to create
+            CMFCRibbonCategory * pCat = m_wndRibbonBar.GetCategory(i);
+            for (int j = 0; j < pCat->GetPanelCount(); ++j)
+            {
+                CMFCRibbonPanel * pPanel = pCat->GetPanel(j);
+                CList<UINT, UINT> lstItems;
+                pPanel->GetItemIDsList(lstItems);
+                while (!lstItems.IsEmpty())
+                {
+                    UINT id = lstItems.GetHead();
+                    lstItems.RemoveHead();
+                    CMFCRibbonButton * pButton = dynamic_cast<CMFCRibbonButton*>(pPanel->FindByID(id));
+                    if (pButton)
+                    {
+                        CCustomMFCRibbonButton * c = new CCustomMFCRibbonButton(id, pButton->GetText());
+                        pPanel->ReplaceByID(id, c);
+                    }
+                }
+            }
         }
         BuildRegexSubitems();
         if (!m_wndRibbonStatusBar.Create(this))
@@ -278,12 +289,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         }
         m_wndRibbonStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_SEPARATOR, CString(MAKEINTRESOURCE(AFX_IDS_IDLEMESSAGE)), TRUE), L"");
 
-        CString sTooltip(MAKEINTRESOURCE(IDS_ENCODING_COMBO_TOOLTIP));
-        auto apBtnGroupLeft = std::make_unique<CMFCRibbonButtonsGroup>();
+        std::unique_ptr<CMFCRibbonButtonsGroup> apBtnGroupLeft(new CMFCRibbonButtonsGroup);
         apBtnGroupLeft->SetID(ID_INDICATOR_LEFTVIEW);
         apBtnGroupLeft->AddButton(new CMFCRibbonStatusBarPane(ID_SEPARATOR,   CString(MAKEINTRESOURCE(IDS_STATUSBAR_LEFTVIEW)), TRUE));
         CMFCRibbonButton * pButton = new CMFCRibbonButton(ID_INDICATOR_LEFTVIEWCOMBOENCODING, L"");
-        pButton->SetToolTipText(sTooltip);
         FillEncodingButton(pButton, ID_INDICATOR_LEFTENCODINGSTART);
         apBtnGroupLeft->AddButton(pButton);
         pButton = new CMFCRibbonButton(ID_INDICATOR_LEFTVIEWCOMBOEOL, L"");
@@ -295,11 +304,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         apBtnGroupLeft->AddButton(new CMFCRibbonStatusBarPane(ID_INDICATOR_LEFTVIEW,   L"", TRUE));
         m_wndRibbonStatusBar.AddExtendedElement(apBtnGroupLeft.release(), L"");
 
-        auto apBtnGroupRight = std::make_unique<CMFCRibbonButtonsGroup>();
+        std::unique_ptr<CMFCRibbonButtonsGroup> apBtnGroupRight(new CMFCRibbonButtonsGroup);
         apBtnGroupRight->SetID(ID_INDICATOR_RIGHTVIEW);
         apBtnGroupRight->AddButton(new CMFCRibbonStatusBarPane(ID_SEPARATOR,   CString(MAKEINTRESOURCE(IDS_STATUSBAR_RIGHTVIEW)), TRUE));
         pButton = new CMFCRibbonButton(ID_INDICATOR_RIGHTVIEWCOMBOENCODING, L"");
-        pButton->SetToolTipText(sTooltip);
         FillEncodingButton(pButton, ID_INDICATOR_RIGHTENCODINGSTART);
         apBtnGroupRight->AddButton(pButton);
         pButton = new CMFCRibbonButton(ID_INDICATOR_RIGHTVIEWCOMBOEOL, L"");
@@ -372,21 +380,95 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     return 0;
 }
 
-void CMainFrame::OnDestroy()
-{
-    if (m_pRibbonFramework)
-    {
-        m_pRibbonFramework->Destroy();
-    }
-
-    CFrameWndEx::OnDestroy();
-}
-
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
     if( !CFrameWndEx::PreCreateWindow(cs) )
         return FALSE;
     return TRUE;
+}
+
+void CMainFrame::OnApplicationLook(UINT id)
+{
+    CWaitCursor wait;
+
+    theApp.m_nAppLook = id;
+
+    switch (theApp.m_nAppLook)
+    {
+    case ID_VIEW_APPLOOK_WIN_2000:
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManager));
+        m_wndRibbonBar.SetWindows7Look(FALSE);
+        break;
+
+    case ID_VIEW_APPLOOK_OFF_XP:
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOfficeXP));
+        m_wndRibbonBar.SetWindows7Look(FALSE);
+        break;
+
+    case ID_VIEW_APPLOOK_WIN_XP:
+        CMFCVisualManagerWindows::m_b3DTabsXPTheme = TRUE;
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+        m_wndRibbonBar.SetWindows7Look(FALSE);
+        break;
+
+    case ID_VIEW_APPLOOK_OFF_2003:
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2003));
+        CDockingManager::SetDockingMode(DT_SMART);
+        m_wndRibbonBar.SetWindows7Look(FALSE);
+        break;
+
+    case ID_VIEW_APPLOOK_VS_2005:
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2005));
+        CDockingManager::SetDockingMode(DT_SMART);
+        m_wndRibbonBar.SetWindows7Look(FALSE);
+        break;
+
+    case ID_VIEW_APPLOOK_VS_2008:
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2008));
+        CDockingManager::SetDockingMode(DT_SMART);
+        m_wndRibbonBar.SetWindows7Look(FALSE);
+        break;
+
+    case ID_VIEW_APPLOOK_WIN7:
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
+        CDockingManager::SetDockingMode(DT_SMART);
+        m_wndRibbonBar.SetWindows7Look(TRUE);
+        break;
+
+    default:
+        switch (theApp.m_nAppLook)
+        {
+        case ID_VIEW_APPLOOK_OFF_2007_BLUE:
+            CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);
+            break;
+
+        case ID_VIEW_APPLOOK_OFF_2007_BLACK:
+            CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_ObsidianBlack);
+            break;
+
+        case ID_VIEW_APPLOOK_OFF_2007_SILVER:
+            CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Silver);
+            break;
+
+        case ID_VIEW_APPLOOK_OFF_2007_AQUA:
+            CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Aqua);
+            break;
+        }
+
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2007));
+        CDockingManager::SetDockingMode(DT_SMART);
+        m_wndRibbonBar.SetWindows7Look(FALSE);
+    }
+
+    RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
+
+    theApp.WriteInt(L"ApplicationLook", theApp.m_nAppLook);
+}
+
+void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
+{
+    pCmdUI->Enable();
+    pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
 }
 
 
@@ -500,12 +582,13 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT /*lpcs*/, CCreateContext* pContex
 // Callback function
 BOOL CMainFrame::PatchFile(CString sFilePath, bool /*bContentMods*/, bool bPropMods, CString sVersion, BOOL bAutoPatch)
 {
+    CString sDummy;
     //"dry run" was successful, so save the patched file somewhere...
     CString sTempFile = CTempFiles::Instance().GetTempFilePathString();
     CString sRejectedFile;
     if (m_Patch.GetPatchResult(sFilePath, sTempFile, sRejectedFile) < 0)
     {
-        MessageBox(m_Patch.GetErrorMessage(), nullptr, MB_ICONERROR);
+        MessageBox(m_Patch.GetErrorMessage(), NULL, MB_ICONERROR);
         return FALSE;
     }
     sFilePath = m_Patch.GetTargetPath() + L"\\" + sFilePath;
@@ -585,7 +668,7 @@ BOOL CMainFrame::DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString 
         progDlg.Stop();
         CString sErrMsg;
         sErrMsg.FormatMessage(IDS_ERR_MAINFRAME_FILEVERSIONNOTFOUND, (LPCTSTR)sRev1, (LPCTSTR)sURL1);
-        MessageBox(sErrMsg, nullptr, MB_ICONERROR);
+        MessageBox(sErrMsg, NULL, MB_ICONERROR);
         return FALSE;
     }
     sTemp.Format(IDS_GETVERSIONOFFILE, (LPCTSTR)sRev2);
@@ -597,7 +680,7 @@ BOOL CMainFrame::DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString 
         progDlg.Stop();
         CString sErrMsg;
         sErrMsg.FormatMessage(IDS_ERR_MAINFRAME_FILEVERSIONNOTFOUND, (LPCTSTR)sRev2, (LPCTSTR)sURL2);
-        MessageBox(sErrMsg, nullptr, MB_ICONERROR);
+        MessageBox(sErrMsg, NULL, MB_ICONERROR);
         return FALSE;
     }
     progDlg.SetProgress(100,100);
@@ -632,7 +715,7 @@ void CMainFrame::OnFileOpen(bool fillyours)
         return;
     }
     m_dlgFilePatches.ShowWindow(SW_HIDE);
-    m_dlgFilePatches.Init(nullptr, nullptr, CString(), nullptr);
+    m_dlgFilePatches.Init(NULL, NULL, CString(), NULL);
     TRACE(L"got the files:\n   %s\n   %s\n   %s\n   %s\n   %s\n", (LPCTSTR)dlg.m_sBaseFile, (LPCTSTR)dlg.m_sTheirFile, (LPCTSTR)dlg.m_sYourFile,
           (LPCTSTR)dlg.m_sUnifiedDiffFile, (LPCTSTR)dlg.m_sPatchDirectory);
     m_Data.m_baseFile.SetFileName(dlg.m_sBaseFile);
@@ -641,10 +724,10 @@ void CMainFrame::OnFileOpen(bool fillyours)
     m_Data.m_sDiffFile = dlg.m_sUnifiedDiffFile;
     m_Data.m_sPatchPath = dlg.m_sPatchDirectory;
     m_Data.m_mergedFile.SetOutOfUse();
-    CCrashReport::Instance().AddFile2(dlg.m_sBaseFile, nullptr, L"Basefile", CR_AF_MAKE_FILE_COPY);
-    CCrashReport::Instance().AddFile2(dlg.m_sTheirFile, nullptr, L"Theirfile", CR_AF_MAKE_FILE_COPY);
-    CCrashReport::Instance().AddFile2(dlg.m_sYourFile, nullptr, L"Yourfile", CR_AF_MAKE_FILE_COPY);
-    CCrashReport::Instance().AddFile2(dlg.m_sUnifiedDiffFile, nullptr, L"Difffile", CR_AF_MAKE_FILE_COPY);
+    CCrashReport::Instance().AddFile2(dlg.m_sBaseFile, NULL, L"Basefile", CR_AF_MAKE_FILE_COPY);
+    CCrashReport::Instance().AddFile2(dlg.m_sTheirFile, NULL, L"Theirfile", CR_AF_MAKE_FILE_COPY);
+    CCrashReport::Instance().AddFile2(dlg.m_sYourFile, NULL, L"Yourfile", CR_AF_MAKE_FILE_COPY);
+    CCrashReport::Instance().AddFile2(dlg.m_sUnifiedDiffFile, NULL, L"Difffile", CR_AF_MAKE_FILE_COPY);
 
     if (!m_Data.IsBaseFileInUse() && m_Data.IsTheirFileInUse() && m_Data.IsYourFileInUse())
     {
@@ -749,7 +832,7 @@ bool CMainFrame::LoadViews(int line)
         {
             progDlg.Stop();
             ClearViewNamesAndPaths();
-            MessageBox(m_Patch.GetErrorMessage(), nullptr, MB_ICONERROR);
+            MessageBox(m_Patch.GetErrorMessage(), NULL, MB_ICONERROR);
             m_bSaveRequired = false;
             return false;
         }
@@ -821,17 +904,17 @@ bool CMainFrame::LoadViews(int line)
             m_pwndLeftView->SetTarget();
             m_pwndLeftView->SetWritableIsChangable(true);
 
-            m_pwndRightView->m_pViewData = nullptr;
-            m_pwndRightView->m_pWorkingFile = nullptr;
-            m_pwndBottomView->m_pViewData = nullptr;
-            m_pwndBottomView->m_pWorkingFile = nullptr;
+            m_pwndRightView->m_pViewData = NULL;
+            m_pwndRightView->m_pWorkingFile = NULL;
+            m_pwndBottomView->m_pViewData = NULL;
+            m_pwndBottomView->m_pWorkingFile = NULL;
 
             if (!m_wndSplitter.IsRowHidden(1))
                 m_wndSplitter.HideRow(1);
             m_pwndLeftView->SetHidden(FALSE);
             m_pwndRightView->SetHidden(TRUE);
             m_pwndBottomView->SetHidden(TRUE);
-            ::SetWindowPos(m_pwndLeftView->m_hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+            ::SetWindowPos(m_pwndLeftView->m_hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
         }
         else
         {
@@ -860,8 +943,8 @@ bool CMainFrame::LoadViews(int line)
             m_pwndRightView->SetWritable();
             m_pwndRightView->SetTarget();
 
-            m_pwndBottomView->m_pViewData = nullptr;
-            m_pwndBottomView->m_pWorkingFile = nullptr;
+            m_pwndBottomView->m_pViewData = NULL;
+            m_pwndBottomView->m_pWorkingFile = NULL;
 
             if (!m_wndSplitter.IsRowHidden(1))
                 m_wndSplitter.HideRow(1);
@@ -869,8 +952,8 @@ bool CMainFrame::LoadViews(int line)
             m_pwndRightView->SetHidden(FALSE);
             m_pwndBottomView->SetHidden(TRUE);
         }
-        bool hasMods, hasConflicts, hasWhitespaceMods, hasFilteredMods;
-        pwndActiveView->CheckModifications(hasMods, hasConflicts, hasWhitespaceMods, hasFilteredMods);
+        bool hasMods, hasConflicts, hasWhitespaceMods;
+        pwndActiveView->CheckModifications(hasMods, hasConflicts, hasWhitespaceMods);
         if (!hasMods && !hasConflicts)
         {
             // files appear identical, show a dialog informing the user that there are or might
@@ -1053,16 +1136,6 @@ void CMainFrame::UpdateLayout()
     }
 }
 
-void CMainFrame::RecalcLayout(BOOL bNotify)
-{
-    GetClientRect(&m_dockManager.m_rectInPlace);
-    if (m_pRibbonApp)
-    {
-        m_dockManager.m_rectInPlace.top += m_pRibbonApp->GetRibbonHeight();
-    }
-    CFrameWndEx::RecalcLayout(bNotify);
-}
-
 void CMainFrame::OnSize(UINT nType, int cx, int cy)
 {
     CFrameWndEx::OnSize(nType, cx, cy);
@@ -1218,35 +1291,6 @@ void CMainFrame::ShowDiffBar(bool bShow)
     }
 }
 
-void CMainFrame::DiffLeftToBase()
-{
-    DiffTwo(m_Data.m_baseFile, m_Data.m_theirFile);
-}
-
-void CMainFrame::DiffRightToBase()
-{
-    DiffTwo(m_Data.m_baseFile, m_Data.m_yourFile);
-}
-
-void CMainFrame::DiffTwo(const CWorkingFile& file1, const CWorkingFile& file2)
-{
-    wchar_t ownpath[MAX_PATH] = { 0 };
-    GetModuleFileName(nullptr, ownpath, MAX_PATH);
-    CString sCmd;
-    sCmd.Format(L"\"%s\"", ownpath);
-    sCmd += L" /base:\"";
-    sCmd += file1.GetFilename();
-    sCmd += L"\" /mine:\"";
-    sCmd += file2.GetFilename();
-    sCmd += L'"';
-    if (!file1.GetWindowName().IsEmpty())
-        sCmd += L" /basename:\"" + file1.GetWindowName() + L"\"";
-    if (!file2.GetWindowName().IsEmpty())
-        sCmd += L" /yourname:\"" + file2.GetWindowName() + L"\"";
-
-    CAppUtils::LaunchApplication(sCmd, 0, false);
-}
-
 int CMainFrame::CheckResolved()
 {
     //only in three way diffs can be conflicts!
@@ -1270,8 +1314,8 @@ int CMainFrame::CheckResolved()
 
 int CMainFrame::SaveFile(const CString& sFilePath)
 {
-    CBaseView* pView = nullptr;
-    CViewData* pViewData = nullptr;
+    CBaseView * pView = NULL;
+    CViewData * pViewData = NULL;
     CFileTextLines * pOriginFile = &m_Data.m_arBaseFile;
     if (IsViewGood(m_pwndBottomView))
     {
@@ -1584,15 +1628,15 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
     if (IsViewGood(m_pwndBottomView) && !m_bHasConflicts && bCheckResolved)
     {
         CTSVNPath svnpath = CTSVNPath(m_Data.m_mergedFile.GetFilename());
-        if (m_bAskToMarkAsResolved && SVNHelper::IsVersioned(svnpath, true))
+        if (SVNHelper::IsVersioned(svnpath, true))
         {
             SVNPool pool;
             svn_opt_revision_t rev;
             rev.kind = svn_opt_revision_unspecified;
             svn_wc_status_kind statuskind = svn_wc_status_none;
-            svn_client_ctx_t* ctx = nullptr;
+            svn_client_ctx_t * ctx = NULL;
             svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(pool), pool));
-            svn_error_t* err = svn_client_status6(nullptr, ctx, svnpath.GetSVNApiPath(pool), &rev,
+            svn_error_t * err = svn_client_status6(NULL, ctx, svnpath.GetSVNApiPath(pool), &rev,
                                                    svn_depth_empty,
                                                    true,
                                                    false,
@@ -1600,11 +1644,11 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
                                                    true,
                                                    true,
                                                    false,
-                                                   nullptr,
+                                                   NULL,
                                                    getallstatus,
                                                    &statuskind,
                                                    pool);
-            if ((!err) && (statuskind == svn_wc_status_conflicted))
+            if ((err == NULL) && (statuskind == svn_wc_status_conflicted))
             {
                 CString msg;
                 msg.Format(IDS_MARKASRESOLVED, (LPCTSTR)CPathUtils::GetFileNameFromPath(m_Data.m_mergedFile.GetFilename()));
@@ -1775,17 +1819,15 @@ void CMainFrame::OnViewOptions()
     }
     CDiffColors::GetInstance().LoadRegistry();
     if (m_pwndBottomView)
-        m_pwndBottomView->DocumentUpdated();
+        m_pwndBottomView->Invalidate();
     if (m_pwndLeftView)
-        m_pwndLeftView->DocumentUpdated();
+        m_pwndLeftView->Invalidate();
     if (m_pwndRightView)
-        m_pwndRightView->DocumentUpdated();
+        m_pwndRightView->Invalidate();
 }
 
 void CMainFrame::OnClose()
 {
-    if (!IsWindowEnabled())
-        return; // just in case someone sends a WM_CLOSE to the main window while another window (dialog,...) is open
     if (CheckForSave(CHFSR_CLOSE)!=IDCANCEL)
     {
         WINDOWPLACEMENT    wp;
@@ -1826,7 +1868,7 @@ void CMainFrame::OnActivate(UINT nValue, CWnd* /*pwnd*/, BOOL /*bActivated?*/)
             // clicked the close button and that brought the window
             // to the front - in that case checking for reload wouldn't
             // do any good.
-            SetTimer(IDT_RELOADCHECKTIMER, 300, nullptr);
+            SetTimer(IDT_RELOADCHECKTIMER, 300, NULL);
         }
     }
 }
@@ -2048,7 +2090,7 @@ void CMainFrame::WriteWindowPlacement(WINDOWPLACEMENT * pwp)
 
 void CMainFrame::OnUpdateMergeMarkasresolved(CCmdUI *pCmdUI)
 {
-    if (!pCmdUI)
+    if (pCmdUI == NULL)
         return;
     BOOL bEnable = FALSE;
     if ((!m_bReadOnly)&&(m_Data.m_mergedFile.InUse()))
@@ -2090,7 +2132,11 @@ BOOL CMainFrame::MarkAsResolved()
     cmd += m_Data.m_mergedFile.GetFilename();
     cmd += L"\" /closeonend:1 /noquestion /skipcheck /silent";
     if (resolveMsgWnd)
-        cmd.AppendFormat(L" /resolvemsghwnd:%I64d /resolvemsgwparam:%I64d /resolvemsglparam:%I64d", (__int64)resolveMsgWnd, (__int64)resolveMsgWParam, (__int64)resolveMsgLParam);
+    {
+        CString s;
+        s.Format(L" /resolvemsghwnd:%I64d /resolvemsgwparam:%I64d /resolvemsglparam:%I64d", (__int64)resolveMsgWnd, (__int64)resolveMsgWParam, (__int64)resolveMsgLParam);
+        cmd += s;
+    }
     if(!CAppUtils::RunTortoiseProc(cmd))
         return FALSE;
     m_bSaveRequired = false;
@@ -2213,7 +2259,7 @@ void CMainFrame::OnMoving(UINT fwSide, LPRECT pRect)
             GetWindowRect(&thisrect);
             if (patchrect.right == thisrect.left)
             {
-                m_dlgFilePatches.SetWindowPos(nullptr, patchrect.left - (thisrect.left - pRect->left), patchrect.top - (thisrect.top - pRect->top),
+                m_dlgFilePatches.SetWindowPos(NULL, patchrect.left - (thisrect.left - pRect->left), patchrect.top - (thisrect.top - pRect->top),
                     0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
             }
         }
@@ -2714,60 +2760,12 @@ void CMainFrame::OnEditCreateunifieddifffile()
     if (origFile.IsEmpty() || modifiedFile.IsEmpty())
         return;
 
-
     CString outputFile;
-    bool ignoreEOL = true;
-    // Create a new common save file dialog
-    CComPtr<IFileDialog> pfd = NULL;
-
-    auto hr = pfd.CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC_SERVER);
-    if (SUCCEEDED(hr))
-    {
-        // Set the dialog options
-        DWORD dwOptions;
-        if (SUCCEEDED(hr = pfd->GetOptions(&dwOptions)))
-        {
-            hr = pfd->SetOptions(dwOptions | FOS_OVERWRITEPROMPT | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST);
-        }
-
-        CComPtr<IFileDialogCustomize> pfdCustomize;
-        hr = pfd.QueryInterface(&pfdCustomize);
-        if (SUCCEEDED(hr))
-        {
-            pfdCustomize->AddCheckButton(101, CString(MAKEINTRESOURCE(IDS_DIFF_IGNORE_EOL)), TRUE);
-        }
-
-
-        // Show the save/open file dialog
-        if (SUCCEEDED(hr) && SUCCEEDED(hr = pfd->Show(GetSafeHwnd())))
-        {
-            CComPtr<IFileDialogCustomize> pfdCustomizeRet;
-            hr = pfd.QueryInterface(&pfdCustomizeRet);
-            if (SUCCEEDED(hr))
-            {
-                BOOL bChecked = TRUE;
-                pfdCustomizeRet->GetCheckButtonState(101, &bChecked);
-                ignoreEOL = (bChecked != 0);
-            }
-
-            // Get the selection from the user
-            CComPtr<IShellItem> psiResult = NULL;
-            hr = pfd->GetResult(&psiResult);
-            if (SUCCEEDED(hr))
-            {
-                PWSTR pszPath = NULL;
-                hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
-                if (SUCCEEDED(hr))
-                {
-                    outputFile = CString(pszPath);
-                }
-            }
-        }
-    }
-
+    if(!TryGetFileName(outputFile))
+        return;
 
     CRegStdDWORD regContextLines(L"Software\\TortoiseMerge\\ContextLines", 0);
-    CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outputFile, regContextLines, ignoreEOL, true);
+    CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outputFile, regContextLines, true);
     CAppUtils::StartUnifiedDiffViewer(outputFile, CPathUtils::GetFileNameFromPath(outputFile));
 }
 
@@ -2877,7 +2875,7 @@ bool CMainFrame::HasConflictsWontKeep()
     const int nConflictLine = CheckResolved();
     if (nConflictLine < 0)
         return false;
-    if (!m_pwndBottomView)
+    if (m_pwndBottomView == nullptr)
         return false;
 
     CString sTemp;
@@ -2903,7 +2901,7 @@ bool CMainFrame::HasConflictsWontKeep()
 
 bool CMainFrame::TryGetFileName(CString& result)
 {
-    return CCommonAppUtils::FileOpenSave(result, nullptr, IDS_SAVEASTITLE, IDS_COMMONFILEFILTER, false, CString(), m_hWnd);
+    return CCommonAppUtils::FileOpenSave(result, NULL, IDS_SAVEASTITLE, IDS_COMMONFILEFILTER, false, CString(), m_hWnd);
 }
 
 CBaseView* CMainFrame::GetActiveBaseView() const
@@ -2975,21 +2973,21 @@ void CMainFrame::LoadIgnoreCommentData()
     if (!PathFileExists(sPath))
     {
         // ignore comments file does not exist (yet), so create a default one
-        HRSRC hRes = FindResource(nullptr, MAKEINTRESOURCE(IDR_IGNORECOMMENTSTXT), L"config");
+        HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_IGNORECOMMENTSTXT), L"config");
         if (hRes)
         {
-            HGLOBAL hResourceLoaded = LoadResource(nullptr, hRes);
+            HGLOBAL hResourceLoaded = LoadResource(NULL, hRes);
             if (hResourceLoaded)
             {
                 char * lpResLock = (char *) LockResource(hResourceLoaded);
-                DWORD dwSizeRes = SizeofResource(nullptr, hRes);
+                DWORD dwSizeRes = SizeofResource(NULL, hRes);
                 if (lpResLock)
                 {
-                    HANDLE hFile = CreateFile(sPath, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+                    HANDLE hFile = CreateFile(sPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
                     if (hFile != INVALID_HANDLE_VALUE)
                     {
                         DWORD dwWritten = 0;
-                        WriteFile(hFile, lpResLock, dwSizeRes, &dwWritten, nullptr);
+                        WriteFile(hFile, lpResLock, dwSizeRes, &dwWritten, NULL);
                         CloseHandle(hFile);
                     }
                 }
@@ -3083,7 +3081,7 @@ void CMainFrame::OnRegexfilter(UINT cmd)
         dlg.SetIniFile(&m_regexIni);
         if (dlg.DoModal() == IDOK)
         {
-            FILE* pFile = nullptr;
+            FILE * pFile = NULL;
             _tfopen_s(&pFile, CPathUtils::GetAppDataDirectory() + L"regexfilters.ini", L"wb");
             m_regexIni.SaveFile(pFile);
             fclose(pFile);
@@ -3092,7 +3090,7 @@ void CMainFrame::OnRegexfilter(UINT cmd)
     }
     else
     {
-        if (cmd == (UINT)m_regexIndex && !m_bUseRibbons)
+        if (cmd == (UINT)m_regexIndex)
         {
             if (CheckForSave(CHFSR_OPTIONS)==IDCANCEL)
                 return;
@@ -3100,7 +3098,7 @@ void CMainFrame::OnRegexfilter(UINT cmd)
             m_regexIndex = -1;
             LoadViews(-1);
         }
-        else if (cmd != (UINT)m_regexIndex)
+        else
         {
             CSimpleIni::TNamesDepend sections;
             m_regexIni.GetAllSections(sections);
@@ -3119,22 +3117,10 @@ void CMainFrame::OnRegexfilter(UINT cmd)
                     }
                     catch (std::exception &ex)
                     {
-                        MessageBox(CString(MAKEINTRESOURCE(IDS_ERR_REGEX_INVALID)) + L"\r\n" + CString(ex.what()));
+                        MessageBox(_T("Regex is invalid!\r\n") + CString(ex.what()));
                     }
                     m_regexIndex = index;
-                    try
-                    {
-                        LoadViews(-1);
-                    }
-                    catch (const std::regex_error& ex)
-                    {
-                        CString sErr;
-                        sErr.Format(IDS_ERR_REGEX_INVALIDRETRY, ex.what());
-                        MessageBox(sErr);
-                        m_Data.SetRegexTokens(std::wregex(), L"");
-                        m_regexIndex = -1;
-                        LoadViews(-1);
-                    }
+                    LoadViews(-1);
                     break;
                 }
                 ++index;
@@ -3155,21 +3141,21 @@ void CMainFrame::BuildRegexSubitems(CMFCPopupMenu* pMenuPopup)
     if (!PathFileExists(sIniPath))
     {
         // ini file does not exist (yet), so create a default one
-        HRSRC hRes = FindResource(nullptr, MAKEINTRESOURCE(IDR_REGEXFILTERINI), L"config");
+        HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_REGEXFILTERINI), L"config");
         if (hRes)
         {
-            HGLOBAL hResourceLoaded = LoadResource(nullptr, hRes);
+            HGLOBAL hResourceLoaded = LoadResource(NULL, hRes);
             if (hResourceLoaded)
             {
                 char * lpResLock = (char *)LockResource(hResourceLoaded);
-                DWORD dwSizeRes = SizeofResource(nullptr, hRes);
+                DWORD dwSizeRes = SizeofResource(NULL, hRes);
                 if (lpResLock)
                 {
-                    HANDLE hFile = CreateFile(sIniPath, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+                    HANDLE hFile = CreateFile(sIniPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
                     if (hFile != INVALID_HANDLE_VALUE)
                     {
                         DWORD dwWritten = 0;
-                        WriteFile(hFile, lpResLock, dwSizeRes, &dwWritten, nullptr);
+                        WriteFile(hFile, lpResLock, dwSizeRes, &dwWritten, NULL);
                         CloseHandle(hFile);
                     }
                 }
@@ -3183,16 +3169,26 @@ void CMainFrame::BuildRegexSubitems(CMFCPopupMenu* pMenuPopup)
 
     if (m_bUseRibbons)
     {
-        std::list<CNativeRibbonDynamicItemInfo> items;
-        int cmdIndex = 2;
-        items.push_back(CNativeRibbonDynamicItemInfo(ID_REGEX_NO_FILTER, CString(MAKEINTRESOURCE(ID_REGEX_NO_FILTER)), IDB_REGEX_FILTER));
-        for (const auto& section : sections)
+        CArray<CMFCRibbonBaseElement*, CMFCRibbonBaseElement*> arButtons;
+        m_wndRibbonBar.GetElementsByID(ID_REGEXFILTER, arButtons);
+        if (arButtons.GetCount() == 1)
         {
-            items.push_back(CNativeRibbonDynamicItemInfo(ID_REGEXFILTER + cmdIndex, section, IDB_REGEX_FILTER));
-            cmdIndex++;
-        }
+            CMFCRibbonButton * pButton = (CMFCRibbonButton*)arButtons.GetAt(0);
+            if (pButton)
+            {
+                pButton->RemoveAllSubItems();
+                pButton->AddSubItem(new CMFCRibbonButton(ID_REGEXFILTER + 1, CString(MAKEINTRESOURCE(IDS_CONFIGUREREGEXES)), 47, 47));
 
-        m_pRibbonApp->SetItems(ID_REGEXFILTER, items);
+                if (!sections.empty())
+                    pButton->AddSubItem(new CMFCRibbonSeparator(TRUE));
+                int cmdIndex = 2;
+                for (const auto& section : sections)
+                {
+                    pButton->AddSubItem(new CMFCRibbonButton(ID_REGEXFILTER + cmdIndex, section, 46, 46));
+                    cmdIndex++;
+                }
+            }
+        }
     }
     else if (pMenuPopup)
     {
@@ -3205,7 +3201,7 @@ void CMainFrame::BuildRegexSubitems(CMFCPopupMenu* pMenuPopup)
             int cmdIndex = 2;
             for (const auto& section : sections)
             {
-                pMenuPopup->InsertItem(CMFCToolBarMenuButton(ID_REGEXFILTER + cmdIndex, nullptr, -1, (LPCWSTR)section), iIndex + cmdIndex);
+                pMenuPopup->InsertItem(CMFCToolBarMenuButton(ID_REGEXFILTER + cmdIndex, NULL, -1, (LPCWSTR)section), iIndex + cmdIndex);
                 cmdIndex++;
             }
         }
@@ -3257,58 +3253,12 @@ void CMainFrame::FillTabModeButton(CMFCRibbonButton * pButton, int start)
     pButton->AddSubItem(new CMFCRibbonButton(start + ENABLEEDITORCONFIG, L"EditorConfig"));
 }
 
-bool CMainFrame::AdjustUnicodeTypeForLoad(CFileTextLines::UnicodeType& type)
-{
-    switch (type)
-    {
-        case CFileTextLines::UnicodeType::AUTOTYPE:
-        case CFileTextLines::UnicodeType::BINARY:
-        return false;
-
-        case CFileTextLines::UnicodeType::ASCII:
-        case CFileTextLines::UnicodeType::UTF16_LE:
-        case CFileTextLines::UnicodeType::UTF16_BE:
-        case CFileTextLines::UnicodeType::UTF32_LE:
-        case CFileTextLines::UnicodeType::UTF32_BE:
-        case CFileTextLines::UnicodeType::UTF8:
-        return true;
-
-        case CFileTextLines::UnicodeType::UTF16_LEBOM:
-        type = CFileTextLines::UnicodeType::UTF16_LE;
-        return true;
-
-        case CFileTextLines::UnicodeType::UTF16_BEBOM:
-        type = CFileTextLines::UnicodeType::UTF16_BE;
-        return true;
-
-        case CFileTextLines::UnicodeType::UTF8BOM:
-        type = CFileTextLines::UnicodeType::UTF8;
-        return true;
-    }
-    return false;
-}
-
 void CMainFrame::OnEncodingLeft( UINT cmd )
 {
     if (m_pwndLeftView)
     {
-        if (GetKeyState(VK_CONTROL) & 0x8000)
-        {
-            // reload with selected encoding
-            auto saveparams = m_Data.m_arBaseFile.GetSaveParams();
-            saveparams.m_UnicodeType = CFileTextLines::UnicodeType(cmd - ID_INDICATOR_LEFTENCODINGSTART);
-            if (AdjustUnicodeTypeForLoad(saveparams.m_UnicodeType))
-            {
-                m_Data.m_arBaseFile.SetSaveParams(saveparams);
-                m_Data.m_arBaseFile.KeepEncoding();
-                LoadViews();
-            }
-        }
-        else
-        {
-            m_pwndLeftView->SetTextType(CFileTextLines::UnicodeType(cmd - ID_INDICATOR_LEFTENCODINGSTART));
-            m_pwndLeftView->RefreshViews();
-        }
+        m_pwndLeftView->SetTextType(CFileTextLines::UnicodeType(cmd-ID_INDICATOR_LEFTENCODINGSTART));
+        m_pwndLeftView->RefreshViews();
     }
 }
 
@@ -3316,23 +3266,8 @@ void CMainFrame::OnEncodingRight( UINT cmd )
 {
     if (m_pwndRightView)
     {
-        if (GetKeyState(VK_CONTROL) & 0x8000)
-        {
-            // reload with selected encoding
-            auto saveparams = m_Data.m_arYourFile.GetSaveParams();
-            saveparams.m_UnicodeType = CFileTextLines::UnicodeType(cmd - ID_INDICATOR_RIGHTENCODINGSTART);
-            if (AdjustUnicodeTypeForLoad(saveparams.m_UnicodeType))
-            {
-                m_Data.m_arYourFile.SetSaveParams(saveparams);
-                m_Data.m_arYourFile.KeepEncoding();
-                LoadViews();
-            }
-        }
-        else
-        {
-            m_pwndRightView->SetTextType(CFileTextLines::UnicodeType(cmd - ID_INDICATOR_RIGHTENCODINGSTART));
-            m_pwndRightView->RefreshViews();
-        }
+        m_pwndRightView->SetTextType(CFileTextLines::UnicodeType(cmd-ID_INDICATOR_RIGHTENCODINGSTART));
+        m_pwndRightView->RefreshViews();
     }
 }
 
@@ -3340,23 +3275,8 @@ void CMainFrame::OnEncodingBottom( UINT cmd )
 {
     if (m_pwndBottomView)
     {
-        if (GetKeyState(VK_CONTROL) & 0x8000)
-        {
-            // reload with selected encoding
-            auto saveparams = m_Data.m_arTheirFile.GetSaveParams();
-            saveparams.m_UnicodeType = CFileTextLines::UnicodeType(cmd - ID_INDICATOR_BOTTOMENCODINGSTART);
-            if (AdjustUnicodeTypeForLoad(saveparams.m_UnicodeType))
-            {
-                m_Data.m_arTheirFile.SetSaveParams(saveparams);
-                m_Data.m_arTheirFile.KeepEncoding();
-                LoadViews();
-            }
-        }
-        else
-        {
-            m_pwndBottomView->SetTextType(CFileTextLines::UnicodeType(cmd - ID_INDICATOR_BOTTOMENCODINGSTART));
-            m_pwndBottomView->RefreshViews();
-        }
+        m_pwndBottomView->SetTextType(CFileTextLines::UnicodeType(cmd-ID_INDICATOR_BOTTOMENCODINGSTART));
+        m_pwndBottomView->RefreshViews();
     }
 }
 
@@ -3429,7 +3349,7 @@ void CMainFrame::OnUpdateEncodingLeft( CCmdUI *pCmdUI )
     if (m_pwndLeftView)
     {
         pCmdUI->SetCheck(CFileTextLines::UnicodeType(pCmdUI->m_nID - ID_INDICATOR_LEFTENCODINGSTART) == m_pwndLeftView->GetTextType());
-        pCmdUI->Enable(m_pwndLeftView->IsWritable() || (GetKeyState(VK_CONTROL)&0x8000));
+        pCmdUI->Enable(m_pwndLeftView->IsWritable());
     }
     else
         pCmdUI->Enable(FALSE);
@@ -3440,7 +3360,7 @@ void CMainFrame::OnUpdateEncodingRight( CCmdUI *pCmdUI )
     if (m_pwndRightView)
     {
         pCmdUI->SetCheck(CFileTextLines::UnicodeType(pCmdUI->m_nID - ID_INDICATOR_RIGHTENCODINGSTART) == m_pwndRightView->GetTextType());
-        pCmdUI->Enable(m_pwndRightView->IsWritable() || (GetKeyState(VK_CONTROL) & 0x8000));
+        pCmdUI->Enable(m_pwndRightView->IsWritable());
     }
     else
         pCmdUI->Enable(FALSE);
@@ -3451,7 +3371,7 @@ void CMainFrame::OnUpdateEncodingBottom( CCmdUI *pCmdUI )
     if (m_pwndBottomView)
     {
         pCmdUI->SetCheck(CFileTextLines::UnicodeType(pCmdUI->m_nID - ID_INDICATOR_BOTTOMENCODINGSTART) == m_pwndBottomView->GetTextType());
-        pCmdUI->Enable(m_pwndBottomView->IsWritable() || (GetKeyState(VK_CONTROL) & 0x8000));
+        pCmdUI->Enable(m_pwndBottomView->IsWritable());
     }
     else
         pCmdUI->Enable(FALSE);
@@ -3539,8 +3459,10 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 {
     __super::OnShowPopupMenu(pMenuPopup);
 
-    if (!pMenuPopup)
+    if (pMenuPopup == NULL)
+    {
         return TRUE;
+    }
 
     int iIndex = -1;
     if (!CMFCToolBar::IsCustomizeMode() &&
@@ -3550,35 +3472,4 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
     }
 
     return TRUE;
-}
-
-LRESULT CMainFrame::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
-{
-    __super::OnIdleUpdateCmdUI(wParam, lParam);
-
-    if (m_pRibbonApp)
-    {
-        BOOL bDisableIfNoHandler = (BOOL) wParam;
-        m_pRibbonApp->UpdateCmdUI(bDisableIfNoHandler);
-    }
-    return 0;
-}
-
-void CMainFrame::OnUpdateThreeWayActions(CCmdUI * pCmdUI)
-{
-    pCmdUI->Enable();
-}
-
-void CMainFrame::OnRegexNoFilter()
-{
-    if (CheckForSave(CHFSR_OPTIONS) == IDCANCEL)
-        return;
-    m_Data.SetRegexTokens(std::wregex(), L"");
-    m_regexIndex = -1;
-    LoadViews(-1);
-}
-
-void CMainFrame::OnUpdateRegexNoFilter(CCmdUI * pCmdUI)
-{
-    pCmdUI->SetCheck(m_regexIndex < 0);
 }

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015, 2017-2018 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,6 +30,18 @@
 //  that file. The Shell then adds the icon overlay to the system image list."
 
 STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int* pIndex, DWORD* pdwFlags)
+{
+    __try
+    {
+        return GetOverlayInfo_Wrap(pwszIconFile, cchMax, pIndex, pdwFlags);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+STDMETHODIMP CShellExt::GetOverlayInfo_Wrap(LPWSTR pwszIconFile, int cchMax, int* pIndex, DWORD* pdwFlags)
 {
     if(pwszIconFile == 0)
         return E_POINTER;
@@ -68,6 +80,18 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int* pIn
 }
 
 STDMETHODIMP CShellExt::GetPriority(int *pPriority)
+{
+    __try
+    {
+        return GetPriority_Wrap(pPriority);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+STDMETHODIMP CShellExt::GetPriority_Wrap(int *pPriority)
 {
     if (pPriority == 0)
         return E_POINTER;
@@ -115,7 +139,19 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 //  IShellIconOverlayIdentifier::GetOverlayInfo method to determine which icon
 //  to display."
 
-STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
+STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD dwAttrib)
+{
+    __try
+    {
+        return IsMemberOf_Wrap(pwszPath, dwAttrib);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 {
     if (pwszPath == NULL)
         return E_INVALIDARG;
@@ -154,13 +190,8 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
             }
             return S_FALSE;
         }
-        auto cacheType = g_ShellCache.GetCacheType();
-        if (g_ShellCache.IsOnlyNonElevated() && g_ShellCache.IsProcessElevated())
-        {
-            cacheType = ShellCache::none;
-            CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": elevated overlays blocked\n");
-        }
-        switch (cacheType)
+
+        switch (g_ShellCache.GetCacheType())
         {
         case ShellCache::exe:
             {

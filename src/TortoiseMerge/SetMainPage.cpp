@@ -1,6 +1,6 @@
-﻿// TortoiseMerge - a Diff/Patch program
+// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010, 2012-2014, 2016, 2018 - TortoiseSVN
+// Copyright (C) 2006-2010, 2012-2014, 2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -58,7 +58,7 @@ CSetMainPage::CSetMainPage()
     m_regIgnoreEOL = CRegDWORD(L"Software\\TortoiseMerge\\IgnoreEOL", TRUE);
     m_regOnePane = CRegDWORD(L"Software\\TortoiseMerge\\OnePane");
     m_regViewLinenumbers = CRegDWORD(L"Software\\TortoiseMerge\\ViewLinenumbers", 1);
-    m_regFontName = CRegString(L"Software\\TortoiseMerge\\FontName", L"Consolas");
+    m_regFontName = CRegString(L"Software\\TortoiseMerge\\FontName", L"Courier New");
     m_regFontSize = CRegDWORD(L"Software\\TortoiseMerge\\FontSize", 10);
     m_regCaseInsensitive = CRegDWORD(L"Software\\TortoiseMerge\\CaseInsensitive", FALSE);
     m_regUTF8Default = CRegDWORD(L"Software\\TortoiseMerge\\UseUTF8", FALSE);
@@ -206,8 +206,6 @@ BOOL CSetMainPage::OnInitDialog()
     m_cFontNames.Setup(DEVICE_FONTTYPE|RASTER_FONTTYPE|TRUETYPE_FONTTYPE, 1, FIXED_PITCH);
     m_cFontNames.SelectFont(m_sFontName);
 
-    m_cFontNames.SendMessage(CB_SETITEMHEIGHT, (WPARAM)-1, m_cFontSizes.GetItemHeight(-1));
-
     UpdateData(FALSE);
     return TRUE;  // return TRUE unless you set the focus to a control
     // EXCEPTION: OCX Property Pages should return FALSE
@@ -259,7 +257,7 @@ void CSetMainPage::OnBnClickedWhitespace()
 BOOL CSetMainPage::DialogEnableWindow(UINT nID, BOOL bEnable)
 {
     CWnd * pwndDlgItem = GetDlgItem(nID);
-    if (!pwndDlgItem)
+    if (pwndDlgItem == NULL)
         return FALSE;
     if (bEnable)
         return pwndDlgItem->EnableWindow(bEnable);

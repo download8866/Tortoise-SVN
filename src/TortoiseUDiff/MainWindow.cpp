@@ -1,7 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
-// Copyright (C) 2012-2016, 2018 - TortoiseGit
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,26 +17,23 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "stdafx.h"
-#include "TortoiseUDiff.h"
 #include "MainWindow.h"
 #include "UnicodeUtils.h"
 #include "StringUtils.h"
 #include "TaskbarUUID.h"
 #include "CreateProcessHelper.h"
+#include "SysInfo.h"
 #include "UDiffColors.h"
 #include "registry.h"
-#include "DPIAware.h"
-#include "LoadIconEx.h"
-#include <VersionHelpers.h>
 
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
 
-CMainWindow::CMainWindow(HINSTANCE hInst, const WNDCLASSEX* wcx /* = nullptr*/)
+CMainWindow::CMainWindow(HINSTANCE hInst, const WNDCLASSEX* wcx /* = NULL*/)
     : CWindow(hInst, wcx)
     , m_bShowFindBar(false)
     , m_directFunction(0)
     , m_directPointer(0)
-    , m_hWndEdit(nullptr)
+    , m_hWndEdit(NULL)
     , m_bMatchCase(false)
 {
     SetWindowTitle(L"TortoiseUDiff");
@@ -58,16 +54,16 @@ bool CMainWindow::RegisterAndCreateWindow()
     wcx.cbClsExtra = 0;
     wcx.cbWndExtra = 0;
     wcx.hInstance = hResource;
-    wcx.hCursor = nullptr;
+    wcx.hCursor = NULL;
     ResString clsname(hResource, IDS_APP_TITLE);
     wcx.lpszClassName = clsname;
-    wcx.hIcon = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEUDIFF), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcx.hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_TORTOISEUDIFF));
     wcx.hbrBackground = (HBRUSH)(COLOR_3DFACE+1);
     wcx.lpszMenuName = MAKEINTRESOURCE(IDC_TORTOISEUDIFF);
-    wcx.hIconSm = LoadIconEx(wcx.hInstance, MAKEINTRESOURCE(IDI_TORTOISEUDIFF));
+    wcx.hIconSm = LoadIcon(wcx.hInstance, MAKEINTRESOURCE(IDI_TORTOISEUDIFF));
     if (RegisterWindow(&wcx))
     {
-        if (Create(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SIZEBOX | WS_SYSMENU | WS_CLIPCHILDREN, nullptr))
+        if (Create(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SIZEBOX | WS_SYSMENU | WS_CLIPCHILDREN, NULL))
         {
             m_FindBar.SetParent(*this);
             m_FindBar.Create(hResource, IDD_FINDBAR, *this);
@@ -116,11 +112,11 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
             {
                 ::SetWindowPos(m_hWndEdit, HWND_TOP,
                     rect.left, rect.top,
-                    rect.right - rect.left, rect.bottom - rect.top - int(30 * CDPIAware::Instance().ScaleFactor()),
+                    rect.right-rect.left, rect.bottom-rect.top-30,
                     SWP_SHOWWINDOW);
                 ::SetWindowPos(m_FindBar, HWND_TOP,
-                    rect.left, rect.bottom - int(30 * CDPIAware::Instance().ScaleFactor()),
-                    rect.right - rect.left, int(30 * CDPIAware::Instance().ScaleFactor()),
+                    rect.left, rect.bottom-30,
+                    rect.right-rect.left, 30,
                     SWP_SHOWWINDOW);
             }
             else
@@ -217,11 +213,11 @@ LRESULT CMainWindow::DoCommand(int id)
             GetClientRect(*this, &rect);
             ::SetWindowPos(m_hWndEdit, HWND_TOP,
                 rect.left, rect.top,
-                rect.right - rect.left, rect.bottom - rect.top - int(30 * CDPIAware::Instance().ScaleFactor()),
+                rect.right-rect.left, rect.bottom-rect.top-30,
                 SWP_SHOWWINDOW);
             ::SetWindowPos(m_FindBar, HWND_TOP,
-                rect.left, rect.bottom - int(30 * CDPIAware::Instance().ScaleFactor()),
-                rect.right - rect.left, int(30 * CDPIAware::Instance().ScaleFactor()),
+                rect.left, rect.bottom-30,
+                rect.right-rect.left, 30,
                 SWP_SHOWWINDOW);
             ::SetFocus(m_FindBar);
             SendEditor(SCI_SETSELECTIONSTART, 0);
@@ -266,7 +262,7 @@ LRESULT CMainWindow::DoCommand(int id)
             command += m_filename;
             command += L"\"";
             std::wstring tortoiseMergePath = GetAppDirectory() + L"TortoiseMerge.exe";
-            CCreateProcessHelper::CreateProcessDetached(tortoiseMergePath.c_str(), command.c_str());
+            CCreateProcessHelper::CreateProcessDetached(tortoiseMergePath.c_str(), const_cast<TCHAR*>(command.c_str()));
         }
         break;
     case ID_FILE_PAGESETUP:
@@ -279,7 +275,7 @@ LRESULT CMainWindow::DoCommand(int id)
             PAGESETUPDLG pdlg = {0};
             pdlg.lStructSize = sizeof(PAGESETUPDLG);
             pdlg.hwndOwner = *this;
-            pdlg.hInstance = nullptr;
+            pdlg.hInstance = NULL;
             pdlg.Flags = PSD_DEFAULTMINMARGINS|PSD_MARGINS|PSD_DISABLEPAPER|PSD_DISABLEORIENTATION;
             if (localeInfo[0] == '0')
                 pdlg.Flags |= PSD_INHUNDREDTHSOFMILLIMETERS;
@@ -308,7 +304,7 @@ LRESULT CMainWindow::DoCommand(int id)
             PRINTDLGEX pdlg = {0};
             pdlg.lStructSize = sizeof(PRINTDLGEX);
             pdlg.hwndOwner = *this;
-            pdlg.hInstance = nullptr;
+            pdlg.hInstance = NULL;
             pdlg.Flags = PD_USEDEVMODECOPIESANDCOLLATE | PD_ALLPAGES | PD_RETURNDC | PD_NOCURRENTPAGE | PD_NOPAGENUMS;
             pdlg.nMinPage = 1;
             pdlg.nMaxPage = 0xffffU; // We do not know how many pages in the document
@@ -502,11 +498,11 @@ LRESULT CMainWindow::DoCommand(int id)
             ::EndDoc(hdc);
             ::DeleteDC(hdc);
 
-            if (pdlg.hDevMode)
+            if (pdlg.hDevMode != NULL)
                 GlobalFree(pdlg.hDevMode);
-            if (pdlg.hDevNames)
+            if (pdlg.hDevNames != NULL)
                 GlobalFree(pdlg.hDevNames);
-            if (pdlg.lpPageRanges)
+            if (pdlg.lpPageRanges != NULL)
                 GlobalFree(pdlg.lpPageRanges);
 
             // reset the UI
@@ -529,8 +525,8 @@ std::wstring CMainWindow::GetAppDirectory()
     do
     {
         bufferlen += MAX_PATH;      // MAX_PATH is not the limit here!
-        auto pBuf = std::make_unique<TCHAR[]>(bufferlen);
-        len = GetModuleFileName(nullptr, pBuf.get(), bufferlen);
+        std::unique_ptr<TCHAR[]> pBuf(new TCHAR[bufferlen]);
+        len = GetModuleFileName(NULL, pBuf.get(), bufferlen);
         path = std::wstring(pBuf.get(), len);
     } while(len == bufferlen);
     path = path.substr(0, path.rfind('\\') + 1);
@@ -541,7 +537,7 @@ std::wstring CMainWindow::GetAppDirectory()
 void CMainWindow::RunCommand(const std::wstring& command)
 {
     tstring tortoiseProcPath = GetAppDirectory() + L"TortoiseProc.exe";
-    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), command.c_str());
+    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
 }
 
 LRESULT CMainWindow::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -562,10 +558,10 @@ bool CMainWindow::Initialize()
         CW_USEDEFAULT, CW_USEDEFAULT,
         CW_USEDEFAULT, CW_USEDEFAULT,
         *this,
-        nullptr,
+        0,
         hResource,
-        nullptr);
-    if (!m_hWndEdit)
+        0);
+    if (m_hWndEdit == NULL)
         return false;
 
     RECT rect;
@@ -581,9 +577,9 @@ bool CMainWindow::Initialize()
     // Set up the global default style. These attributes are used wherever no explicit choices are made.
     CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
     bool enabled2d = false;
-    if (IsWindows7OrGreater() && DWORD(used2d))
+    if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
         enabled2d = true;
-    std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\UDiffFontName", L"Consolas");
+    std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\UDiffFontName", L"Courier New");
     std::string fontName;
     fontName = CUnicodeUtils::StdGetUTF8(fontNameW);
     SetAStyle(STYLE_DEFAULT, ::GetSysColor(COLOR_WINDOWTEXT), ::GetSysColor(COLOR_WINDOW),
@@ -619,13 +615,13 @@ bool CMainWindow::LoadFile(HANDLE hFile)
     char data[4096] = { 0 };
     DWORD dwRead = 0;
 
-    BOOL bRet = ReadFile(hFile, data, sizeof(data), &dwRead, nullptr);
+    BOOL bRet = ReadFile(hFile, data, sizeof(data), &dwRead, NULL);
     bool bUTF8 = IsUTF8(data, dwRead);
     while ((dwRead > 0) && (bRet))
     {
         SendEditor(SCI_ADDTEXT, dwRead,
             reinterpret_cast<LPARAM>(static_cast<char *>(data)));
-        bRet = ReadFile(hFile, data, sizeof(data), &dwRead, nullptr);
+        bRet = ReadFile(hFile, data, sizeof(data), &dwRead, NULL);
     }
     SetupWindow(bUTF8);
     return true;
@@ -634,8 +630,8 @@ bool CMainWindow::LoadFile(HANDLE hFile)
 bool CMainWindow::LoadFile(LPCTSTR filename)
 {
     InitEditor();
-    FILE* fp = nullptr;
-    _wfopen_s(&fp, filename, L"rb");
+    FILE *fp = NULL;
+    _tfopen_s(&fp, filename, L"rb");
     if (!fp)
         return false;
 
@@ -676,6 +672,7 @@ void CMainWindow::SetupWindow(bool bUTF8)
     SendEditor(SCI_GOTOPOS, 0);
 
     SendEditor(SCI_CLEARDOCUMENTSTYLE, 0, 0);
+    SendEditor(SCI_SETSTYLEBITS, 5, 0);
 
     //SetAStyle(SCE_DIFF_DEFAULT, RGB(0, 0, 0));
     SetAStyle(SCE_DIFF_COMMAND,
@@ -707,20 +704,13 @@ void CMainWindow::SetupWindow(bool bUTF8)
 
 bool CMainWindow::SaveFile(LPCTSTR filename)
 {
-    FILE* fp = nullptr;
-    _wfopen_s(&fp, filename, L"w+b");
+    FILE *fp = NULL;
+    _tfopen_s(&fp, filename, L"w+b");
     if (!fp)
-    {
-        TCHAR fmt[1024] = {0};
-        LoadString(hResource, IDS_ERRORSAVE, fmt, _countof(fmt));
-        TCHAR error[1024] = {0};
-        _snwprintf_s(error, _countof(error), fmt, filename, (LPCTSTR)CFormatMessageWrapper());
-        MessageBox(*this, error, L"TortoiseUDiff", MB_OK);
         return false;
-    }
 
     LRESULT len = SendEditor(SCI_GETTEXT, 0, 0);
-    auto data = std::make_unique<char[]>(len + 1);
+    std::unique_ptr<char[]> data (new char[len+1]);
     SendEditor(SCI_GETTEXT, len, reinterpret_cast<LPARAM>(static_cast<char *>(data.get())));
     fwrite(data.get(), sizeof(char), len-1, fp);
     fclose(fp);
@@ -733,7 +723,7 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
 void CMainWindow::SetTitle(LPCTSTR title)
 {
     size_t len = wcslen(title);
-    auto pBuf = std::make_unique<TCHAR[]>(len + 40);
+    std::unique_ptr<TCHAR[]> pBuf(new TCHAR[len+40]);
     swprintf_s(pBuf.get(), len+40, L"%s - TortoiseUDiff", title);
     SetWindowTitle(std::wstring(pBuf.get()));
 }
@@ -837,10 +827,9 @@ void CMainWindow::loadOrSaveFile(bool doLoad, const std::wstring& filename /* = 
     CStringUtils::PipesToNulls(filter);
     ofn.lpstrFilter = filter;
     ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = nullptr;
-    ofn.lpstrDefExt = L"diff";
+    ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = nullptr;
+    ofn.lpstrInitialDir = NULL;
     TCHAR fileTitle[1024] = { 0 };
     LoadString(hResource, doLoad ? IDS_OPENPATCH : IDS_SAVEPATCH, fileTitle, sizeof(fileTitle)/sizeof(TCHAR));
     ofn.lpstrTitle = fileTitle;

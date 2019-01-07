@@ -37,9 +37,10 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
-#include "DefaultLexer.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 /* Bits:
  * 1  - whitespace
@@ -225,7 +226,7 @@ struct OptionSetBasic : public OptionSet<OptionsBasic> {
 	}
 };
 
-class LexerBasic : public DefaultLexer {
+class LexerBasic : public ILexer {
 	char comment_char;
 	int (*CheckFoldPoint)(char const *, int &);
 	WordList keywordlists[4];
@@ -239,39 +240,39 @@ public:
 	}
 	virtual ~LexerBasic() {
 	}
-	void SCI_METHOD Release() override {
+	void SCI_METHOD Release() {
 		delete this;
 	}
-	int SCI_METHOD Version() const override {
-		return lvRelease4;
+	int SCI_METHOD Version() const {
+		return lvOriginal;
 	}
-	const char * SCI_METHOD PropertyNames() override {
+	const char * SCI_METHOD PropertyNames() {
 		return osBasic.PropertyNames();
 	}
-	int SCI_METHOD PropertyType(const char *name) override {
+	int SCI_METHOD PropertyType(const char *name) {
 		return osBasic.PropertyType(name);
 	}
-	const char * SCI_METHOD DescribeProperty(const char *name) override {
+	const char * SCI_METHOD DescribeProperty(const char *name) {
 		return osBasic.DescribeProperty(name);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override;
-	const char * SCI_METHOD DescribeWordListSets() override {
+	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
+	const char * SCI_METHOD DescribeWordListSets() {
 		return osBasic.DescribeWordListSets();
 	}
-	Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override;
-	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
-	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
+	Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
+	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
 
-	void * SCI_METHOD PrivateCall(int, void *) override {
+	void * SCI_METHOD PrivateCall(int, void *) {
 		return 0;
 	}
-	static ILexer4 *LexerFactoryBlitzBasic() {
+	static ILexer *LexerFactoryBlitzBasic() {
 		return new LexerBasic(';', CheckBlitzFoldPoint, blitzbasicWordListDesc);
 	}
-	static ILexer4 *LexerFactoryPureBasic() {
+	static ILexer *LexerFactoryPureBasic() {
 		return new LexerBasic(';', CheckPureFoldPoint, purebasicWordListDesc);
 	}
-	static ILexer4 *LexerFactoryFreeBasic() {
+	static ILexer *LexerFactoryFreeBasic() {
 		return new LexerBasic('\'', CheckFreeFoldPoint, freebasicWordListDesc );
 	}
 };

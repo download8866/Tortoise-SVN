@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2016 - TortoiseSVN
+// Copyright (C) 2010-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -103,13 +103,15 @@ HRESULT OpenShellLibrary(LPWSTR pwszLibraryName, IShellLibrary** ppShellLib)
     HRESULT hr;
     *ppShellLib = NULL;
 
-    CComPtr<IShellItem2> pShellItem = NULL;
+    IShellItem2* pShellItem = NULL;
     hr = GetShellLibraryItem(pwszLibraryName, &pShellItem);
     if (FAILED(hr))
         return hr;
 
     // Get the shell library object from the shell item with a read and write permissions
     hr = SHLoadLibraryFromItem(pShellItem, STGM_READWRITE, IID_PPV_ARGS(ppShellLib));
+
+    pShellItem->Release();
 
     return hr;
 }
@@ -135,7 +137,12 @@ HRESULT GetShellLibraryItem(LPWSTR pwszLibraryName, IShellItem2** ppShellItem)
     WCHAR wszRealLibraryName[MAX_PATH] = { 0 };
     swprintf_s(wszRealLibraryName, L"%s%s", pwszLibraryName, L".library-ms");
 
-    hr = SHCreateItemInKnownFolder(FOLDERID_UsersLibraries, KF_FLAG_DEFAULT_PATH | KF_FLAG_NO_ALIAS, wszRealLibraryName, IID_PPV_ARGS(ppShellItem));
+    typedef HRESULT STDAPICALLTYPE SHCreateItemInKnownFolderFN(REFKNOWNFOLDERID kfid, DWORD dwKFFlags, __in_opt PCWSTR pszItem, REFIID riid, __deref_out void **ppv);
+    CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
+    if (hShell)
+    {
+        hr = SHCreateItemInKnownFolder(FOLDERID_UsersLibraries, KF_FLAG_DEFAULT_PATH | KF_FLAG_NO_ALIAS, wszRealLibraryName, IID_PPV_ARGS(ppShellItem));
+    }
 
     return hr;
 }

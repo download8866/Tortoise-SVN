@@ -27,7 +27,7 @@ class CRegexFiltersDlg : public CDialogEx
     DECLARE_DYNAMIC(CRegexFiltersDlg)
 
 public:
-    CRegexFiltersDlg(CWnd* pParent = nullptr);   // standard constructor
+    CRegexFiltersDlg(CWnd* pParent = NULL);   // standard constructor
     virtual ~CRegexFiltersDlg();
 
 // Dialog Data

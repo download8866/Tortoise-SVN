@@ -118,7 +118,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 // prototypes for general helper functions
 static inline bool IsNewline(const int ch);
@@ -649,9 +651,7 @@ static void ColouriseSrecDoc(Sci_PositionU startPos, Sci_Position length, int in
 
 	while (sc.More()) {
 		Sci_PositionU recStartPos;
-		Sci_Position reqByteCount;
-		Sci_Position dataFieldSize;
-		int byteCount, addrFieldSize, addrFieldType, dataFieldType;
+		int byteCount, reqByteCount, addrFieldSize, addrFieldType, dataFieldSize, dataFieldType;
 		int cs1, cs2;
 
 		switch (sc.state) {

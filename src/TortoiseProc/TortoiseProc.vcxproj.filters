@@ -174,9 +174,6 @@
     <Filter Include="Commands\Sync">
       <UniqueIdentifier>{ed2e5dcd-b25e-4267-bee1-9929efa3a30a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Commands\%28Un%29Shelve">
-      <UniqueIdentifier>{eeef9eea-9326-4c22-b055-257b8c9b8dca}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Utils\accHelper.cpp">
@@ -258,6 +255,9 @@
       <Filter>Utils\General</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\SysImageList.cpp">
+      <Filter>Utils\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utils\SysInfo.cpp">
       <Filter>Utils\General</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\TempFile.cpp">
@@ -860,8 +860,17 @@
     <ClCompile Include="Commands\ConflictEditorCommand.cpp">
       <Filter>Commands\ConflictEditor</Filter>
     </ClCompile>
+    <ClCompile Include="EditPropConflictDlg.cpp">
+      <Filter>Commands\ConflictEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeConflictEditorDlg.cpp">
+      <Filter>Commands\ConflictEditor</Filter>
+    </ClCompile>
     <ClCompile Include="Commands\EditFileCommand.cpp">
       <Filter>Commands\EditFile</Filter>
+    </ClCompile>
+    <ClCompile Include="ConflictResolveDlg.cpp">
+      <Filter>Utility Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="CreateChangelistDlg.cpp">
       <Filter>Utility Dialogs</Filter>
@@ -1088,51 +1097,6 @@
     <ClCompile Include="SVNProgressDlg.cpp">
       <Filter>Subversion</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utils\MiscUI\ToastNotifications.cpp">
-      <Filter>Utils\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\LruCache.cpp">
-      <Filter>Utils\General</Filter>
-    </ClCompile>
-    <ClCompile Include="SVNDiffOptions.cpp">
-      <Filter>Subversion</Filter>
-    </ClCompile>
-    <ClCompile Include="TreeConflictEditorDlg.cpp">
-      <Filter>Commands\ConflictEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\AutoComplete.cpp">
-      <Filter>Utils\General</Filter>
-    </ClCompile>
-    <ClCompile Include="PropConflictEditorDlg.cpp">
-      <Filter>Commands\ConflictEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SVN\SVNConflictInfo.cpp">
-      <Filter>Subversion</Filter>
-    </ClCompile>
-    <ClCompile Include="TextConflictEditorDlg.cpp">
-      <Filter>Commands\ConflictEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\MiscUI\AnimationManager.cpp">
-      <Filter>Utils\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\ShelveCommand.cpp">
-      <Filter>Commands\%28Un%29Shelve</Filter>
-    </ClCompile>
-    <ClCompile Include="ShelveDlg.cpp">
-      <Filter>Commands\%28Un%29Shelve</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\UnshelveCommand.cpp">
-      <Filter>Commands\%28Un%29Shelve</Filter>
-    </ClCompile>
-    <ClCompile Include="UnshelveDlg.cpp">
-      <Filter>Commands\%28Un%29Shelve</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\LoadIconEx.cpp">
-      <Filter>Utils\General</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\MiscUI\EditWordBreak.cpp">
-      <Filter>Utils\UI</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppUtils.h">
@@ -1222,6 +1186,9 @@
     <ClInclude Include="..\Utils\ShellUpdater.h">
       <Filter>Utils\General</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utils\stdex_vector.h">
+      <Filter>Utils\General</Filter>
+    </ClInclude>
     <ClInclude Include="..\Utils\StdioFileT.h">
       <Filter>Utils\General</Filter>
     </ClInclude>
@@ -1232,6 +1199,9 @@
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\SysImageList.h">
+      <Filter>Utils\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utils\SysInfo.h">
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\TempFile.h">
@@ -1855,8 +1825,17 @@
     <ClInclude Include="Commands\ConflictEditorCommand.h">
       <Filter>Commands\ConflictEditor</Filter>
     </ClInclude>
+    <ClInclude Include="EditPropConflictDlg.h">
+      <Filter>Commands\ConflictEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeConflictEditorDlg.h">
+      <Filter>Commands\ConflictEditor</Filter>
+    </ClInclude>
     <ClInclude Include="Commands\EditFileCommand.h">
       <Filter>Commands\EditFile</Filter>
+    </ClInclude>
+    <ClInclude Include="ConflictResolveDlg.h">
+      <Filter>Utility Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="CreateChangelistDlg.h">
       <Filter>Utility Dialogs</Filter>
@@ -2112,60 +2091,6 @@
     </ClInclude>
     <ClInclude Include="SVNProgressDlg.h">
       <Filter>Subversion</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\StringReferenceWrapper.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\ToastNotifications.h">
-      <Filter>Utils\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\LruCache.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\CommonDialogFunctions.h">
-      <Filter>Utils\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="SVNDiffOptions.h">
-      <Filter>Subversion</Filter>
-    </ClInclude>
-    <ClInclude Include="TreeConflictEditorDlg.h">
-      <Filter>Commands\ConflictEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\AutoComplete.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="PropConflictEditorDlg.h">
-      <Filter>Commands\ConflictEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVN\SVNConflictInfo.h">
-      <Filter>Subversion</Filter>
-    </ClInclude>
-    <ClInclude Include="TextConflictEditorDlg.h">
-      <Filter>Commands\ConflictEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\AnimationManager.h">
-      <Filter>Utils\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\ShelveCommand.h">
-      <Filter>Commands\%28Un%29Shelve</Filter>
-    </ClInclude>
-    <ClInclude Include="ShelveDlg.h">
-      <Filter>Commands\%28Un%29Shelve</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\UnshelveCommand.h">
-      <Filter>Commands\%28Un%29Shelve</Filter>
-    </ClInclude>
-    <ClInclude Include="UnshelveDlg.h">
-      <Filter>Commands\%28Un%29Shelve</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\DPIAware.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\LoadIconEx.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\EditWordBreak.h">
-      <Filter>Utils\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2630,9 +2555,6 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\Resources\library-win10.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_clearerrors.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,7 +38,6 @@
 #include "RevisionGraph/StandardLayout.h"
 #include "RevisionGraph/UpsideDownLayout.h"
 #include "FormatMessageWrapper.h"
-#include "DPIAware.h"
 #include <strsafe.h>
 
 #ifdef _DEBUG
@@ -254,10 +253,9 @@ DWORD CRevisionGraphWnd::GetHoverGlyphs (CPoint point) const
     // get node at point or node that is close enough
     // so that point may hit a glyph area
 
-    auto glyphsize = CDPIAware::Instance().Scale(GLYPH_SIZE);
     index_t nodeIndex = GetHitNode(point);
     if (nodeIndex == NO_INDEX)
-        nodeIndex = GetHitNode(point, CSize (glyphsize, glyphsize / 2));
+        nodeIndex = GetHitNode(point, CSize (GLYPH_SIZE, GLYPH_SIZE / 2));
 
     if (nodeIndex >= nodeList->GetCount())
         return 0;
@@ -272,12 +270,12 @@ DWORD CRevisionGraphWnd::GetHoverGlyphs (CPoint point) const
     CRect r = node.rect;
     CPoint center = r.CenterPoint();
 
-    CRect rightGlyphArea ( r.right - glyphsize, center.y - glyphsize / 2
-                         , r.right + glyphsize, center.y + glyphsize / 2);
-    CRect topGlyphArea ( center.x - glyphsize, r.top - glyphsize / 2
-                       , center.x + glyphsize, r.top + glyphsize / 2);
-    CRect bottomGlyphArea ( center.x - glyphsize, r.bottom - glyphsize / 2
-                          , center.x + glyphsize, r.bottom + glyphsize / 2);
+    CRect rightGlyphArea ( r.right - GLYPH_SIZE, center.y - GLYPH_SIZE / 2
+                         , r.right + GLYPH_SIZE, center.y + GLYPH_SIZE / 2);
+    CRect topGlyphArea ( center.x - GLYPH_SIZE, r.top - GLYPH_SIZE / 2
+                       , center.x + GLYPH_SIZE, r.top + GLYPH_SIZE / 2);
+    CRect bottomGlyphArea ( center.x - GLYPH_SIZE, r.bottom - GLYPH_SIZE / 2
+                          , center.x + GLYPH_SIZE, r.bottom + GLYPH_SIZE / 2);
 
     bool upsideDown
         = m_state.GetOptions()->GetOption<CUpsideDownLayout>()->IsActive();
@@ -315,7 +313,7 @@ DWORD CRevisionGraphWnd::GetHoverGlyphs (CPoint point) const
 
 const CRevisionGraphState::SVisibleGlyph* CRevisionGraphWnd::GetHitGlyph (CPoint point) const
 {
-    float glyphSize = CDPIAware::Instance().Scale(GLYPH_SIZE) * m_fZoomFactor;
+    float glyphSize = GLYPH_SIZE * m_fZoomFactor;
 
     CSyncPointer<const CRevisionGraphState::TVisibleGlyphs>
         visibleGlyphs (m_state.GetVisibleGlyphs());
@@ -516,11 +514,10 @@ void CRevisionGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
     else
         uEnable |= MF_GRAYED;
 
-    auto hMenu = GetParent()->GetMenu()->m_hMenu;
-    EnableMenuItem(hMenu, ID_VIEW_COMPAREREVISIONS, uEnable);
-    EnableMenuItem(hMenu, ID_VIEW_COMPAREHEADREVISIONS, uEnable);
-    EnableMenuItem(hMenu, ID_VIEW_UNIFIEDDIFF, uEnable);
-    EnableMenuItem(hMenu, ID_VIEW_UNIFIEDDIFFOFHEADREVISIONS, uEnable);
+    EnableMenuItem(GetParent()->GetMenu()->m_hMenu, ID_VIEW_COMPAREREVISIONS, uEnable);
+    EnableMenuItem(GetParent()->GetMenu()->m_hMenu, ID_VIEW_COMPAREHEADREVISIONS, uEnable);
+    EnableMenuItem(GetParent()->GetMenu()->m_hMenu, ID_VIEW_UNIFIEDDIFF, uEnable);
+    EnableMenuItem(GetParent()->GetMenu()->m_hMenu, ID_VIEW_UNIFIEDDIFFOFHEADREVISIONS, uEnable);
 
     __super::OnLButtonDown(nFlags, point);
 }
@@ -1415,6 +1412,7 @@ void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
         if (m_bShowOverview && (m_OverviewRect.PtInRect(point))&&(nFlags & MK_LBUTTON))
         {
             // scrolling
+            CRect viewRect = GetViewRect();
             int x = (int)((point.x-m_OverviewRect.left - (m_OverviewPosRect.Width()/2)) / m_previewZoom  * m_fZoomFactor);
             int y = (int)((point.y - (m_OverviewPosRect.Height()/2)) / m_previewZoom  * m_fZoomFactor);
             x = max(0, x);
@@ -1546,11 +1544,10 @@ LRESULT CRevisionGraphWnd::OnWorkerThreadDone(WPARAM, LPARAM)
     CSyncPointer<const CFullHistory> fullHistoy (m_state.GetFullHistory());
     if (fullHistoy.get() != NULL)
     {
-        bool doRetry = false;
         SetDlgTitle (cachedProperties.IsOffline
             ( fullHistoy->GetRepositoryUUID()
             , fullHistoy->GetRepositoryRoot()
-            , false, L"", doRetry));
+            , false));
     }
 
     if (m_parent && !m_parent->GetOutputFile().IsEmpty())

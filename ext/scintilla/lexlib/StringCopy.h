@@ -9,7 +9,9 @@
 #ifndef STRINGCOPY_H
 #define STRINGCOPY_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 // Safer version of string copy functions like strcpy, wcsncpy, etc.
 // Instantiate over fixed length strings of both char and wchar_t.
@@ -27,6 +29,8 @@ void StringCopy(T (&dest)[count], const T* source) {
 
 #define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

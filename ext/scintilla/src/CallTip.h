@@ -8,7 +8,9 @@
 #ifndef CALLTIP_H
 #define CALLTIP_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 /**
  */
@@ -25,18 +27,21 @@ class CallTip {
 	bool useStyleCallTip;   // if true, STYLE_CALLTIP should be used
 	bool above;		// if true, display calltip above text
 
+	// Private so CallTip objects can not be copied
+	CallTip(const CallTip &);
+	CallTip &operator=(const CallTip &);
 	void DrawChunk(Surface *surface, int &x, const char *s,
 		int posStart, int posEnd, int ytext, PRectangle rcClient,
 		bool highlight, bool draw);
 	int PaintContents(Surface *surfaceWindow, bool draw);
-	bool IsTabCharacter(char ch) const;
+	bool IsTabCharacter(char c) const;
 	int NextTabPos(int x) const;
 
 public:
 	Window wCallTip;
 	Window wDraw;
 	bool inCallTipMode;
-	Sci::Position posStartCallTip;
+	int posStartCallTip;
 	ColourDesired colourBG;
 	ColourDesired colourUnSel;
 	ColourDesired colourSel;
@@ -51,11 +56,6 @@ public:
 	int verticalOffset; // pixel offset up or down of the calltip with respect to the line
 
 	CallTip();
-	// Deleted so CallTip objects can not be copied.
-	CallTip(const CallTip &) = delete;
-	CallTip(CallTip &&) = delete;
-	CallTip &operator=(const CallTip &) = delete;
-	CallTip &operator=(CallTip &&) = delete;
 	~CallTip();
 
 	void PaintCT(Surface *surfaceWindow);
@@ -63,9 +63,9 @@ public:
 	void MouseClick(Point pt);
 
 	/// Setup the calltip and return a rectangle of the area required.
-	PRectangle CallTipStart(Sci::Position pos, Point pt, int textHeight, const char *defn,
+	PRectangle CallTipStart(int pos, Point pt, int textHeight, const char *defn,
 		const char *faceName, int size, int codePage_,
-		int characterSet, int technology, const Window &wParent);
+		int characterSet, int technology, Window &wParent);
 
 	void CallTipCancel();
 
@@ -86,6 +86,8 @@ public:
 	void SetForeBack(const ColourDesired &fore, const ColourDesired &back);
 };
 
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

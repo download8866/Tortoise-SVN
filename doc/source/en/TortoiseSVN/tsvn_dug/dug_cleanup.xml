@@ -39,38 +39,6 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Break write locks</term>
-        <listitem>
-          <para>
-            If checked, all write locks are removed from the working
-            copy database. For most situations, this is required for
-            the cleanup to work!
-          </para>
-          <para>
-            Only uncheck this option if the working copy is used by other
-            users/clients at the time. But if the cleanup then fails,
-            you have to check this option for the cleanup to succeed.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Fix time stamps</term>
-        <listitem>
-          <para>
-            Changes all file times to the time of the last commit.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Vacuum pristine copies</term>
-        <listitem>
-          <para>
-            Removes unused pristine copies and compresses all remaining pristine copies
-            of working copy files.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
         <term>Refresh shell overlays</term>
         <listitem>
           <para>

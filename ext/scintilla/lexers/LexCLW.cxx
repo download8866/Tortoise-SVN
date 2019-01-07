@@ -24,7 +24,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 // Is an end of line character
 inline bool IsEOL(const int ch) {

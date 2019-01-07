@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 #include "CreateProcessHelper.h"
 #include "FormatMessageWrapper.h"
 #include "PathUtils.h"
-#include "LoadIconEx.h"
 
 #define GetPIDLFolder(pida) (PIDLIST_ABSOLUTE)(((LPBYTE)pida)+(pida)->aoffset[0])
 #define GetPIDLItem(pida, i) (PCUITEMID_CHILD)(((LPBYTE)pida)+(pida)->aoffset[i+1])
@@ -176,12 +175,6 @@ CShellExt::MenuInfo CShellExt::menuInfo[] =
 
     { ShellSeparator, 0, 0, 0, 0, {0, 0}, {0, 0}, {0, 0}, {0, 0}, L""},
 
-    { ShellMenuShelve,                      MENUSHELVE,         IDI_SHELVE,             IDS_MENUSHELVE,             IDS_MENUDESCSHELVE,
-        {ITEMIS_INSVN, ITEMIS_NORMAL|ITEMIS_UNSUPPORTEDFORMAT}, {ITEMIS_FOLDERINSVN, ITEMIS_UNSUPPORTEDFORMAT}, {0, 0}, {0, 0}, L"tsvn_shelve" },
-
-    { ShellMenuUnshelve,                    MENUUNSHELVE,       IDI_UNSHELVE,           IDS_MENUUNSHELVE,           IDS_MENUDESCUNSHELVE,
-        {ITEMIS_INSVN, 0}, { 0, 0 }, { 0, 0 }, {0, 0}, L"tsvn_unshelve" },
-
     { ShellMenuCreatePatch,                 MENUCREATEPATCH,    IDI_CREATEPATCH,        IDS_MENUCREATEPATCH,        IDS_MENUDESCCREATEPATCH,
         {ITEMIS_INSVN, ITEMIS_NORMAL|ITEMIS_UNSUPPORTEDFORMAT}, {ITEMIS_FOLDERINSVN, ITEMIS_UNSUPPORTEDFORMAT}, {0, 0}, {0, 0}, L"tsvn_createpatch" },
 
@@ -222,8 +215,22 @@ CShellExt::MenuInfo CShellExt::menuInfo[] =
 };
 
 STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
-                                   LPDATAOBJECT pDataObj,
-                                   HKEY /* hRegKey */)
+                                        LPDATAOBJECT pDataObj,
+                                        HKEY  hRegKey)
+{
+    __try
+    {
+        return Initialize_Wrap(pIDFolder, pDataObj, hRegKey);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+STDMETHODIMP CShellExt::Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder,
+                                        LPDATAOBJECT pDataObj,
+                                        HKEY /* hRegKey */)
 {
     CTraceToOutputDebugString::Instance()(__FUNCTION__ ": Shell :: Initialize\n");
     PreserveChdir preserveChdir;
@@ -284,7 +291,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                     UINT len = DragQueryFile(drop, i, NULL, 0);
                     if (len == 0)
                         continue;
-                    auto szFileName = std::make_unique<TCHAR[]>(len + 1);
+                    std::unique_ptr<TCHAR[]> szFileName(new TCHAR[len+1]);
                     if (0 == DragQueryFile(drop, i, szFileName.get(), len+1))
                     {
                         continue;
@@ -294,8 +301,8 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                         continue;
                     CTSVNPath strpath;
                     // only use GetLongPathname for the first item, since we only get the status for
-                    // that first item. TortoiseProc later converts the file names before using them too.
-                    strpath.SetFromWin(i != 0 ? str.c_str() : CPathUtils::GetLongPathname(str).c_str());
+                    // that first item. TortoiseProc later converts the filesnames before using them too.
+                    strpath.SetFromWin(i != 0 ? str.c_str() : CPathUtils::GetLongPathname(str.c_str()));
                     if (itemStates & ITEMIS_ONLYONE)
                     {
                         itemStates |= (strpath.GetFileExtension().CompareNoCase(L".diff")==0) ? ITEMIS_PATCHFILE : 0;
@@ -338,7 +345,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                             {
                                 size_t slen = strlen(stat.status->repos_relpath) + strlen(stat.status->repos_root_url);
                                 slen += 2;
-                                auto url = std::make_unique<char[]>(slen);
+                                std::unique_ptr<char[]> url(new char[slen]);
                                 strcpy_s(url.get(), slen, stat.status->repos_root_url);
                                 strcat_s(url.get(), slen, "/");
                                 strcat_s(url.get(), slen, stat.status->repos_relpath);
@@ -390,60 +397,8 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                 BOOL statfetched = FALSE;
                 for (int i = 0; i < count; ++i)
                 {
-                    ItemIDList child(GetPIDLItem(cida, i), &parent);
-                    if (i == 0)
-                    {
-                        if (g_ShellCache.IsVersioned(child.toString().c_str(), (itemStates & ITEMIS_FOLDER) != 0, false))
-                            itemStates |= ITEMIS_INVERSIONEDFOLDER;
-                    }
-
+                    ItemIDList child (GetPIDLItem (cida, i), &parent);
                     tstring str = child.toString();
-                    // resolve shortcuts if it's a multi-selection (single selections are resolved by the shell!)
-                    // and only if the parent directory is not versioned: a shortcut inside a working copy
-                    // should not be resolved so it can be added to version control and handled as versioned later
-                    if ((count > 1) && ((itemStates & ITEMIS_INVERSIONEDFOLDER) == 0))
-                    {
-                        // test if the item is a shortcut
-                        SHFILEINFO fi = { 0 };
-                        fi.dwAttributes = SFGAO_LINK;
-                        auto pidlAbsolute  = ILCombine(GetPIDLFolder(cida), GetPIDLItem(cida, i));
-                        if (pidlAbsolute)
-                        {
-                            DWORD_PTR dwResult = SHGetFileInfo((LPCWSTR)pidlAbsolute, 0, &fi, sizeof(fi),
-                                                               SHGFI_ATTR_SPECIFIED | SHGFI_ATTRIBUTES | SHGFI_PIDL);
-                            if (dwResult != 0)
-                            {
-                                if (fi.dwAttributes & SFGAO_LINK)
-                                {
-                                    // it is a shortcut, so resolve that shortcut
-                                    IShellLink * pShLink = nullptr;
-                                    if (SUCCEEDED(CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                                                                   IID_IShellLink, (LPVOID*)&pShLink)))
-                                    {
-                                        IPersistFile * ppf = nullptr;
-                                        if (SUCCEEDED(pShLink->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf)))
-                                        {
-                                            if (SUCCEEDED(ppf->Load(str.c_str(), STGM_READ)))
-                                            {
-                                                if (SUCCEEDED(pShLink->Resolve(NULL, SLR_NO_UI)))
-                                                {
-                                                    wchar_t shortcutpath[MAX_PATH] = { 0 };
-                                                    if (SUCCEEDED(pShLink->GetPath(shortcutpath, MAX_PATH, NULL, 0)))
-                                                    {
-                                                        str = shortcutpath;
-                                                    }
-                                                }
-
-                                            }
-                                            ppf->Release();
-                                        }
-                                        pShLink->Release();
-                                    }
-                                }
-                            }
-                            ILFree(pidlAbsolute);
-                        }
-                    }
                     if (str.empty()||(!g_ShellCache.IsContextPathAllowed(str.c_str())))
                         continue;
                     //check if our menu is requested for a subversion admin directory
@@ -451,7 +406,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                         continue;
 
                     CTSVNPath strpath;
-                    strpath.SetFromWin(CPathUtils::GetLongPathname(str).c_str());
+                    strpath.SetFromWin(CPathUtils::GetLongPathname(str.c_str()));
                     files_.push_back(strpath.GetWinPath());
                     itemStates |= (strpath.GetFileExtension().CompareNoCase(L".diff")==0) ? ITEMIS_PATCHFILE : 0;
                     itemStates |= (strpath.GetFileExtension().CompareNoCase(L".patch")==0) ? ITEMIS_PATCHFILE : 0;
@@ -501,7 +456,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                             {
                                 size_t len = strlen(stat.status->repos_relpath) + strlen(stat.status->repos_root_url);
                                 len += 2;
-                                auto url = std::make_unique<char[]>(len);
+                                std::unique_ptr<char[]> url(new char[len]);
                                 strcpy_s(url.get(), len, stat.status->repos_root_url);
                                 strcat_s(url.get(), len, "/");
                                 strcat_s(url.get(), len, stat.status->repos_relpath);
@@ -568,6 +523,9 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                     if (status == svn_wc_status_deleted)
                         itemStates |= ITEMIS_DELETED;
                 } // for (int i = 0; i < count; ++i)
+                ItemIDList child (GetPIDLItem (cida, 0), &parent);
+                if (g_ShellCache.IsVersioned(child.toString().c_str(), (itemStates & ITEMIS_FOLDER) != 0, false))
+                    itemStates |= ITEMIS_INVERSIONEDFOLDER;
                 GlobalUnlock(medium.hGlobal);
 
                 // if the item is a versioned folder, check if there's a patch file
@@ -606,7 +564,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                 try
                 {
                     CTSVNPath strpath;
-                    strpath.SetFromWin(CPathUtils::GetLongPathname(folder_).c_str());
+                    strpath.SetFromWin(CPathUtils::GetLongPathname(folder_.c_str()));
                     SVNStatus stat;
                     stat.GetStatus(strpath, false, true, true);
                     if (stat.status)
@@ -637,7 +595,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                         {
                             size_t len = strlen(stat.status->repos_relpath) + strlen(stat.status->repos_root_url);
                             len += 2;
-                            auto url = std::make_unique<char[]>(len);
+                            std::unique_ptr<char[]> url(new char[len]);
                             strcpy_s(url.get(), len, stat.status->repos_root_url);
                             strcat_s(url.get(), len, "/");
                             strcat_s(url.get(), len, stat.status->repos_relpath);
@@ -703,7 +661,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                     try
                     {
                         CTSVNPath strpath;
-                        strpath.SetFromWin(CPathUtils::GetLongPathname(folder_).c_str());
+                        strpath.SetFromWin(CPathUtils::GetLongPathname(folder_.c_str()));
                         if (strpath.IsWCRoot())
                             itemStates |= ITEMIS_WCROOT;
                         SVNStatus stat;
@@ -814,8 +772,8 @@ bool CShellExt::WriteClipboardPathsToTempFile(tstring& tempfile)
     //write all selected files and paths to a temporary file
     //for TortoiseProc.exe to read out again.
     DWORD pathlength = GetTempPath(0, NULL);
-    auto path = std::make_unique<TCHAR[]>(pathlength + 1);
-    auto tempFile = std::make_unique<TCHAR[]>(pathlength + 100);
+    std::unique_ptr<TCHAR[]> path(new TCHAR[pathlength+1]);
+    std::unique_ptr<TCHAR[]> tempFile(new TCHAR[pathlength + 100]);
     GetTempPath (pathlength+1, path.get());
     GetTempFileName (path.get(), L"svn", 0, tempFile.get());
     tempfile = tstring(tempFile.get());
@@ -870,8 +828,8 @@ tstring CShellExt::WriteFileListToTempFile()
     //write all selected files and paths to a temporary file
     //for TortoiseProc.exe to read out again.
     DWORD pathlength = GetTempPath(0, NULL);
-    auto path = std::make_unique<TCHAR[]>(pathlength + 1);
-    auto tempFile = std::make_unique<TCHAR[]>(pathlength + 100);
+    std::unique_ptr<TCHAR[]> path(new TCHAR[pathlength+1]);
+    std::unique_ptr<TCHAR[]> tempFile(new TCHAR[pathlength + 100]);
     GetTempPath (pathlength+1, path.get());
     GetTempFileName (path.get(), L"svn", 0, tempFile.get());
     tstring retFilePath = tstring(tempFile.get());
@@ -997,8 +955,25 @@ STDMETHODIMP CShellExt::QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMe
 STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
                                          UINT indexMenu,
                                          UINT idCmdFirst,
-                                         UINT /*idCmdLast*/,
+                                         UINT idCmdLast,
                                          UINT uFlags)
+{
+    __try
+    {
+        return QueryContextMenu_Wrap(hMenu, indexMenu, idCmdFirst, idCmdLast, uFlags);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+
+STDMETHODIMP CShellExt::QueryContextMenu_Wrap(HMENU hMenu,
+                                              UINT indexMenu,
+                                              UINT idCmdFirst,
+                                              UINT /*idCmdLast*/,
+                                              UINT uFlags)
 {
     CTraceToOutputDebugString::Instance()(__FUNCTION__ ": Shell :: QueryContextMenu itemStates=%ld\n", itemStates);
     PreserveChdir preserveChdir;
@@ -1305,8 +1280,20 @@ void CShellExt::AddPathFileDropCommand(tstring& svnCmd, LPCTSTR command)
     svnCmd += L"\"";
 }
 
-// This is called when you invoke a command on the menu:
 STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
+{
+    __try
+    {
+        return InvokeCommand_Wrap(lpcmi);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+// This is called when you invoke a command on the menu:
+STDMETHODIMP CShellExt::InvokeCommand_Wrap(LPCMINVOKECOMMANDINFO lpcmi)
 {
     PreserveChdir preserveChdir;
     const HRESULT hr = E_INVALIDARG;
@@ -1593,12 +1580,6 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
         case ShellMenuCopyUrl:
             AddPathFileCommand(svnCmd, L"copyurls");
             break;
-        case ShellMenuShelve:
-            AddPathFileCommand(svnCmd, L"shelve");
-            break;
-        case ShellMenuUnshelve:
-            AddPathFileCommand(svnCmd, L"unshelve");
-            break;
         case ShellMenuCreatePatch:
             AddPathFileCommand(svnCmd, L"createpatch");
             break;
@@ -1614,8 +1595,8 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
                     LPCSTR lpstr = (LPCSTR)GlobalLock(hglb);
 
                     DWORD len = GetTempPath(0, NULL);
-                    auto path = std::make_unique<TCHAR[]>(len + 1);
-                    auto tempF = std::make_unique<TCHAR[]>(len + 100);
+                    std::unique_ptr<TCHAR[]> path(new TCHAR[len+1]);
+                    std::unique_ptr<TCHAR[]> tempF(new TCHAR[len+100]);
                     GetTempPath (len+1, path.get());
                     GetTempFileName (path.get(), L"svn", 0, tempF.get());
                     std::wstring sTempFile = std::wstring(tempF.get());
@@ -1771,19 +1752,35 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
             myIDMap.clear();
             myVerbsIDMap.clear();
             myVerbsMap.clear();
-            RunCommand(tortoiseProcPath, svnCmd, cwdFolder, L"TortoiseProc Launch failed");
+            RunCommand(tortoiseProcPath, svnCmd, cwdFolder.c_str(), L"TortoiseProc Launch failed");
         }
         return S_OK;
     } // if (id_it != myIDMap.end() && id_it->first == idCmd)
     return hr;
 }
 
-// This is for the status bar and things like that:
 STDMETHODIMP CShellExt::GetCommandString(UINT_PTR idCmd,
                                          UINT uFlags,
-                                         UINT FAR * /*reserved*/,
+                                         UINT FAR * reserved,
                                          LPSTR pszName,
                                          UINT cchMax)
+{
+    __try
+    {
+        return GetCommandString_Wrap(idCmd, uFlags, reserved, pszName, cchMax);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+// This is for the status bar and things like that:
+STDMETHODIMP CShellExt::GetCommandString_Wrap(UINT_PTR idCmd,
+                                              UINT uFlags,
+                                              UINT FAR * /*reserved*/,
+                                              LPSTR pszName,
+                                              UINT cchMax)
 {
     PreserveChdir preserveChdir;
     //do we know the id?
@@ -1852,11 +1849,35 @@ STDMETHODIMP CShellExt::GetCommandString(UINT_PTR idCmd,
 
 STDMETHODIMP CShellExt::HandleMenuMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    __try
+    {
+        return HandleMenuMsg_Wrap(uMsg, wParam, lParam);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+STDMETHODIMP CShellExt::HandleMenuMsg_Wrap(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
     LRESULT res;
     return HandleMenuMsg2(uMsg, wParam, lParam, &res);
 }
 
 STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *pResult)
+{
+    __try
+    {
+        return HandleMenuMsg2_Wrap(uMsg, wParam, lParam, pResult);
+    }
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    {
+    }
+    return E_FAIL;
+}
+
+STDMETHODIMP CShellExt::HandleMenuMsg2_Wrap(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *pResult)
 {
     PreserveChdir preserveChdir;
 
@@ -1887,15 +1908,13 @@ STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, 
             resource = GetMenuTextFromResource((int)myIDMap[lpdis->itemID]);
             if (resource == NULL)
                 return S_OK;
-            int iconWidth = GetSystemMetrics(SM_CXSMICON);
-            int iconHeight = GetSystemMetrics(SM_CYSMICON);
-            auto hIcon = LoadIconEx(g_hResInst, resource, iconWidth, iconHeight);
+            HICON hIcon = (HICON)LoadImage(g_hResInst, resource, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
             if (hIcon == NULL)
                 return S_OK;
             DrawIconEx(lpdis->hDC,
                 lpdis->rcItem.left,
-                lpdis->rcItem.top + (lpdis->rcItem.bottom - lpdis->rcItem.top - iconHeight) / 2,
-                hIcon, iconWidth, iconHeight,
+                lpdis->rcItem.top + (lpdis->rcItem.bottom - lpdis->rcItem.top - 16) / 2,
+                hIcon, 16, 16,
                 0, NULL, DI_NORMAL);
             DestroyIcon(hIcon);
             *pResult = TRUE;
@@ -2030,7 +2049,7 @@ LPCTSTR CShellExt::GetMenuTextFromResource(int id)
     return NULL;
 }
 
-bool CShellExt::IsIllegalFolder(const std::wstring& folder, int * csidlarray)
+bool CShellExt::IsIllegalFolder(std::wstring folder, int * csidlarray)
 {
     TCHAR buf[MAX_PATH] = { 0 };    //MAX_PATH ok, since SHGetSpecialFolderPath doesn't return the required buffer length!
     PIDLIST_ABSOLUTE pidl = NULL;
@@ -2078,11 +2097,11 @@ void CShellExt::InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst,
     {
         // check if the item name is ignored or the mask
         size_t p = 0;
-        const size_t pathLength = wcslen(ignorepath);
         while ( (p=ignoredprops.find( ignorepath,p )) != -1 )
         {
             if ( (p==0 || ignoredprops[p-1]==TCHAR('\n')) )
             {
+                const size_t pathLength = wcslen(ignorepath);
                 if ( ((p + pathLength)==ignoredprops.length()) || (ignoredprops[p + pathLength]==TCHAR('\n')) || (ignoredprops[p + pathLength]==0) )
                 {
                     break;
@@ -2110,6 +2129,7 @@ void CShellExt::InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst,
         {
             if ( (p==0 || ignoredglobalprops[p-1]==TCHAR('\n')) )
             {
+                const size_t pathLength = wcslen(ignorepath);
                 if ( ((p + pathLength)==ignoredglobalprops.length()) || (ignoredglobalprops[p + pathLength]==TCHAR('\n')) || (ignoredglobalprops[p + pathLength]==0) )
                 {
                     break;
@@ -2415,7 +2435,7 @@ void CShellExt::InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst,
         else
             GetMenuTextFromResource(ShellMenuIgnoreSub);
         menuiteminfo.dwTypeData = stringtablebuffer;
-        menuiteminfo.cch = (UINT)std::min((UINT)wcslen(menuiteminfo.dwTypeData), UINT_MAX);
+        menuiteminfo.cch = (UINT)min(wcslen(menuiteminfo.dwTypeData), UINT_MAX);
 
         InsertMenuItem((topmenu & MENUIGNORE) ? hMenu : subMenu, (topmenu & MENUIGNORE) ? indexMenu++ : indexSubMenu++, TRUE, &menuiteminfo);
         if (itemStates & ITEMIS_IGNORED)
@@ -2435,7 +2455,7 @@ void CShellExt::RunCommand(const tstring& path, const tstring& command,
     const tstring& folder, LPCTSTR errorMessage)
 {
     if (CCreateProcessHelper::CreateProcessDetached(path.c_str(),
-        command.c_str(), folder.c_str()))
+        const_cast<TCHAR*>(command.c_str()), folder.c_str()))
     {
         // process started - exit
         return;

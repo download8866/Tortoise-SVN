@@ -84,7 +84,7 @@ public:
     ~CResModule(void);
 
     BOOL    ExtractResources(LPCTSTR lpszSrcLangDllPath, LPCTSTR lpszPOFilePath, BOOL bNoUpdate, LPCTSTR lpszHeaderFile);
-    BOOL    ExtractResources(const std::vector<std::wstring>& filelist, LPCTSTR lpszPOFilePath, BOOL bNoUpdate, LPCTSTR lpszHeaderFile);
+    BOOL    ExtractResources(std::vector<std::wstring> filelist, LPCTSTR lpszPOFilePath, BOOL bNoUpdate, LPCTSTR lpszHeaderFile);
     BOOL    CreateTranslatedResources(LPCTSTR lpszSrcLangDllPath, LPCTSTR lpszDestLangDllPath, LPCTSTR lpszPOFilePath);
     void    SetQuiet(BOOL bQuiet = TRUE) {m_bQuiet = bQuiet; m_StringEntries.SetQuiet(bQuiet);}
     void    SetLanguage(WORD wLangID) {m_wTargetLang = wLangID;}
@@ -106,9 +106,6 @@ private:
     BOOL    ReplaceAccelerator(LPCTSTR lpszType, WORD wLanguage);
     BOOL    ReplaceRibbon(LPCTSTR lpszType, WORD wLanguage);
 
-    std::wstring ReplaceWithRegex(WCHAR * pBuf);
-    std::wstring ReplaceWithRegex(std::wstring& s);
-
     const WORD* ParseMenuResource(const WORD * res);
     const WORD* CountMemReplaceMenuResource(const WORD * res, size_t * wordcount, WORD * newMenu);
     const WORD* ParseMenuExResource(const WORD * res);
@@ -120,8 +117,6 @@ private:
 
     void    ReplaceStr(LPCWSTR src, WORD * dest, size_t * count, int * translated, int * def);
 
-    size_t  ScanHeaderFile(const std::wstring& filepath);
-    void    InsertResourceIDs(LPCWSTR lpType, INT_PTR mainId, RESOURCEENTRY& entry, INT_PTR id, LPCWSTR infotext);
     bool    AdjustCheckSum(const std::wstring& resFile);
     void    RemoveSignatures(LPCTSTR lpszDestLangDllPath);
 
@@ -132,9 +127,6 @@ private:
     std::map<WORD, MENUENTRY> m_MenuEntries;
     std::map<WORD, MENUENTRY>::iterator pME_iter;
     std::wstring    sDestFile;
-    std::map<INT_PTR, std::wstring> m_currentHeaderDataDialogs;
-    std::map<INT_PTR, std::wstring> m_currentHeaderDataStrings;
-    std::map<INT_PTR, std::wstring> m_currentHeaderDataMenus;
     BOOL            m_bQuiet;
 
     bool            m_bRTL;

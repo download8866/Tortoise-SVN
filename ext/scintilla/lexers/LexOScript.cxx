@@ -26,7 +26,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 // -----------------------------------------
 // Functions classifying a single character.
@@ -462,7 +464,7 @@ static void FoldOScriptDoc(Sci_PositionU startPos, Sci_Position length, int init
 	char chNext = styler[startPos];
 	int styleNext = styler.StyleAt(startPos);
 	int style = initStyle;
-	Sci_Position lastStart = 0;
+	int lastStart = 0;
 
 	for (Sci_Position i = startPos; i < endPos; i++) {
 		char ch = chNext;

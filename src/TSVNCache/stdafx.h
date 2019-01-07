@@ -1,14 +1,9 @@
-﻿// stdafx.h : include file for standard system include files,
+// stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently, but
 // are changed infrequently
 //
 
 #pragma once
-
-#define NOMINMAX
-#include <algorithm>
-using std::max;
-using std::min;
 
 // Including SDKDDKVer.h defines the highest available Windows platform.
 
@@ -37,6 +32,7 @@ using namespace ATL;
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 #include <deque>
 
 #pragma warning(push)

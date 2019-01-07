@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2014-2017 - TortoiseSVN
+// Copyright (C) 2014-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -70,7 +70,8 @@ bool DropExternalCommand::Execute()
         CTSVNPath destPath = droptsvnpath;
         destPath.AppendPathString(pathList[i].GetFileOrDirectoryName());
         bool bExists = !!PathFileExists(destPath.GetWinPath());
-        if (!bExists)
+        if (!bExists &&
+            (PathIsDirectory(pathList[i].GetWinPath()) || CopyFile(pathList[i].GetWinPath(), destPath.GetWinPath(), TRUE)))
         {
             SVNStatus sourceStatus;
             sourceStatus.GetStatus(pathList[i]);

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@ using namespace Gdiplus;
 
 // BinaryPredicate for comparing authors based on their commit count
 template<class DataType>
-class MoreCommitsThan {
+class MoreCommitsThan : public std::binary_function<tstring, tstring, bool> {
 public:
     typedef std::map<tstring, DataType> MapType;
     MoreCommitsThan(MapType &author_commits) : m_authorCommits(author_commits) {}
@@ -139,7 +139,7 @@ void CStatGraphDlg::SetSkipper (bool reloadSkiper)
     // the resolution limit of the screen will already not allow for displaying
     // it in a reasonable way
 
-    int max_authors_count = std::max(1, (int)std::min((int)m_authorNames.size(), 250));
+    int max_authors_count = max(1, (int)min(m_authorNames.size(), 250) );
     m_Skipper.SetRange (1, max_authors_count);
     m_Skipper.SetPageSize(5);
 
@@ -179,21 +179,19 @@ BOOL CStatGraphDlg::OnInitDialog()
     GetWindowText(sTitle);
     CAppUtils::SetWindowTitle(m_hWnd, m_path.GetUIPathString(), sTitle);
 
-    int iconWidth = GetSystemMetrics(SM_CXSMICON);
-    int iconHeight = GetSystemMetrics(SM_CYSMICON);
-    m_btnGraphBar.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHBAR, iconWidth, iconHeight));
+    m_btnGraphBar.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHBAR), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
     m_btnGraphBar.SizeToContent();
     m_btnGraphBar.Invalidate();
-    m_btnGraphBarStacked.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHBARSTACKED, iconWidth, iconHeight));
+    m_btnGraphBarStacked.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHBARSTACKED), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
     m_btnGraphBarStacked.SizeToContent();
     m_btnGraphBarStacked.Invalidate();
-    m_btnGraphLine.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHLINE, iconWidth, iconHeight));
+    m_btnGraphLine.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHLINE), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
     m_btnGraphLine.SizeToContent();
     m_btnGraphLine.Invalidate();
-    m_btnGraphLineStacked.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHLINESTACKED, iconWidth, iconHeight));
+    m_btnGraphLineStacked.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHLINESTACKED), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
     m_btnGraphLineStacked.SizeToContent();
     m_btnGraphLineStacked.Invalidate();
-    m_btnGraphPie.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHPIE, iconWidth, iconHeight));
+    m_btnGraphPie.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHPIE), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
     m_btnGraphPie.SizeToContent();
     m_btnGraphPie.Invalidate();
 
@@ -432,8 +430,9 @@ int CStatGraphDlg::GetCalendarWeek(const CTime& time)
             {
                 iDayOfWeek = (time.GetDayOfWeek()+5+iFirstDayOfWeek)%7;
             }
-            catch (CAtlException)
+            catch (CException* e)
             {
+                e->Delete();
             }
             CTime dStartOfWeek = time-CTimeSpan(iDayOfWeek,0,0,0);
 
@@ -950,11 +949,11 @@ void CStatGraphDlg::ShowStats()
         nWeeks = 1;
     // Adjust the labels with the unit type (week, month, ...)
     CString labelText;
-    labelText.Format(IDS_STATGRAPH_NUMBEROFUNIT, (LPCWSTR)GetUnitsString());
+    labelText.Format(IDS_STATGRAPH_NUMBEROFUNIT, GetUnitsString());
     SetDlgItemText(IDC_NUMWEEK, labelText);
-    labelText.Format(IDS_STATGRAPH_COMMITSBYUNIT, (LPCWSTR)GetUnitString());
+    labelText.Format(IDS_STATGRAPH_COMMITSBYUNIT, GetUnitString());
     SetDlgItemText(IDC_COMMITSEACHWEEK, labelText);
-    labelText.Format(IDS_STATGRAPH_FILECHANGESBYUNIT, (LPCWSTR)GetUnitString());
+    labelText.Format(IDS_STATGRAPH_FILECHANGESBYUNIT, GetUnitString());
     SetDlgItemText(IDC_FILECHANGESEACHWEEK, labelText);
     // We have now all data we want and we can fill in the labels...
     CString number;
@@ -1428,7 +1427,7 @@ void CStatGraphDlg::SaveGraph(CString sFilename)
                         }
                         else
                         {
-                            sErrormessage.Format(IDS_REVGRAPH_ERR_NOENCODER, (LPCWSTR)CPathUtils::GetFileExtFromPath(sFilename));
+                            sErrormessage.Format(IDS_REVGRAPH_ERR_NOENCODER, CPathUtils::GetFileExtFromPath(sFilename));
                         }
                     }
                     else
@@ -1464,13 +1463,14 @@ int CStatGraphDlg::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
     UINT  num = 0;          // number of image encoders
     UINT  size = 0;         // size of the image encoder array in bytes
 
+    ImageCodecInfo* pImageCodecInfo = NULL;
+
     if (GetImageEncodersSize(&num, &size)!=Ok)
         return -1;
     if (size == 0)
         return -1;  // Failure
 
-    auto pMem = std::make_unique<BYTE[]>(size);
-    ImageCodecInfo * pImageCodecInfo = (ImageCodecInfo*)(pMem.get());
+    pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
     if (pImageCodecInfo == NULL)
         return -1;  // Failure
 
@@ -1481,10 +1481,12 @@ int CStatGraphDlg::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
             if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
             {
                 *pClsid = pImageCodecInfo[j].Clsid;
+                free(pImageCodecInfo);
                 return j;  // Success
             }
         }
     }
+    free (pImageCodecInfo);
     return -1;  // Failure
 }
 

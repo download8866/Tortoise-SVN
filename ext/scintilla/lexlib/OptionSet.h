@@ -10,7 +10,9 @@
 #ifndef OPTIONSET_H
 #define OPTIONSET_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 template <typename T>
 class OptionSet {
@@ -133,6 +135,8 @@ public:
 	}
 };
 
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

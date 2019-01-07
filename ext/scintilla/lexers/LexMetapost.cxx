@@ -30,7 +30,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 // val SCE_METAPOST_DEFAULT = 0
 // val SCE_METAPOST_SPECIAL = 1

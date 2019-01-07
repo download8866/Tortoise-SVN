@@ -27,7 +27,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 static int GetLotLineState(std::string &line) {
 	if (line.length()) {

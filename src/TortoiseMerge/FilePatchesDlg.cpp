@@ -27,15 +27,15 @@
 
 
 IMPLEMENT_DYNAMIC(CFilePatchesDlg, CResizableStandAloneDialog)
-CFilePatchesDlg::CFilePatchesDlg(CWnd* pParent /*=nullptr*/)
+CFilePatchesDlg::CFilePatchesDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CFilePatchesDlg::IDD, pParent)
     , m_ShownIndex(-1)
     , m_bMinimized(FALSE)
-    , m_pPatch(nullptr)
-    , m_pCallBack(nullptr)
+    , m_pPatch(NULL)
+    , m_pCallBack(NULL)
     , m_nWindowHeight(-1)
-    , m_pMainFrame(nullptr)
-    , m_boldFont(nullptr)
+    , m_pMainFrame(NULL)
+    , m_boldFont(NULL)
 {
 }
 
@@ -102,7 +102,7 @@ BOOL CFilePatchesDlg::OnInitDialog()
 
 BOOL CFilePatchesDlg::Init(SVNPatch * pPatch, CPatchFilesDlgCallBack * pCallBack, CString sPath, CWnd * pParent)
 {
-    if (!pCallBack || !pPatch)
+    if ((pCallBack==NULL)||(pPatch==NULL))
     {
         m_cFileList.DeleteAllItems();
         return FALSE;
@@ -127,10 +127,10 @@ BOOL CFilePatchesDlg::Init(SVNPatch * pPatch, CPatchFilesDlgCallBack * pCallBack
         m_sPath = m_sPath + L"\\";
     }
 
-    SetWindowTheme(m_cFileList.GetSafeHwnd(), L"Explorer", nullptr);
+    SetWindowTheme(m_cFileList.GetSafeHwnd(), L"Explorer", NULL);
     m_cFileList.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
     m_cFileList.DeleteAllItems();
-    int c = m_cFileList.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_cFileList.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_cFileList.DeleteColumn(c--);
     m_cFileList.InsertColumn(0, CString(MAKEINTRESOURCE(IDS_PATH)));
@@ -163,7 +163,7 @@ BOOL CFilePatchesDlg::Init(SVNPatch * pPatch, CPatchFilesDlgCallBack * pCallBack
         SetStateText(i, state);
     }
     int mincol = 0;
-    int maxcol = m_cFileList.GetHeaderCtrl()->GetItemCount()-1;
+    int maxcol = ((CHeaderCtrl*)(m_cFileList.GetDlgItem(0)))->GetItemCount()-1;
     int col;
     for (col = mincol; col <= maxcol; col++)
     {
@@ -187,8 +187,10 @@ BOOL CFilePatchesDlg::Init(SVNPatch * pPatch, CPatchFilesDlgCallBack * pCallBack
     windowrect.bottom = windowrect.top + height;
 
     auto hMonitor = MonitorFromRect(&windowrect, MONITOR_DEFAULTTONULL);
-    if (hMonitor)
-        SetWindowPos(nullptr, windowrect.left, windowrect.top, width, height, SWP_NOACTIVATE | SWP_NOZORDER);
+    if (hMonitor != nullptr)
+    {
+        SetWindowPos(NULL, windowrect.left, windowrect.top, width, height, SWP_NOACTIVATE | SWP_NOZORDER);
+    }
 
     m_nWindowHeight = windowrect.bottom - windowrect.top;
     m_pMainFrame = pParent;
@@ -243,7 +245,7 @@ void CFilePatchesDlg::OnNMDblclkFilelist(NMHDR *pNMHDR, LRESULT *pResult)
     *pResult = 0;
     if ((pNMLV->iItem < 0) || (pNMLV->iItem >= m_arFileStates.GetCount()))
         return;
-    if (!m_pCallBack)
+    if (m_pCallBack==NULL)
         return;
     if (m_sPath.IsEmpty())
     {

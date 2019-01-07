@@ -882,10 +882,10 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
         // This reduces the disk access a *lot*.
         std::map<CStringA, ULONGLONG> filetimes;
         WIN32_FIND_DATA FindFileData;
-        CAutoFindFile hFind = ::FindFirstFileEx(m_directoryPath.GetWinPathString() + L"\\*.*", FindExInfoBasic, &FindFileData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH);
+        CAutoFindFile hFind = FindFirstFile(m_directoryPath.GetWinPathString() + L"\\*.*", &FindFileData);
         if (hFind)
         {
-            do
+            while (FindNextFile(hFind, &FindFileData))
             {
                 if ( (wcscmp(FindFileData.cFileName, L"..")==0) ||
                      (wcscmp(FindFileData.cFileName, L".")==0) )
@@ -896,7 +896,7 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
 
                 CStringA nameUTF8 = CUnicodeUtils::GetUTF8(FindFileData.cFileName);
                 filetimes[nameUTF8] = ft.QuadPart;
-            } while (FindNextFile(hFind, &FindFileData));
+            }
             hFind.CloseHandle(); // explicit close handle to shorten its life time
         }
 
@@ -909,9 +909,8 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
                 CTSVNPath filePath (GetFullPathString (itMembers->first));
                 if (!filePath.IsEquivalentToWithoutCase(m_directoryPath))
                 {
-                    // we only have file members in our entry cache, but IsDirectory() returns true
-                    // if the file is missing
-                    //ATLASSERT(!itMembers->second.IsDirectory());
+                    // we only have file members in our entry cache
+                    ATLASSERT(!itMembers->second.IsDirectory());
 
                     auto ftIt = filetimes.find(itMembers->first.Mid(1));
                     if (ftIt != filetimes.end())

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2018 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@
 #include "StandardLayout.h"
 #include "VisibleGraphNode.h"
 #include "GraphNodeState.h"
-#include "DPIAware.h"
 
 // construction
 
@@ -58,13 +57,13 @@ void CStandardNodeSizeAssignment::ApplyTo (IRevisionGraphLayout* layout)
                             || (   node->previousInBranch->node->GetPath()
                                 != node->node->GetPath());
 
-        int height = CDPIAware::Instance().Scale(21);
+        int height = 21;
         if (node->requiresPath)
         {
             size_t visibleElementCount = node->node->GetPath().GetDepth()
                                        - node->skipStartPathElements
                                        - node->skipTailPathElements;
-            height += (int)(CDPIAware::Instance().Scale(3) + visibleElementCount * 16);
+            height += (int)(3 + visibleElementCount * 16);
         }
 
         // shift (root) nodes down, if their source has been folded
@@ -74,16 +73,16 @@ void CStandardNodeSizeAssignment::ApplyTo (IRevisionGraphLayout* layout)
         int shift = (state & ( CGraphNodeStates::COLLAPSED_ABOVE
                              | CGraphNodeStates::SPLIT_ABOVE)) == 0
                   ? 0
-                  : CDPIAware::Instance().Scale(6);
+                  : 6;
 
         int extension = (state & ( CGraphNodeStates::COLLAPSED_BELOW
                                  | CGraphNodeStates::SPLIT_BELOW)) == 0
                       ? 0
-                      : CDPIAware::Instance().Scale(6);
+                      : 6;
 
         // set result
 
-        node->requiredSize = CSize (CDPIAware::Instance().Scale(150), height + extension + shift);
-        node->rect = CRect (0, shift, CDPIAware::Instance().Scale(150), height + shift);
+        node->requiredSize = CSize (150, height + extension + shift);
+        node->rect = CRect (0, shift, 150, height + shift);
     }
 }

@@ -19,9 +19,9 @@
   <!-- These two targets have to exist in doc.build.user                      -->
   <!-- ====================================================================== -->
 
-  <target name="VSNET" description="Checks if the env variables for VS2017 are set">
+  <target name="VSNET" description="Checks if the env variables for VS2015 are set">
     <if test="${not environment::variable-exists('VCINSTALLDIR')}">
-      <fail>You must first call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"</fail>
+      <fail>You must first call "%VS140COMNTOOLS%\vsvars32.bat"</fail>
     </if>
 
     <!-- Uncomment and modify the path of the statement below if you're building
@@ -53,8 +53,7 @@
 
     <!--
       specifies the tool to use for signing the binaries.
-      change to "scsigntool.exe" in case you're using a smart card and have scsigntool set up.
-      See https://www.mgtek.com/smartcard for details about scsigntool
+      change to "scsigntool.exe" in case you're using a smart card and have scsigntool set up
     -->
     <!-- <property name="signtool" value="scsigntool.exe" /> -->
 
@@ -93,19 +92,13 @@
     -->
 
     <setenv>
-      <variable name="PATH" value="D:\smartcardtools\x64;%PATH%" if="${platform == 'x64'}" />
-      <variable name="PATH" value="D:\smartcardtools\x86;%PATH%" if="${platform != 'x64'}" />
       <variable name="PATH" value="%TSVNTOOLS%\;%PATH%" />
       <variable name="PATH" value="%TSVNTOOLS%\fop;%PATH%" />
       <variable name="PATH" value="%WIX%;%PATH%" />
       <variable name="WIXUI" value="%WIX%" />
       <variable name="HHLOC" value="%TSVNTOOLS%\hhc.exe" />
       <variable name="XSLROOT" value="%TSVNTOOLS%\xsl" />
+      <variable name="DEBUGTOOLS" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />
     </setenv>
-    <if test="${not environment::variable-exists('DEBUGTOOLS')}">
-      <setenv>
-        <variable name="DEBUGTOOLS" value="C:\Program Files (x86)\Windows Kits\10\Debuggers\x86>" />
-      </setenv>
-    </if>
   </target>
 </project>

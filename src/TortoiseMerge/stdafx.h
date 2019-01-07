@@ -1,13 +1,8 @@
-﻿// stdafx.h : include file for standard system include files,
+// stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently,
 // but are changed infrequently
 
 #pragma once
-
-#define NOMINMAX
-#include <algorithm>
-using std::max;
-using std::min;
 
 // Including SDKDDKVer.h defines the highest available Windows platform.
 
@@ -42,14 +37,11 @@ using std::min;
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 #include <afxtaskdialog.h>
 
-#include <UIRibbon.h>           // Native Ribbon API
-#include <UIRibbonPropertyHelpers.h>
-
 #include <vfw.h>
 #include <string>
 #include <map>
 #include <vector>
-#include <list>
+#include <algorithm>
 #include <functional>
 
 #pragma warning(push)

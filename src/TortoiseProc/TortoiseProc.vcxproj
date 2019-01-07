@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -28,25 +28,25 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -80,7 +80,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HUNSPELL_STATIC;SVN_DEBUG;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -93,7 +93,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HUNSPELL_STATIC;SVN_DEBUG;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -106,7 +106,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HUNSPELL_STATIC;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -119,7 +119,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HUNSPELL_STATIC;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -142,7 +142,6 @@
     <ClCompile Include="..\SVN\SVNAuthData.cpp" />
     <ClCompile Include="..\SVN\SVNBase.cpp" />
     <ClCompile Include="..\SVN\SVNConfig.cpp" />
-    <ClCompile Include="..\SVN\SVNConflictInfo.cpp" />
     <ClCompile Include="..\SVN\SVNDataObject.cpp" />
     <ClCompile Include="..\SVN\SVNDiff.cpp" />
     <ClCompile Include="..\SVN\SVNError.cpp" />
@@ -164,7 +163,6 @@
     <ClCompile Include="..\Utils\accHelper.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Utils\AutoComplete.cpp" />
     <ClCompile Include="..\Utils\BugTraqAssociations.cpp" />
     <ClCompile Include="..\Utils\Callback.cpp" />
     <ClCompile Include="..\Utils\CmdLineParser.cpp" />
@@ -179,15 +177,11 @@
     <ClCompile Include="..\Utils\JumpListHelpers.cpp" />
     <ClCompile Include="..\Utils\Libraries.cpp" />
     <ClCompile Include="..\Utils\ListViewAccServer.cpp" />
-    <ClCompile Include="..\Utils\LoadIconEx.cpp" />
-    <ClCompile Include="..\Utils\LruCache.cpp" />
     <ClCompile Include="..\Utils\MiscUI\AeroControls.cpp" />
-    <ClCompile Include="..\Utils\MiscUI\AnimationManager.cpp" />
     <ClCompile Include="..\Utils\MiscUI\BrowseFolder.cpp" />
     <ClCompile Include="..\Utils\MiscUI\BufferDC.cpp" />
     <ClCompile Include="..\Utils\MiscUI\DIB.cpp" />
     <ClCompile Include="..\Utils\MiscUI\DragDropTreeCtrl.cpp" />
-    <ClCompile Include="..\Utils\MiscUI\EditWordBreak.cpp" />
     <ClCompile Include="..\Utils\MiscUI\FileDlgEventHandler.cpp" />
     <ClCompile Include="..\Utils\MiscUI\FileDropEdit.cpp" />
     <ClCompile Include="..\Utils\MiscUI\FilterEdit.cpp" />
@@ -207,7 +201,6 @@
     <ClCompile Include="..\Utils\MiscUI\StandAloneDlg.cpp" />
     <ClCompile Include="..\Utils\MiscUI\SubTooltipListCtrl.cpp" />
     <ClCompile Include="..\Utils\MiscUI\SVG.cpp" />
-    <ClCompile Include="..\Utils\MiscUI\ToastNotifications.cpp" />
     <ClCompile Include="..\Utils\MiscUI\Tooltip.cpp" />
     <ClCompile Include="..\Utils\MiscUI\WaitCursorEx.cpp" />
     <ClCompile Include="..\Utils\MiscUI\WaterEffect.cpp" />
@@ -225,6 +218,7 @@
     <ClCompile Include="..\Utils\StringUtils.cpp" />
     <ClCompile Include="..\Utils\SVNTrace.cpp" />
     <ClCompile Include="..\Utils\SysImageList.cpp" />
+    <ClCompile Include="..\Utils\SysInfo.cpp" />
     <ClCompile Include="..\Utils\TaskbarUUID.cpp" />
     <ClCompile Include="..\Utils\TempFile.cpp" />
     <ClCompile Include="..\Utils\UnicodeUtils.cpp" />
@@ -285,22 +279,22 @@
     <ClCompile Include="Commands\RevertCommand.cpp" />
     <ClCompile Include="Commands\RevisionGraphCommand.cpp" />
     <ClCompile Include="Commands\SettingsCommand.cpp" />
-    <ClCompile Include="Commands\ShelveCommand.cpp" />
     <ClCompile Include="Commands\ShowCompareCommand.cpp" />
     <ClCompile Include="Commands\SwitchCommand.cpp" />
     <ClCompile Include="Commands\SyncCommand.cpp" />
     <ClCompile Include="Commands\UnIgnoreCommand.cpp" />
     <ClCompile Include="Commands\UnLockCommand.cpp" />
-    <ClCompile Include="Commands\UnshelveCommand.cpp" />
     <ClCompile Include="Commands\UpdateCheckCommand.cpp" />
     <ClCompile Include="Commands\UpdateCommand.cpp" />
     <ClCompile Include="Commands\UrlDiffCommand.cpp" />
     <ClCompile Include="CommitDlg.cpp" />
+    <ClCompile Include="ConflictResolveDlg.cpp" />
     <ClCompile Include="CopyDlg.cpp" />
     <ClCompile Include="CreateChangelistDlg.cpp" />
     <ClCompile Include="CreatePatchDlg.cpp" />
     <ClCompile Include="DeleteUnversionedDlg.cpp" />
     <ClCompile Include="DiffOptionsDlg.cpp" />
+    <ClCompile Include="EditPropConflictDlg.cpp" />
     <ClCompile Include="ExportDlg.cpp" />
     <ClCompile Include="FileDiffDlg.cpp" />
     <ClCompile Include="GoOffline.cpp" />
@@ -325,10 +319,6 @@
     <ClCompile Include="MergeWizardTree.cpp" />
     <ClCompile Include="MonitorOptionsDlg.cpp" />
     <ClCompile Include="MonitorProjectDlg.cpp" />
-    <ClCompile Include="PropConflictEditorDlg.cpp" />
-    <ClCompile Include="ShelveDlg.cpp" />
-    <ClCompile Include="TextConflictEditorDlg.cpp" />
-    <ClCompile Include="TreeConflictEditorDlg.cpp" />
     <ClCompile Include="PasswordDlg.cpp" />
     <ClCompile Include="ProjectProperties.cpp" />
     <ClCompile Include="PromptDlg.cpp" />
@@ -448,12 +438,11 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SVNDiffOptions.cpp" />
     <ClCompile Include="SVNProgressDlg.cpp" />
     <ClCompile Include="SwitchDlg.cpp" />
     <ClCompile Include="TortoiseProc.cpp" />
+    <ClCompile Include="TreeConflictEditorDlg.cpp" />
     <ClCompile Include="UnlockDlg.cpp" />
-    <ClCompile Include="UnshelveDlg.cpp" />
     <ClCompile Include="UpdateDlg.cpp" />
     <ClCompile Include="UrlDiffDlg.cpp" />
     <ClCompile Include="URLDlg.cpp" />
@@ -465,7 +454,6 @@
     <ClInclude Include="..\SVN\SVNAuthData.h" />
     <ClInclude Include="..\SVN\SVNBase.h" />
     <ClInclude Include="..\SVN\SVNConfig.h" />
-    <ClInclude Include="..\SVN\SVNConflictInfo.h" />
     <ClInclude Include="..\SVN\SVNDataObject.h" />
     <ClInclude Include="..\SVN\SVNDiff.h" />
     <ClInclude Include="..\SVN\SVNError.h" />
@@ -482,7 +470,6 @@
     <ClInclude Include="..\SVN\SVNStatusListCtrl.h" />
     <ClInclude Include="..\SVN\TSVNAuth.h" />
     <ClInclude Include="..\SVN\TSVNPath.h" />
-    <ClInclude Include="..\Utils\AutoComplete.h" />
     <ClInclude Include="..\Utils\BugTraqAssociations.h" />
     <ClInclude Include="..\Utils\Callback.h" />
     <ClInclude Include="..\Utils\ClipboardHelper.h" />
@@ -494,7 +481,6 @@
     <ClInclude Include="..\Utils\CreateProcessHelper.h" />
     <ClInclude Include="..\Utils\DebugOutput.h" />
     <ClInclude Include="..\Utils\DirFileEnum.h" />
-    <ClInclude Include="..\Utils\DPIAware.h" />
     <ClInclude Include="..\Utils\DragDropImpl.h" />
     <ClInclude Include="..\Utils\FormatMessageWrapper.h" />
     <ClInclude Include="..\Utils\HighResClock.h" />
@@ -504,17 +490,12 @@
     <ClInclude Include="..\Utils\JumpListHelpers.h" />
     <ClInclude Include="..\Utils\Libraries.h" />
     <ClInclude Include="..\Utils\ListViewAccServer.h" />
-    <ClInclude Include="..\Utils\LoadIconEx.h" />
-    <ClInclude Include="..\Utils\LruCache.h" />
     <ClInclude Include="..\Utils\MiscUI\AeroControls.h" />
-    <ClInclude Include="..\Utils\MiscUI\AnimationManager.h" />
     <ClInclude Include="..\Utils\MiscUI\BrowseFolder.h" />
     <ClInclude Include="..\Utils\MiscUI\BufferDC.h" />
-    <ClInclude Include="..\Utils\MiscUI\CommonDialogFunctions.h" />
     <ClInclude Include="..\Utils\MiscUI\ControlsBridge.h" />
     <ClInclude Include="..\Utils\MiscUI\DIB.h" />
     <ClInclude Include="..\Utils\MiscUI\DragDropTreeCtrl.h" />
-    <ClInclude Include="..\Utils\MiscUI\EditWordBreak.h" />
     <ClInclude Include="..\Utils\MiscUI\ExtTextOutFL.h" />
     <ClInclude Include="..\Utils\MiscUI\FileDlgEventHandler.h" />
     <ClInclude Include="..\Utils\MiscUI\FileDropEdit.h" />
@@ -537,7 +518,6 @@
     <ClInclude Include="..\Utils\MiscUI\StandAloneDlg.h" />
     <ClInclude Include="..\Utils\MiscUI\SubTooltipListCtrl.h" />
     <ClInclude Include="..\Utils\MiscUI\SVG.h" />
-    <ClInclude Include="..\Utils\MiscUI\ToastNotifications.h" />
     <ClInclude Include="..\Utils\MiscUI\Tooltip.h" />
     <ClInclude Include="..\Utils\MiscUI\TripleClick.h" />
     <ClInclude Include="..\Utils\MiscUI\WaitCursorEx.h" />
@@ -557,12 +537,13 @@
     <ClInclude Include="..\Utils\SelectFileFilter.h" />
     <ClInclude Include="..\Utils\ShellUpdater.h" />
     <ClInclude Include="..\Utils\SmartHandle.h" />
+    <ClInclude Include="..\Utils\stdex_vector.h" />
     <ClInclude Include="..\Utils\StdioFileT.h" />
     <ClInclude Include="..\Utils\StringBuffer.h" />
-    <ClInclude Include="..\Utils\StringReferenceWrapper.h" />
     <ClInclude Include="..\Utils\StringUtils.h" />
     <ClInclude Include="..\Utils\SVNTrace.h" />
     <ClInclude Include="..\Utils\SysImageList.h" />
+    <ClInclude Include="..\Utils\SysInfo.h" />
     <ClInclude Include="..\Utils\TaskbarUUID.h" />
     <ClInclude Include="..\Utils\TempFile.h" />
     <ClInclude Include="..\Utils\UnicodeUtils.h" />
@@ -629,23 +610,23 @@
     <ClInclude Include="Commands\RevisionGraphCommand.h" />
     <ClInclude Include="Commands\RTFMCommand.h" />
     <ClInclude Include="Commands\SettingsCommand.h" />
-    <ClInclude Include="Commands\ShelveCommand.h" />
     <ClInclude Include="Commands\ShowCompareCommand.h" />
     <ClInclude Include="Commands\SwitchCommand.h" />
     <ClInclude Include="Commands\SyncCommand.h" />
     <ClInclude Include="Commands\UnIgnoreCommand.h" />
     <ClInclude Include="Commands\UnLockCommand.h" />
-    <ClInclude Include="Commands\UnshelveCommand.h" />
     <ClInclude Include="Commands\UpdateCheckCommand.h" />
     <ClInclude Include="Commands\UpdateCommand.h" />
     <ClInclude Include="Commands\UrlDiffCommand.h" />
     <ClInclude Include="Commands\WcUpgradeCommand.h" />
     <ClInclude Include="CommitDlg.h" />
+    <ClInclude Include="ConflictResolveDlg.h" />
     <ClInclude Include="CopyDlg.h" />
     <ClInclude Include="CreateChangelistDlg.h" />
     <ClInclude Include="CreatePatchDlg.h" />
     <ClInclude Include="DeleteUnversionedDlg.h" />
     <ClInclude Include="DiffOptionsDlg.h" />
+    <ClInclude Include="EditPropConflictDlg.h" />
     <ClInclude Include="ExportDlg.h" />
     <ClInclude Include="FileDiffDlg.h" />
     <ClInclude Include="GoOffline.h" />
@@ -670,10 +651,6 @@
     <ClInclude Include="MergeWizardTree.h" />
     <ClInclude Include="MonitorOptionsDlg.h" />
     <ClInclude Include="MonitorProjectDlg.h" />
-    <ClInclude Include="PropConflictEditorDlg.h" />
-    <ClInclude Include="ShelveDlg.h" />
-    <ClInclude Include="TextConflictEditorDlg.h" />
-    <ClInclude Include="TreeConflictEditorDlg.h" />
     <ClInclude Include="PasswordDlg.h" />
     <ClInclude Include="ProjectProperties.h" />
     <ClInclude Include="PromptDlg.h" />
@@ -794,12 +771,11 @@
     <ClInclude Include="Settings\ToolAssocDlg.h" />
     <ClInclude Include="SimplePrompt.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="SVNDiffOptions.h" />
     <ClInclude Include="SVNProgressDlg.h" />
     <ClInclude Include="SwitchDlg.h" />
     <ClInclude Include="TortoiseProc.h" />
+    <ClInclude Include="TreeConflictEditorDlg.h" />
     <ClInclude Include="UnlockDlg.h" />
-    <ClInclude Include="UnshelveDlg.h" />
     <ClInclude Include="UpdateDlg.h" />
     <ClInclude Include="UrlDiffDlg.h" />
     <ClInclude Include="URLDlg.h" />
@@ -985,7 +961,6 @@
     <Image Include="..\Resources\monitorurl.ico" />
     <Image Include="..\Resources\monitorwc.ico" />
     <Image Include="..\Resources\monitor_add.ico" />
-    <Image Include="..\Resources\monitor_clearerrors.ico" />
     <Image Include="..\Resources\monitor_edit.ico" />
     <Image Include="..\Resources\monitor_getall.ico" />
     <Image Include="..\Resources\monitor_markallasread.ico" />
@@ -1005,7 +980,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="" />
+      <UserProperties RESOURCE_FILE="\Development\SVN\TortoiseSVN\src\Resources\TortoiseProcENG.rc" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

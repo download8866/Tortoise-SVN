@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2008, 2010-2012, 2016 - TortoiseSVN
+// Copyright (C) 2006-2008, 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -41,10 +41,15 @@ public:
     virtual BOOL InitInstance();
     virtual int ExitInstance();
 
+// Implementation
+    UINT  m_nAppLook;
+    BOOL  m_bHiColorIcons;
+
 protected:
     afx_msg void OnAppAbout();
     DECLARE_MESSAGE_MAP()
 private:
+    static UINT_PTR CALLBACK CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam);
     bool HasClipboardPatch();
     static bool TrySavePatchFromClipboard(std::wstring& resultFile);
 };

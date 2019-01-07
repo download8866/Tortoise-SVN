@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2010, 2013-2014, 2016 - TortoiseSVN
+// Copyright (C) 2006-2007, 2010, 2013-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,9 +33,9 @@ class CFindDlg : public CDialog
     DECLARE_DYNAMIC(CFindDlg)
 
 public:
-    CFindDlg(CWnd* pParent = nullptr);   // standard constructor
+    CFindDlg(CWnd* pParent = NULL);   // standard constructor
     virtual ~CFindDlg();
-    void Create(CWnd* pParent = nullptr, int id = 0);
+    void Create(CWnd * pParent = NULL) {CDialog::Create(IDD, pParent);ShowWindow(SW_SHOW);UpdateWindow();}
     bool IsTerminating() {return m_bTerminating;}
     bool FindNext() {return m_bFindNext;}
     bool MatchCase() {return !!m_bMatchCase;}
@@ -71,7 +71,6 @@ protected:
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd *pWnd, UINT nCtlColor);
     afx_msg void OnBnClickedReplace();
     afx_msg void OnBnClickedReplaceall();
-    void SaveWindowPos(CWnd * pParent);
 private:
     UINT            m_FindMsg;
     bool            m_bTerminating;
@@ -89,5 +88,4 @@ private:
     CRegDWORD       m_regWholeWord;
     COLORREF        m_clrFindStatus;
     bool            m_bReadonly;
-    int             m_id;
 };

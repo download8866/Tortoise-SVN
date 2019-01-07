@@ -128,7 +128,9 @@ contains requires
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 static void GetRangeLowered(Sci_PositionU start,
 		Sci_PositionU end,

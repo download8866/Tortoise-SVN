@@ -20,7 +20,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 static void GetRange(Sci_PositionU start,
                      Sci_PositionU end,

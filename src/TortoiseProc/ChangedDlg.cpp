@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2016 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -171,6 +171,7 @@ UINT CChangedDlg::ChangedStatusThread()
     DialogEnableWindow(IDC_SHOWEXTERNALS, FALSE);
     DialogEnableWindow(IDC_SHOWFILES, FALSE);
     DialogEnableWindow(IDC_SHOWFOLDERS, FALSE);
+    CString temp;
     m_FileListCtrl.SetDepthInfinity(m_bDepthInfinity);
 
     if (m_bShowPropertiesClicked)

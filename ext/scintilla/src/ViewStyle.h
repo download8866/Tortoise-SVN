@@ -8,47 +8,44 @@
 #ifndef VIEWSTYLE_H
 #define VIEWSTYLE_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 /**
  */
 class MarginStyle {
 public:
 	int style;
-	ColourDesired back;
 	int width;
 	int mask;
 	bool sensitive;
 	int cursor;
-	MarginStyle(int style_= SC_MARGIN_SYMBOL, int width_=0, int mask_=0);
+	MarginStyle();
 };
 
 /**
  */
 class FontNames {
 private:
-	std::vector<UniqueString> names;
+	std::vector<char *> names;
+
+	// Private so FontNames objects can not be copied
+	FontNames(const FontNames &);
 public:
 	FontNames();
-	// FontNames objects can not be copied.
-	FontNames(const FontNames &) = delete;
-	FontNames(FontNames &&) = delete;
-	FontNames &operator=(const FontNames &) = delete;
-	FontNames &operator=(FontNames &&) = delete;
 	~FontNames();
 	void Clear();
 	const char *Save(const char *name);
 };
 
 class FontRealised : public FontMeasurements {
+	// Private so FontRealised objects can not be copied
+	FontRealised(const FontRealised &);
+	FontRealised &operator=(const FontRealised &);
 public:
 	Font font;
 	FontRealised();
-	// FontRealised objects can not be copied.
-	FontRealised(const FontRealised &) = delete;
-	FontRealised(FontRealised &&) = delete;
-	FontRealised &operator=(const FontRealised &) = delete;
-	FontRealised &operator=(FontRealised &&) = delete;
 	virtual ~FontRealised();
 	void Realise(Surface &surface, int zoomLevel, int technology, const FontSpecification &fs);
 };
@@ -57,9 +54,7 @@ enum IndentView {ivNone, ivReal, ivLookForward, ivLookBoth};
 
 enum WhiteSpaceVisibility {wsInvisible=0, wsVisibleAlways=1, wsVisibleAfterIndent=2, wsVisibleOnlyInIndent=3};
 
-enum TabDrawMode {tdLongArrow=0, tdStrikeOut=1};
-
-typedef std::map<FontSpecification, std::unique_ptr<FontRealised>> FontMap;
+typedef std::map<FontSpecification, FontRealised *> FontMap;
 
 enum WrapMode { eWrapNone, eWrapWord, eWrapChar, eWrapWhitespace };
 
@@ -68,24 +63,13 @@ public:
 	bool isSet;
 	ColourOptional(ColourDesired colour_=ColourDesired(0,0,0), bool isSet_=false) : ColourDesired(colour_), isSet(isSet_) {
 	}
-	ColourOptional(uptr_t wParam, sptr_t lParam) : ColourDesired(static_cast<int>(lParam)), isSet(wParam != 0) {
+	ColourOptional(uptr_t wParam, sptr_t lParam) : ColourDesired(static_cast<long>(lParam)), isSet(wParam != 0) {
 	}
 };
 
 struct ForeBackColours {
 	ColourOptional fore;
 	ColourOptional back;
-};
-
-struct EdgeProperties {
-	int column;
-	ColourDesired colour;
-	EdgeProperties(int column_ = 0, ColourDesired colour_ = ColourDesired(0)) :
-		column(column_), colour(colour_) {
-	}
-	EdgeProperties(uptr_t wParam, sptr_t lParam) :
-		column(static_cast<int>(wParam)), colour(static_cast<int>(lParam)) {
-	}
 };
 
 /**
@@ -95,12 +79,12 @@ class ViewStyle {
 	FontMap fonts;
 public:
 	std::vector<Style> styles;
-	int nextExtendedStyle;
-	std::vector<LineMarker> markers;
+	size_t nextExtendedStyle;
+	LineMarker markers[MARKER_MAX + 1];
 	int largestMarkerHeight;
-	std::vector<Indicator> indicators;
-	bool indicatorsDynamic;
-	bool indicatorsSetFore;
+	Indicator indicators[INDIC_MAX + 1];
+	unsigned int indicatorsDynamic;
+	unsigned int indicatorsSetFore;
 	int technology;
 	int lineHeight;
 	int lineOverlap;
@@ -131,23 +115,23 @@ public:
 	int rightMarginWidth;	///< Spacing margin on right of text
 	int maskInLine;	///< Mask for markers to be put into text because there is nowhere for them to go in margin
 	int maskDrawInText;	///< Mask for markers that always draw in text
-	std::vector<MarginStyle> ms;
+	MarginStyle ms[SC_MAX_MARGIN+1];
 	int fixedColumnWidth;	///< Total width of margins
 	bool marginInside;	///< true: margin included in text view, false: separate views
 	int textStart;	///< Starting x position of text within the view
 	int zoomLevel;
 	WhiteSpaceVisibility viewWhitespace;
-	TabDrawMode tabDrawMode;
 	int whitespaceSize;
 	IndentView viewIndentationGuides;
 	bool viewEOL;
 	ColourDesired caretcolour;
 	ColourDesired additionalCaretColour;
-	int caretLineFrame;
 	bool showCaretLineBackground;
 	bool alwaysShowCaretLineBackground;
 	ColourDesired caretLineBackground;
 	int caretLineAlpha;
+	ColourDesired edgecolour;
+	int edgeState;
 	int caretStyle;
 	int caretWidth;
 	bool someStylesProtected;
@@ -162,9 +146,7 @@ public:
 	int braceHighlightIndicator;
 	bool braceBadLightIndicatorSet;
 	int braceBadLightIndicator;
-	int edgeState;
-	EdgeProperties theEdge;
-	std::vector<EdgeProperties> theMultiEdge;
+	int theEdge;
 	int marginNumberPadding; // the right-side padding of the number margin
 	int ctrlCharPadding; // the padding around control character text blobs
 	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
@@ -178,10 +160,6 @@ public:
 
 	ViewStyle();
 	ViewStyle(const ViewStyle &source);
-	ViewStyle(ViewStyle &&) = delete;
-	// Can only be copied through copy constructor which ensures font names initialised correctly
-	ViewStyle &operator=(const ViewStyle &) = delete;
-	ViewStyle &operator=(ViewStyle &&) = delete;
 	~ViewStyle();
 	void CalculateMarginWidthAndMask();
 	void Init(size_t stylesSize_=256);
@@ -194,11 +172,8 @@ public:
 	void SetStyleFontName(int styleIndex, const char *name);
 	bool ProtectionActive() const;
 	int ExternalMarginWidth() const;
-	int MarginFromLocation(Point pt) const;
 	bool ValidStyle(size_t styleIndex) const;
 	void CalcLargestMarkerHeight();
-	int GetFrameWidth() const;
-	bool IsLineFrameOpaque(bool caretActive, bool lineContainsCaret) const;
 	ColourOptional Background(int marksOfLine, bool caretActive, bool lineContainsCaret) const;
 	bool SelectionBackgroundDrawn() const;
 	bool WhitespaceBackgroundDrawn() const;
@@ -217,8 +192,12 @@ private:
 	void CreateAndAddFont(const FontSpecification &fs);
 	FontRealised *Find(const FontSpecification &fs);
 	void FindMaxAscentDescent();
+	// Private so can only be copied through copy constructor which ensures font names initialised correctly
+	ViewStyle &operator=(const ViewStyle &);
 };
 
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -48,7 +48,6 @@ class CTreeItem
 public:
     CTreeItem()
         : children_fetched(false)
-        , checkbox_toggled(false)
         , has_child_folders(false)
         , is_external(false)
         , kind(svn_node_unknown)
@@ -56,7 +55,6 @@ public:
         , bookmark(false)
         , unversioned(false)
         , dummy(false)
-        , revision()
     {
     }
 
@@ -66,7 +64,6 @@ public:
     CString         logicalPath;                ///< concatenated unescapedname values
     bool            is_external;                ///< if set, several operations may not be available
     bool            children_fetched;           ///< whether the contents of the folder are known/fetched or not
-    bool            checkbox_toggled;           ///< whether the checkbox has been modified by the user
     bool            has_child_folders;
     bool            unversioned;
     std::deque<CItem>    children;
@@ -75,7 +72,6 @@ public:
     bool            svnparentpathroot;
     bool            bookmark;
     bool            dummy;
-    SVNRev          revision;
 };
 
 
@@ -183,6 +179,8 @@ protected:
     LRESULT OnAfterInitDialog(WPARAM /*wParam*/, LPARAM /*lParam*/);
     /// called to update the tree node for a specific URL
     LRESULT OnRefreshURL(WPARAM /*wParam*/, LPARAM lParam);
+    /// draws the bar when the tree and list control are resized
+    void DrawXorBar(CDC * pDC, int x1, int y1, int width, int height);
 
     /// recursively removes all items from \c hItem on downwards.
     void RecursiveRemove(HTREEITEM hItem, bool bChildrenOnly = false);
@@ -283,7 +281,7 @@ protected:
     bool TrySVNParentPath();
 
     /// resizes the control so that the divider is at position 'point'
-    void HandleDividerMove(CPoint point);
+    void HandleDividerMove(CPoint point, bool bDraw);
     bool CheckoutDepthForItem( HTREEITEM hItem );
     void CheckTreeItem( HTREEITEM hItem, bool bCheck );
     void CheckTreeItemRecursive( HTREEITEM hItem, bool bCheck );
@@ -294,7 +292,6 @@ protected:
 
     void ShowText(const CString& sText, bool forceupdate = false);
     static void FilterInfinityDepthItems(std::map<CString,svn_depth_t>& depths);
-    void FilterUnknownDepthItems(std::map<CString,svn_depth_t>& depths);
     void SetListItemInfo( int index, const CItem * it );
 
     bool RunStartCommit(const CTSVNPathList& pathlist, CString& sLogMsg);
@@ -325,7 +322,6 @@ private:
     CTSVNPath           m_redirectedUrl;
     CTSVNPath           m_wcPath;
     CString             m_selectedURLs; ///< only valid after <OK>
-    CString             m_initialFilename;
     bool                m_bThreadRunning;
     static const UINT   m_AfterInitMessage;
     bool                m_bFetchChildren;

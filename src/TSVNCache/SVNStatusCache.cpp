@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2006,2008-2015, 2017 - TortoiseSVN
+// External Cache Copyright (C) 2005-2006,2008-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -111,7 +111,7 @@ void CSVNStatusCache::Create()
                             goto error;
                         }
                         sKey.ReleaseBuffer(value);
-                        auto cacheddir = std::make_unique<CCachedDirectory>();
+                        std::unique_ptr<CCachedDirectory> cacheddir (new CCachedDirectory());
                         if (!cacheddir.get() || !cacheddir->LoadFromDisk(pFile))
                         {
                             cacheddir.reset();
@@ -203,7 +203,7 @@ bool CSVNStatusCache::SaveCache()
             fclose(pFile);
         }
     }
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": cache saved to disk at %s\n", (LPCWSTR)path);
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": cache saved to disk at %s\n", path);
     return true;
 error:
     fclose(pFile);
@@ -260,7 +260,7 @@ CSVNStatusCache::~CSVNStatusCache(void)
 
 void CSVNStatusCache::Refresh()
 {
-    m_shellCache.RefreshIfNeeded();
+    m_shellCache.ForceRefresh();
     SVNConfig::Instance().Refresh();
     if (!m_pInstance->m_directoryCache.empty())
     {
@@ -511,7 +511,7 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
             // again. If that's the case, just do nothing
             if (path.IsDirectory()||(!path.Exists()))
             {
-                auto newcdir = std::make_unique<CCachedDirectory>(path);
+                std::unique_ptr<CCachedDirectory> newcdir (new CCachedDirectory (path));
                 if (newcdir.get())
                 {
                     itMap = m_directoryCache.lower_bound (path);

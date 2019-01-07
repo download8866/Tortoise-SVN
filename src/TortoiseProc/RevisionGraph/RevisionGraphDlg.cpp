@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,7 +32,6 @@
 #include "RepositoryInfo.h"
 #include "RevisionInRange.h"
 #include "RemovePathsBySubString.h"
-#include "DPIAware.h"
 #include <strsafe.h>
 
 #ifdef _DEBUG
@@ -42,20 +41,6 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 using namespace Gdiplus;
-
-struct CToolBarData
-{
-    WORD wVersion;
-    WORD wWidth;
-    WORD wHeight;
-    WORD wItemCount;
-    //WORD aItems[wItemCount]
-
-    WORD* items()
-    {
-        return (WORD*)(this + 1);
-    }
-};
 
 IMPLEMENT_DYNAMIC(CRevisionGraphDlg, CResizableStandAloneDialog)
 CRevisionGraphDlg::CRevisionGraphDlg(CWnd* pParent /*=NULL*/)
@@ -141,34 +126,7 @@ BOOL CRevisionGraphDlg::InitializeToolbar()
     // set up the toolbar
     // add the tool bar to the dialog
     m_ToolBar.CreateEx(this, TBSTYLE_FLAT | TBSTYLE_WRAPABLE | TBSTYLE_TRANSPARENT | CBRS_SIZE_DYNAMIC);
-
-    // LoadToolBar() asserts in debug mode because the bitmap
-    // fails to load. That's not a problem because we load the bitmap
-    // further down manually.
-    // but the assertion is ugly, so we load the button resource here
-    // manually as well and call SetButtons().
-    HINSTANCE hInst = AfxFindResourceHandle(MAKEINTRESOURCE(IDR_REVGRAPHBAR), RT_TOOLBAR);
-    HRSRC hRsrc = ::FindResource(hInst, MAKEINTRESOURCE(IDR_REVGRAPHBAR), RT_TOOLBAR);
-    if (hRsrc == NULL)
-        return FALSE;
-
-    HGLOBAL hGlobal = LoadResource(hInst, hRsrc);
-    if (hGlobal == NULL)
-        return FALSE;
-
-    auto pData = (CToolBarData*)LockResource(hGlobal);
-    if (pData == NULL)
-        return FALSE;
-    ASSERT(pData->wVersion == 1);
-
-    auto pItems = std::make_unique<UINT[]>(pData->wItemCount);
-    for (int i = 0; i < pData->wItemCount; i++)
-        pItems[i] = pData->items()[i];
-    m_ToolBar.SetButtons(pItems.get(), pData->wItemCount);
-
-    UnlockResource(hGlobal);
-    FreeResource(hGlobal);
-
+    m_ToolBar.LoadToolBar(IDR_REVGRAPHBAR);
     m_ToolBar.ShowWindow(SW_SHOW);
     m_ToolBar.SetBarStyle(CBRS_ALIGN_TOP | CBRS_TOOLTIPS | CBRS_FLYBY);
 
@@ -178,43 +136,25 @@ BOOL CRevisionGraphDlg::InitializeToolbar()
         CBitmap     cBitmap;
         BITMAP      bmBitmap;
 
-        // load the toolbar with the dimensions of the bitmap itself
         cBitmap.Attach(LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDR_REVGRAPHBAR),
             IMAGE_BITMAP, 0, 0,
             LR_DEFAULTSIZE|LR_CREATEDIBSECTION));
         cBitmap.GetBitmap(&bmBitmap);
-        cBitmap.DeleteObject();
-        // now load the toolbar again, but this time with the dpi-scaled dimensions
-        // note: we could just load it once and then resize the bitmap, but
-        // that's not faster. So loading it again is what we do.
-        cBitmap.Attach(LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDR_REVGRAPHBAR),
-            IMAGE_BITMAP,
-            CDPIAware::Instance().Scale(bmBitmap.bmWidth),
-            CDPIAware::Instance().Scale(bmBitmap.bmHeight),
-            LR_CREATEDIBSECTION));
-        cBitmap.GetBitmap(&bmBitmap);
-
 
         CSize       cSize(bmBitmap.bmWidth, bmBitmap.bmHeight);
-        int         nNbBtn = cSize.cx/ CDPIAware::Instance().Scale(20);
+        int         nNbBtn = cSize.cx/20;
         RGBTRIPLE * rgb = (RGBTRIPLE*)(bmBitmap.bmBits);
         COLORREF    rgbMask = RGB(rgb[0].rgbtRed, rgb[0].rgbtGreen, rgb[0].rgbtBlue);
 
-        cImageList.Create(CDPIAware::Instance().Scale(20), cSize.cy, ILC_COLOR32|ILC_MASK, nNbBtn, 0);
+        cImageList.Create(20, cSize.cy, ILC_COLOR32|ILC_MASK, nNbBtn, 0);
         cImageList.Add(&cBitmap, rgbMask);
-        // set the sizes of the button and images:
-        // note: buttonX must be 7 pixels more than imageX, and buttonY must be 6 pixels more than imageY.
-        // See the source of SetSizes().
-        m_ToolBar.SetSizes(CSize(CDPIAware::Instance().Scale(27), CDPIAware::Instance().Scale(26)),
-            CSize(CDPIAware::Instance().Scale(20), CDPIAware::Instance().Scale(20)));
         m_ToolBar.SendMessage(TB_SETIMAGELIST, 0, (LPARAM)cImageList.m_hImageList);
         cImageList.Detach();
         cBitmap.Detach();
     }
-
     RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0);
 
-#define SNAP_WIDTH CDPIAware::Instance().Scale(60) //the width of the combo box
+#define SNAP_WIDTH 60 //the width of the combo box
     // set up the ComboBox control as a snap mode select box
     // First get the index of the placeholders position in the toolbar
     int zoomComboIndex = 0;
@@ -227,8 +167,8 @@ BOOL CRevisionGraphDlg::InitializeToolbar()
     m_ToolBar.GetItemRect(zoomComboIndex, &rect);
 
     // expand the rectangle to allow the combo box room to drop down
-    rect.top+= CDPIAware::Instance().Scale(3);
-    rect.bottom += CDPIAware::Instance().Scale(200);
+    rect.top+=3;
+    rect.bottom += 200;
 
     // then create the combo box and show it
     if (!m_ToolBar.m_ZoomCombo.CreateEx(WS_EX_RIGHT, WS_CHILD|WS_VISIBLE|CBS_AUTOHSCROLL|CBS_DROPDOWN,
@@ -482,7 +422,7 @@ void CRevisionGraphDlg::OnViewZoomHeight()
     float horzfact = (windowRect.Width() - 4.0f)/(4.0f + graphRect.Width());
     float vertfact = (windowRect.Height() - 4.0f)/(4.0f + graphRect.Height());
     if ((horzfact < vertfact) && (horzfact < MAX_ZOOM))
-        vertfact = (windowRect.Height() - CDPIAware::Instance().Scale(20))/(4.0f + graphRect.Height());
+        vertfact = (windowRect.Height() - 20.0f)/(4.0f + graphRect.Height());
 
     DoZoom (min (MAX_ZOOM, vertfact));
 }
@@ -496,7 +436,7 @@ void CRevisionGraphDlg::OnViewZoomWidth()
     float horzfact = (windowRect.Width() - 4.0f)/(4.0f + graphRect.Width());
     float vertfact = (windowRect.Height() - 4.0f)/(4.0f + graphRect.Height());
     if ((vertfact < horzfact) && (vertfact < MAX_ZOOM))
-        horzfact = (windowRect.Width() - CDPIAware::Instance().Scale(20))/(4.0f + graphRect.Width());
+        horzfact = (windowRect.Width() - 20.0f)/(4.0f + graphRect.Width());
 
     DoZoom (min (MAX_ZOOM, horzfact));
 }
@@ -661,7 +601,7 @@ BOOL CRevisionGraphDlg::OnToggleRedrawOption (UINT controlID)
 void CRevisionGraphDlg::StartWorkerThread()
 {
     if (!m_Graph.IsUpdateJobRunning())
-        m_Graph.updateJob = std::make_unique<CFuture<bool>>(this, &CRevisionGraphDlg::UpdateData);
+        m_Graph.updateJob.reset (new CFuture<bool>(this, &CRevisionGraphDlg::UpdateData));
 }
 
 void CRevisionGraphDlg::OnCancel()
@@ -679,7 +619,7 @@ void CRevisionGraphDlg::OnFileSavegraphas()
 {
     CString tempfile;
     int filterindex = 0;
-    if (CAppUtils::FileOpenSave(tempfile, &filterindex, IDS_REVGRAPH_SAVEPIC, IDS_PICTUREFILEFILTER, false, ::PathIsURL(m_Graph.m_sPath) ? CString() : m_Graph.m_sPath, m_hWnd))
+    if (CAppUtils::FileOpenSave(tempfile, &filterindex, IDS_REVGRAPH_SAVEPIC, IDS_PICTUREFILEFILTER, false, m_Graph.m_sPath, m_hWnd))
     {
         // if the user doesn't specify a file extension, default to
         // wmf and add that extension to the filename. But only if the
@@ -728,6 +668,7 @@ void CRevisionGraphDlg::OnChangeZoom()
 {
     if (!IsWindow(m_Graph.GetSafeHwnd()))
         return;
+    CString strText;
     CString strItem;
     CComboBoxEx* pCBox = (CComboBoxEx*)m_ToolBar.GetDlgItem(ID_REVGRAPH_ZOOMCOMBO);
     pCBox->GetWindowText(strItem);

@@ -28,7 +28,9 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 static inline bool IsAWordChar(int ch) {
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
@@ -53,7 +55,7 @@ static inline bool IsANumberChar(int ch) {
  */
 static void CheckForKeyword(StyleContext& sc, WordList* keywordlists[], int activeState)
 {
-  Sci_Position length = sc.LengthCurrent() + 1; // +1 for the next char
+  int length = sc.LengthCurrent() + 1; // +1 for the next char
   char* s = new char[length];
   sc.GetCurrentLowered(s, length);
   if (keywordlists[0]->InList(s))

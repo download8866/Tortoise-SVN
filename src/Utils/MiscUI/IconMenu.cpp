@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2009, 2011, 2013-2015, 2018 - TortoiseSVN
+// Copyright (C) 2008-2009, 2011, 2013-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #include "stdafx.h"
 #include "IconMenu.h"
 #include "registry.h"
-#include "LoadIconEx.h"
 
 CIconMenu::CIconMenu(void) : CMenu()
 {
@@ -124,21 +123,19 @@ void CIconMenu::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
         return;     //not for a menu
     HICON hIcon = NULL;
     bool bDestroyIcon = true;
-    int iconWidth = GetSystemMetrics(SM_CXSMICON);
-    int iconHeight = GetSystemMetrics(SM_CYSMICON);
     if (iconhandles.find(lpDrawItemStruct->itemID) != iconhandles.end())
     {
         hIcon = iconhandles[lpDrawItemStruct->itemID];
         bDestroyIcon = false;
     }
     else
-        hIcon = LoadIconEx(AfxGetResourceHandle(), MAKEINTRESOURCE(icons[lpDrawItemStruct->itemID]), iconWidth, iconHeight);
+        hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(icons[lpDrawItemStruct->itemID]), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
     if (hIcon == NULL)
         return;
     DrawIconEx(lpDrawItemStruct->hDC,
-        lpDrawItemStruct->rcItem.left - iconWidth,
-        lpDrawItemStruct->rcItem.top + (lpDrawItemStruct->rcItem.bottom - lpDrawItemStruct->rcItem.top - iconHeight) / 2,
-        hIcon, iconWidth, iconHeight,
+        lpDrawItemStruct->rcItem.left - 16,
+        lpDrawItemStruct->rcItem.top + (lpDrawItemStruct->rcItem.bottom - lpDrawItemStruct->rcItem.top - 16) / 2,
+        hIcon, 16, 16,
         0, NULL, DI_NORMAL);
     if (bDestroyIcon)
         DestroyIcon(hIcon);

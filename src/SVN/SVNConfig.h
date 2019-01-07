@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2010, 2012-2015, 2018 - TortoiseSVN
+// Copyright (C) 2003-2006, 2010, 2012-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,11 +32,9 @@
 class SVNConfig
 {
 private:
+    SVNConfig(const SVNConfig&){}
     SVNConfig(void);
     ~SVNConfig(void);
-    // prevent cloning
-    SVNConfig(const SVNConfig&) = delete;
-    SVNConfig& operator=(const SVNConfig&) = delete;
 public:
     static SVNConfig& Instance()
     {
@@ -89,7 +87,6 @@ public:
 
     BOOL ConfigGetBool(const char * section, const char * option, bool defbool);
 
-    const CTSVNPath& GetLastWCIgnorePath() const { return m_lastWcIgnorePath; }
 private:
     bool SetUpSSH();
 
@@ -101,5 +98,4 @@ private:
     svn_error_t *               Err;
     CComCriticalSection         m_critSec;
     static SVNConfig *          m_pInstance;
-    CTSVNPath                   m_lastWcIgnorePath;
 };

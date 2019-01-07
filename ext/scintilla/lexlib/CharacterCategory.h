@@ -8,7 +8,9 @@
 #ifndef CHARACTERCATEGORY_H
 #define CHARACTERCATEGORY_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 enum CharacterCategory {
 	ccLu, ccLl, ccLt, ccLm, ccLo,
@@ -22,12 +24,8 @@ enum CharacterCategory {
 
 CharacterCategory CategoriseCharacter(int character);
 
-// Common definitions of allowable characters in identifiers from UAX #31.
-bool IsIdStart(int character);
-bool IsIdContinue(int character);
-bool IsXidStart(int character);
-bool IsXidContinue(int character);
-
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

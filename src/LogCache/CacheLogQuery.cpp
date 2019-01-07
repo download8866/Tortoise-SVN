@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2016, 2018 - TortoiseSVN
+// Copyright (C) 2007-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -534,48 +534,41 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* _cache
 
     CString rooturl = CUnicodeUtils::GetUnicode (URL);
 
-    bool doRetry = false;
-    do
+    try
     {
-        try
+        svnQuery->Log ( CTSVNPathList (path)
+                      , static_cast<long>(startRevision)
+                      , static_cast<long>(startRevision)
+                      , static_cast<long>(endRevision)
+                      , limit
+                      , options.GetStrictNodeHistory()
+                      , this
+                      , true
+                      , options.GetIncludeMerges()
+                      , options.GetIncludeStandardRevProps()
+                      , options.GetIncludeUserRevProps()
+                      , TRevPropNames());
+    }
+    catch (SVNError& e)
+    {
+        // if the problem was caused by SVN and the user wants
+        // to go off-line, swallow the error
+
+        if (   receiverError
+            || e.GetCode() == SVN_ERR_CANCELLED
+            || e.GetCode() == SVN_ERR_FS_NOT_FOUND  // deleted paths etc.
+            || e.GetCode() == SVN_ERR_FS_NO_SUCH_REVISION
+            || !repositoryInfoCache->IsOffline (uuid, rooturl, true))
         {
-            doRetry = false;
-            svnQuery->Log(CTSVNPathList(path)
-                , static_cast<long>(startRevision)
-                , static_cast<long>(startRevision)
-                , static_cast<long>(endRevision)
-                , limit
-                , options.GetStrictNodeHistory()
-                , this
-                , true
-                , options.GetIncludeMerges()
-                , options.GetIncludeStandardRevProps()
-                , options.GetIncludeUserRevProps()
-                , TRevPropNames());
+            // we want to cache whatever data we could receive so far ..
+
+            MergeFromUpdateCache();
+
+            // cancel SVN op
+
+            throw;
         }
-        catch (SVNError& e)
-        {
-            // if the problem was caused by SVN and the user wants
-            // to go off-line, swallow the error
-
-            if (receiverError
-                || e.GetCode() == SVN_ERR_CANCELLED
-                || e.GetCode() == SVN_ERR_FS_NOT_FOUND  // deleted paths etc.
-                || e.GetCode() == SVN_ERR_FS_NO_SUCH_REVISION
-                || !repositoryInfoCache->IsOffline(uuid, rooturl, true, CUnicodeUtils::GetUnicode(e.GetMessage()), doRetry))
-            {
-                if (doRetry)
-                    continue;
-                // we want to cache whatever data we could receive so far ..
-
-                MergeFromUpdateCache();
-
-                // cancel SVN op
-
-                throw;
-            }
-        }
-    } while (doRetry);
+    }
 
     // update the cache with the data we may have received
 
@@ -583,8 +576,7 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* _cache
 
     // update skip ranges etc. if we are still connected
 
-    doRetry = false;
-    if (!repositoryInfoCache->IsOffline (uuid, rooturl, false, L"", doRetry))
+    if (!repositoryInfoCache->IsOffline (uuid, rooturl, false))
     {
         // do we miss some data at the end of the log?
         // (no-op, if end-of-log was reached;
@@ -1011,8 +1003,8 @@ void CCacheLogQuery::InternalLog ( revision_t startRevision
             }
 
             // don't try to fetch data when in "disconnected" mode
-            bool doRetry = false;
-            if (repositoryInfoCache->IsOffline (uuid, root, false, L"", doRetry))
+
+            if (repositoryInfoCache->IsOffline (uuid, root, false))
             {
                 // just skip unknown revisions
                 // (we already warned the use that this might
@@ -1104,8 +1096,8 @@ CDictionaryBasedTempPath CCacheLogQuery::TranslatePegRevisionPath
         if (iterator.DataIsMissing())
         {
             // don't try to fetch data when in "disconnected" mode
-            bool doRetry = false;
-            if (repositoryInfoCache->IsOffline (uuid, root, false, L"", doRetry))
+
+            if (repositoryInfoCache->IsOffline (uuid, root, false))
             {
                 // just skip unknown revisions
                 // (we already warned the use that this might
@@ -1242,15 +1234,14 @@ revision_t CCacheLogQuery::DecodeRevision ( const CTSVNPath& path
             const CRevisionIndex& revisions = cache->GetRevisions();
             result = cache->FindRevisionByDate (revision.GetDate());
             CString sURL = url.GetSVNPathString();
-            bool doRetry = false;
-            bool offline = repositoryInfoCache->IsOffline (uuid, sURL, false, L"", doRetry);
+            bool offline = repositoryInfoCache->IsOffline (uuid, sURL, false);
 
             // special case: date is before revision 1 / first cached revision
 
             if (   (result == NO_REVISION)
                 && ((revisions.GetFirstCachedRevision() < 2) || offline))
             {
-                // we won't get anything better than this:
+                // we won't get anyting better than this:
 
                 result = 0;
                 break;
@@ -1302,37 +1293,34 @@ revision_t CCacheLogQuery::DecodeRevision ( const CTSVNPath& path
             {
                 // first attempt: ask directly for that revision
 
-                do
+                SVNInfo info;
+                const SVNInfoData * baseInfo
+                    = info.GetFirstFileInfo (path, peg, revision);
+
+                if (baseInfo != NULL)
                 {
-                    SVNInfo info;
-                    const SVNInfoData * baseInfo
-                        = info.GetFirstFileInfo(path, peg, revision);
+                    result = static_cast<LONG>(baseInfo->rev);
+                    break;
+                }
 
-                    if (baseInfo != NULL)
-                    {
-                        result = static_cast<LONG>(baseInfo->rev);
-                        break;
-                    }
+                // was it just the revision being out of bound?
 
-                    // was it just the revision being out of bound?
+                if (info.GetSVNError()->apr_err == SVN_ERR_CLIENT_UNRELATED_RESOURCES)
+                {
+                    // this will happen for dates in the future (post-HEAD)
+                    // as long as the URL is valid.
+                    // -> we are propably at the bottom end
 
-                    if (info.GetSVNError()->apr_err == SVN_ERR_CLIENT_UNRELATED_RESOURCES)
-                    {
-                        // this will happen for dates in the future (post-HEAD)
-                        // as long as the URL is valid.
-                        // -> we are probably at the bottom end
+                    result = 0;
+                    break;
+                }
 
-                        result = 0;
-                        break;
-                    }
+                // (Probably) a server access errror. Retry off-line.
 
-                    // (Probably) a server access error. Retry off-line.
-                    doRetry = false;
-                    if (repositoryInfoCache->IsOffline(uuid, sURL, true, info.GetLastErrorMessage(), doRetry))
-                        return DecodeRevision(path, url, revision, peg);
-                    else
-                        throw SVNError(info.GetSVNError());
-                } while (doRetry);
+                if (repositoryInfoCache->IsOffline (uuid, sURL, true))
+                    return DecodeRevision (path, url, revision, peg);
+                else
+                    throw SVNError(info.GetSVNError());
             }
 
             break;
@@ -1367,7 +1355,11 @@ CTSVNPath CCacheLogQuery::GetPath (const CTSVNPathList& targets) const
         throw SVNError ( SVN_ERR_INCORRECT_PARAMS
                        , "Must specify exactly one path to get the log from.");
 
-    return targets [0];
+    // GetURLFromPath() always returns the URL escaped, so we have to escape the url we
+    // get from the client too.
+    return targets [0].IsUrl()
+        ? CTSVNPath (CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(targets [0].GetSVNPathString()))))
+        : targets [0];
 }
 
 // construction / destruction

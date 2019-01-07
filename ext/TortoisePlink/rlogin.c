@@ -53,8 +53,8 @@ static void rlogin_log(Plug plug, int type, SockAddr addr, int port,
                        rlogin->conf, !rlogin->firstbyte);
 }
 
-static void rlogin_closing(Plug plug, const char *error_msg, int error_code,
-			   int calling_back)
+static int rlogin_closing(Plug plug, const char *error_msg, int error_code,
+			  int calling_back)
 {
     Rlogin rlogin = (Rlogin) plug;
 
@@ -76,9 +76,10 @@ static void rlogin_closing(Plug plug, const char *error_msg, int error_code,
 	logevent(rlogin->frontend, error_msg);
 	connection_fatal(rlogin->frontend, "%s", error_msg);
     }				       /* Otherwise, the remote side closed the connection normally. */
+    return 0;
 }
 
-static void rlogin_receive(Plug plug, int urgent, char *data, int len)
+static int rlogin_receive(Plug plug, int urgent, char *data, int len)
 {
     Rlogin rlogin = (Rlogin) plug;
     if (urgent == 2) {
@@ -112,6 +113,7 @@ static void rlogin_receive(Plug plug, int urgent, char *data, int len)
 	if (len > 0)
             c_write(rlogin, data, len);
     }
+    return 1;
 }
 
 static void rlogin_sent(Plug plug, int bufsize)

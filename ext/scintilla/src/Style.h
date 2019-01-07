@@ -8,7 +8,9 @@
 #ifndef STYLE_H
 #define STYLE_H
 
+#ifdef SCI_NAMESPACE
 namespace Scintilla {
+#endif
 
 struct FontSpecification {
 	const char *fontName;
@@ -18,7 +20,7 @@ struct FontSpecification {
 	int characterSet;
 	int extraFontFlag;
 	FontSpecification() :
-		fontName(nullptr),
+		fontName(0),
 		weight(SC_WEIGHT_NORMAL),
 		italic(false),
 		size(10 * SC_FONT_SIZE_MULTIPLIER),
@@ -31,27 +33,24 @@ struct FontSpecification {
 
 // Just like Font but only has a copy of the FontID so should not delete it
 class FontAlias : public Font {
+	// Private so FontAlias objects can not be assigned except for intiialization
+	FontAlias &operator=(const FontAlias &);
 public:
 	FontAlias();
-	// FontAlias objects can not be assigned except for initialization
 	FontAlias(const FontAlias &);
-	FontAlias(FontAlias &&)  = delete;
-	FontAlias &operator=(const FontAlias &) = delete;
-	FontAlias &operator=(FontAlias &&) = delete;
-	~FontAlias() override;
-	void MakeAlias(const Font &fontOrigin);
+	virtual ~FontAlias();
+	void MakeAlias(Font &fontOrigin);
 	void ClearFont();
 };
 
 struct FontMeasurements {
 	unsigned int ascent;
 	unsigned int descent;
-	XYPOSITION capitalHeight;	// Top of capital letter to baseline: ascent - internal leading
 	XYPOSITION aveCharWidth;
 	XYPOSITION spaceWidth;
 	int sizeZoomed;
 	FontMeasurements();
-	void ClearMeasurements();
+	void Clear();
 };
 
 /**
@@ -72,10 +71,8 @@ public:
 
 	Style();
 	Style(const Style &source);
-	Style(Style &&) = delete;
 	~Style();
 	Style &operator=(const Style &source);
-	Style &operator=(Style &&) = delete;
 	void Clear(ColourDesired fore_, ColourDesired back_,
 	           int size_,
 	           const char *fontName_, int characterSet_,
@@ -87,6 +84,8 @@ public:
 	bool IsProtected() const { return !(changeable && visible);}
 };
 
+#ifdef SCI_NAMESPACE
 }
+#endif
 
 #endif

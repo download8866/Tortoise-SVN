@@ -39,9 +39,10 @@
 #include "CharacterCategory.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
-#include "DefaultLexer.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 // Options used for LexerVisualProlog
 struct OptionsVisualProlog {
@@ -63,7 +64,7 @@ struct OptionSetVisualProlog : public OptionSet<OptionsVisualProlog> {
     }
 };
 
-class LexerVisualProlog : public DefaultLexer {
+class LexerVisualProlog : public ILexer {
     WordList majorKeywords;
     WordList minorKeywords;
     WordList directiveKeywords;
@@ -75,34 +76,34 @@ public:
     }
     virtual ~LexerVisualProlog() {
     }
-    void SCI_METHOD Release() override {
+    void SCI_METHOD Release() {
         delete this;
     }
-    int SCI_METHOD Version() const override {
-        return lvRelease4;
+    int SCI_METHOD Version() const {
+        return lvOriginal;
     }
-    const char * SCI_METHOD PropertyNames() override {
+    const char * SCI_METHOD PropertyNames() {
         return osVisualProlog.PropertyNames();
     }
-    int SCI_METHOD PropertyType(const char *name) override {
+    int SCI_METHOD PropertyType(const char *name) {
         return osVisualProlog.PropertyType(name);
     }
-    const char * SCI_METHOD DescribeProperty(const char *name) override {
+    const char * SCI_METHOD DescribeProperty(const char *name) {
         return osVisualProlog.DescribeProperty(name);
     }
-    Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override;
-    const char * SCI_METHOD DescribeWordListSets() override {
+    Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
+    const char * SCI_METHOD DescribeWordListSets() {
         return osVisualProlog.DescribeWordListSets();
     }
-    Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override;
-    void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
-    void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
+    Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
+    void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+    void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
 
-    void * SCI_METHOD PrivateCall(int, void *) override {
+    void * SCI_METHOD PrivateCall(int, void *) {
         return 0;
     }
 
-    static ILexer4 *LexerFactoryVisualProlog() {
+    static ILexer *LexerFactoryVisualProlog() {
         return new LexerVisualProlog();
     }
 };
@@ -364,7 +365,6 @@ void SCI_METHOD LexerVisualProlog::Lex(Sci_PositionU startPos, Sci_Position leng
         case SCE_VISUALPROLOG_STRING_ESCAPE_ERROR:
             // return to SCE_VISUALPROLOG_STRING and treat as such (fall-through)
             sc.SetState(SCE_VISUALPROLOG_STRING);
-            // Falls through.
         case SCE_VISUALPROLOG_STRING:
             if (sc.atLineEnd) {
                 sc.SetState(SCE_VISUALPROLOG_STRING_EOL_OPEN);
@@ -384,7 +384,6 @@ void SCI_METHOD LexerVisualProlog::Lex(Sci_PositionU startPos, Sci_Position leng
         case SCE_VISUALPROLOG_STRING_VERBATIM_EOL:
             // return to SCE_VISUALPROLOG_STRING_VERBATIM and treat as such (fall-through)
             sc.SetState(SCE_VISUALPROLOG_STRING_VERBATIM);
-            // Falls through.
         case SCE_VISUALPROLOG_STRING_VERBATIM:
             if (sc.atLineEnd) {
                 sc.SetState(SCE_VISUALPROLOG_STRING_VERBATIM_EOL);
