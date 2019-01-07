@@ -324,8 +324,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
                 data->sActionColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED_WARNING);
                 data->sPathColumnText.Format(IDS_PROGRS_COPYDEPTH_WARNING, (LPCWSTR)SVNStatus::GetDepthString(m_depth));
                 data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
-                if (CRegDWORD(L"Software\\TortoiseSVN\\PlaySound", TRUE) != 0)
-                    PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
+                PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
                 m_bWarningShown = true;
             }
         }
@@ -430,8 +429,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
             data->sActionColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED_WARNING);
             data->sPathColumnText.Format(IDS_PROGRS_COPYDEPTH_WARNING, (LPCWSTR)SVNStatus::GetDepthString(m_depth));
             data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
-            if (CRegDWORD(L"Software\\TortoiseSVN\\PlaySound", TRUE) != 0)
-                PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
+            PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
 
             m_bWarningShown = true;
         }
@@ -570,8 +568,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
                 data->sPathColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED);
                 data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
                 data->bConflictSummary = true;
-                if (CRegDWORD(L"Software\\TortoiseSVN\\PlaySound", TRUE) != 0)
-                    PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
+                PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
                 m_bConflictWarningShown = true;
                 m_nConflicts = 0;
                 // This item will now be added after the switch statement
@@ -628,8 +625,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
                 data->sPathColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED);
                 data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
                 data->bConflictSummary = true;
-                if (CRegDWORD(L"Software\\TortoiseSVN\\PlaySound", TRUE) != 0)
-                    PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
+                PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
                 m_bConflictWarningShown = true;
                 m_nConflicts = 0;
                 // This item will now be added after the switch statement
@@ -1225,8 +1221,7 @@ void CSVNProgressDlg::ReportSVNError()
 
 void CSVNProgressDlg::ReportError(const CString& sError)
 {
-    if (CRegDWORD(L"Software\\TortoiseSVN\\PlaySound", TRUE) != 0)
-        PlaySound((LPCTSTR)SND_ALIAS_SYSTEMEXCLAMATION, NULL, SND_ALIAS_ID | SND_ASYNC);
+    PlaySound((LPCTSTR)SND_ALIAS_SYSTEMEXCLAMATION, NULL, SND_ALIAS_ID | SND_ASYNC);
     ReportString(sError, CString(MAKEINTRESOURCE(IDS_ERR_ERROR)), m_Colors.GetColor(CColors::Conflict));
     m_bErrorsOccurred = true;
 }
@@ -1242,15 +1237,13 @@ void CSVNProgressDlg::ReportHookFailed(hooktype t, const CTSVNPathList& pathList
 
 void CSVNProgressDlg::ReportWarning(const CString& sWarning)
 {
-    if (CRegDWORD(L"Software\\TortoiseSVN\\PlaySound", TRUE) != 0)
-        PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
+    PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
     ReportString(sWarning, CString(MAKEINTRESOURCE(IDS_WARN_WARNING)), m_Colors.GetColor(CColors::Conflict));
 }
 
 void CSVNProgressDlg::ReportNotification(const CString& sNotification)
 {
-    if (CRegDWORD(L"Software\\TortoiseSVN\\PlaySound", TRUE) != 0)
-        PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
+    PlaySound((LPCTSTR)SND_ALIAS_SYSTEMDEFAULT, NULL, SND_ALIAS_ID | SND_ASYNC);
     ReportString(sNotification, CString(MAKEINTRESOURCE(IDS_WARN_NOTE)));
 }
 
@@ -1963,14 +1956,14 @@ void CSVNProgressDlg::Sort()
     for(;;)
     {
         // Search to the start of the non-aux entry in the next block
-        auto actionBlockBegin = std::find_if(actionBlockEnd, m_arData.end(), [](const auto& pData) { return !CSVNProgressDlg::NotificationDataIsAux(pData); });
+        auto actionBlockBegin = std::find_if(actionBlockEnd, m_arData.end(), std::not1(std::ptr_fun(&CSVNProgressDlg::NotificationDataIsAux)));
         if(actionBlockBegin == m_arData.end())
         {
             // There are no more actions
             break;
         }
         // Now search to find the end of the block
-        actionBlockEnd = std::find_if(actionBlockBegin + 1, m_arData.end(), [](const auto& pData) { return CSVNProgressDlg::NotificationDataIsAux(pData); });
+        actionBlockEnd = std::find_if(actionBlockBegin+1, m_arData.end(), std::ptr_fun(&CSVNProgressDlg::NotificationDataIsAux));
         // Now sort the block
         std::sort(actionBlockBegin, actionBlockEnd, &CSVNProgressDlg::SortCompare);
     }
@@ -2167,10 +2160,6 @@ void CSVNProgressDlg::OnContextMenu(CWnd* pWnd, CPoint point)
             if ((!sPath.IsEmpty())&&(!SVN::PathIsURL(CTSVNPath(sPath))))
             {
                 CTSVNPath path = CTSVNPath(sPath);
-                if (!path.Exists())
-                {
-                    path = path.GetContainingDirectory();
-                }
                 if (path.GetDirectory().Exists())
                 {
                     popup.AppendMenuIcon(ID_EXPLORE, IDS_SVNPROGRESS_MENUOPENPARENT, IDI_EXPLORER);

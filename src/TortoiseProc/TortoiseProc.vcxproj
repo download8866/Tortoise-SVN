@@ -179,7 +179,6 @@
     <ClCompile Include="..\Utils\JumpListHelpers.cpp" />
     <ClCompile Include="..\Utils\Libraries.cpp" />
     <ClCompile Include="..\Utils\ListViewAccServer.cpp" />
-    <ClCompile Include="..\Utils\LoadIconEx.cpp" />
     <ClCompile Include="..\Utils\LruCache.cpp" />
     <ClCompile Include="..\Utils\MiscUI\AeroControls.cpp" />
     <ClCompile Include="..\Utils\MiscUI\AnimationManager.cpp" />
@@ -187,7 +186,6 @@
     <ClCompile Include="..\Utils\MiscUI\BufferDC.cpp" />
     <ClCompile Include="..\Utils\MiscUI\DIB.cpp" />
     <ClCompile Include="..\Utils\MiscUI\DragDropTreeCtrl.cpp" />
-    <ClCompile Include="..\Utils\MiscUI\EditWordBreak.cpp" />
     <ClCompile Include="..\Utils\MiscUI\FileDlgEventHandler.cpp" />
     <ClCompile Include="..\Utils\MiscUI\FileDropEdit.cpp" />
     <ClCompile Include="..\Utils\MiscUI\FilterEdit.cpp" />
@@ -494,7 +492,6 @@
     <ClInclude Include="..\Utils\CreateProcessHelper.h" />
     <ClInclude Include="..\Utils\DebugOutput.h" />
     <ClInclude Include="..\Utils\DirFileEnum.h" />
-    <ClInclude Include="..\Utils\DPIAware.h" />
     <ClInclude Include="..\Utils\DragDropImpl.h" />
     <ClInclude Include="..\Utils\FormatMessageWrapper.h" />
     <ClInclude Include="..\Utils\HighResClock.h" />
@@ -504,7 +501,6 @@
     <ClInclude Include="..\Utils\JumpListHelpers.h" />
     <ClInclude Include="..\Utils\Libraries.h" />
     <ClInclude Include="..\Utils\ListViewAccServer.h" />
-    <ClInclude Include="..\Utils\LoadIconEx.h" />
     <ClInclude Include="..\Utils\LruCache.h" />
     <ClInclude Include="..\Utils\MiscUI\AeroControls.h" />
     <ClInclude Include="..\Utils\MiscUI\AnimationManager.h" />
@@ -514,7 +510,6 @@
     <ClInclude Include="..\Utils\MiscUI\ControlsBridge.h" />
     <ClInclude Include="..\Utils\MiscUI\DIB.h" />
     <ClInclude Include="..\Utils\MiscUI\DragDropTreeCtrl.h" />
-    <ClInclude Include="..\Utils\MiscUI\EditWordBreak.h" />
     <ClInclude Include="..\Utils\MiscUI\ExtTextOutFL.h" />
     <ClInclude Include="..\Utils\MiscUI\FileDlgEventHandler.h" />
     <ClInclude Include="..\Utils\MiscUI\FileDropEdit.h" />
@@ -985,7 +980,6 @@
     <Image Include="..\Resources\monitorurl.ico" />
     <Image Include="..\Resources\monitorwc.ico" />
     <Image Include="..\Resources\monitor_add.ico" />
-    <Image Include="..\Resources\monitor_clearerrors.ico" />
     <Image Include="..\Resources\monitor_edit.ico" />
     <Image Include="..\Resources\monitor_getall.ico" />
     <Image Include="..\Resources\monitor_markallasread.ico" />

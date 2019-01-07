@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2012-2014, 2018 - TortoiseSVN
+// Copyright (C) 2003-2007, 2012-2014 - TortoiseSVN
 // Copyright (C) 2012-2013, 2015-2016 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@
 #include "registry.h"
 #include <string>
 #include <Commdlg.h>
-#include "LoadIconEx.h"
 
 CFindBar::CFindBar()
     : m_hParent(nullptr)
@@ -42,7 +41,7 @@ LRESULT CFindBar::DlgFunc(HWND /*hwndDlg*/, UINT uMsg, WPARAM wParam, LPARAM /*l
     {
     case WM_INITDIALOG:
         {
-            m_hIcon = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_CANCELNORMAL));
+            m_hIcon = (HICON)::LoadImage(hResource, MAKEINTRESOURCE(IDI_CANCELNORMAL), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
             SendMessage(GetDlgItem(*this, IDC_FINDEXIT), BM_SETIMAGE, IMAGE_ICON, (LPARAM)m_hIcon);
         }
         return TRUE;

@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2017-2018 - TortoiseSVN
+// Copyright (C) 2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,8 +38,9 @@ public:
     /**
      * Executes the command.
      */
-    virtual bool Execute() override;
-
+    virtual bool                Execute() override;
 protected:
-    bool Shelve(const CString& cmdLineShelveName, const CTSVNPathList& path, const CString& logMsg, bool revert);
+    bool                        Shelve(const CString& cmdLineShelveName, const CTSVNPathList& path);
 };
+
+

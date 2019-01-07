@@ -20,21 +20,16 @@
 #include "PathUtils.h"
 #include "UnicodeUtils.h"
 #include "SmartHandle.h"
+#include "SVNHelpers.h"
+#include "apr_uri.h"
+#include "svn_path.h"
 #include <emmintrin.h>
 #include <memory>
 #include <set>
-#include <shlwapi.h>
-#pragma comment(lib, "Shlwapi.lib")
 #pragma warning(push)
 #pragma warning(disable: 4091) // 'typedef ': ignored on left of '' when no variable is declared
 #include <shlobj.h>
 #pragma warning(pop)
-
-#ifdef CSTRING_AVAILABLE
-#include "SVNHelpers.h"
-#include "apr_uri.h"
-#include "svn_path.h"
-#endif
 
 static BOOL sse2supported = ::IsProcessorFeaturePresent( PF_XMMI64_INSTRUCTIONS_AVAILABLE );
 
@@ -210,6 +205,32 @@ const char uri_autoescape_chars[256] = {
     0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
 };
 
+static const char uri_char_validity[256] = {
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+    0, 1, 0, 0, 1, 0, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 0, 0, 1, 0, 0,
+
+    /* 64 */
+    1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 0, 0, 0, 0, 1,
+    0, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1,   1, 1, 1, 0, 0, 0, 1, 0,
+
+    /* 128 */
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+
+    /* 192 */
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+
 void CPathUtils::ConvertToBackslash(LPTSTR dest, LPCTSTR src, size_t len)
 {
     wcscpy_s(dest, len, src);
@@ -217,77 +238,6 @@ void CPathUtils::ConvertToBackslash(LPTSTR dest, LPCTSTR src, size_t len)
     for (; *p != '\0'; ++p)
         if (*p == '/')
             *p = '\\';
-}
-std::wstring CPathUtils::GetLongPathname(LPCWSTR path)
-{
-    if (path == nullptr)
-        return{};
-    return CPathUtils::GetLongPathname(std::wstring(path));
-}
-std::wstring CPathUtils::GetLongPathname(const std::wstring& path)
-{
-    if (path.empty())
-        return path;
-    TCHAR pathbufcanonicalized[MAX_PATH] = { 0 }; // MAX_PATH ok.
-    DWORD ret = 0;
-    if (!PathIsURL(path.c_str()) && PathIsRelative(path.c_str()))
-    {
-        ret = GetFullPathName(path.c_str(), 0, NULL, NULL);
-        if (ret)
-        {
-            auto pathbuf = std::make_unique<TCHAR[]>(ret + 1);
-            if ((ret = GetFullPathName(path.c_str(), ret, pathbuf.get(), NULL)) != 0)
-                return std::wstring(pathbuf.get(), ret);
-        }
-    }
-    else if (PathCanonicalize(pathbufcanonicalized, path.c_str()))
-    {
-        ret = ::GetLongPathName(pathbufcanonicalized, NULL, 0);
-        if (ret == 0)
-            return path;
-        auto pathbuf = std::make_unique<TCHAR[]>(ret + 2);
-        ret = ::GetLongPathName(pathbufcanonicalized, pathbuf.get(), ret + 1);
-        // GetFullPathName() sometimes returns the full path with the wrong
-        // case. This is not a problem on Windows since its file system is
-        // case-insensitive. But for SVN that's a problem if the wrong case
-        // is inside a working copy: the svn wc database is case sensitive.
-        // To fix the casing of the path, we use a trick:
-        // convert the path to its short form, then back to its long form.
-        // That will fix the wrong casing of the path.
-        int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
-        if (shortret)
-        {
-            auto shortpath = std::make_unique<TCHAR[]>(shortret + 2);
-            if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret + 1))
-            {
-                int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret + 1);
-                if (ret2)
-                    return std::wstring(pathbuf.get(), ret2);
-            }
-        }
-    }
-    else
-    {
-        ret = ::GetLongPathName(path.c_str(), NULL, 0);
-        if (ret == 0)
-            return path;
-        auto pathbuf = std::make_unique<TCHAR[]>(ret + 2);
-        ret = ::GetLongPathName(path.c_str(), pathbuf.get(), ret + 1);
-        // fix the wrong casing of the path. See above for details.
-        int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
-        if (shortret)
-        {
-            auto shortpath = std::make_unique<TCHAR[]>(shortret + 2);
-            if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret + 1))
-            {
-                int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret + 1);
-                if (ret2)
-                    return std::wstring(pathbuf.get(), ret2);
-            }
-        }
-        return std::wstring(pathbuf.get(), ret);
-    }
-    return path;
 }
 
 #ifdef CSTRING_AVAILABLE
@@ -410,14 +360,14 @@ CString CPathUtils::GetAppPath(HMODULE hMod /*= NULL*/)
         len = GetModuleFileName(hMod, path.GetBuffer(bufferlen + 1), bufferlen);
     } while (len == bufferlen);
     path.ReleaseBuffer();
-    return GetLongPathname((LPCWSTR)path).c_str();
+    return GetLongPathname(path);
 }
 
 CString CPathUtils::GetAppDirectory(HMODULE hMod /* = NULL */)
 {
     CString path = GetAppPath(hMod);
     path = path.Left(path.ReverseFind('\\')+1);
-    return GetLongPathname((LPCWSTR)path).c_str();
+    return GetLongPathname(path);
 }
 
 CString CPathUtils::GetAppParentDirectory(HMODULE hMod /* = NULL */)
@@ -426,6 +376,77 @@ CString CPathUtils::GetAppParentDirectory(HMODULE hMod /* = NULL */)
     path = path.Left(path.ReverseFind('\\'));
     path = path.Left(path.ReverseFind('\\')+1);
     return path;
+}
+
+CString CPathUtils::GetLongPathname(const CString& path)
+{
+    if (path.IsEmpty())
+        return path;
+    TCHAR pathbufcanonicalized[MAX_PATH] = { 0 }; // MAX_PATH ok.
+    DWORD ret = 0;
+    CString sRet = path;
+    if (!PathIsURL(path) && PathIsRelative(path))
+    {
+        ret = GetFullPathName(path, 0, NULL, NULL);
+        if (ret)
+        {
+            auto pathbuf = std::make_unique<TCHAR[]>(ret + 1);
+            if ((ret = GetFullPathName(path, ret, pathbuf.get(), NULL))!=0)
+            {
+                sRet = CString(pathbuf.get(), ret);
+            }
+        }
+    }
+    else if (PathCanonicalize(pathbufcanonicalized, path))
+    {
+        ret = ::GetLongPathName(pathbufcanonicalized, NULL, 0);
+        if (ret == 0)
+            return path;
+        auto pathbuf = std::make_unique<TCHAR[]>(ret + 2);
+        ret = ::GetLongPathName(pathbufcanonicalized, pathbuf.get(), ret+1);
+        // GetFullPathName() sometimes returns the full path with the wrong
+        // case. This is not a problem on Windows since its filesystem is
+        // case-insensitive. But for SVN that's a problem if the wrong case
+        // is inside a working copy: the svn wc database is case sensitive.
+        // To fix the casing of the path, we use a trick:
+        // convert the path to its short form, then back to its long form.
+        // That will fix the wrong casing of the path.
+        int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
+        if (shortret)
+        {
+            auto shortpath = std::make_unique<TCHAR[]>(shortret + 2);
+            if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret+1))
+            {
+                int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret+1);
+                if (ret2)
+                    sRet = CString(pathbuf.get(), ret2);
+            }
+        }
+    }
+    else
+    {
+        ret = ::GetLongPathName(path, NULL, 0);
+        if (ret == 0)
+            return path;
+        auto pathbuf = std::make_unique<TCHAR[]>(ret + 2);
+        ret = ::GetLongPathName(path, pathbuf.get(), ret+1);
+        sRet = CString(pathbuf.get(), ret);
+        // fix the wrong casing of the path. See above for details.
+        int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
+        if (shortret)
+        {
+            auto shortpath = std::make_unique<TCHAR[]>(shortret + 2);
+            if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret+1))
+            {
+                int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret+1);
+                if (ret2)
+                    sRet = CString(pathbuf.get(), ret2);
+            }
+        }
+    }
+    if (ret == 0)
+        return path;
+    return sRet;
 }
 
 CString CPathUtils::GetFileNameFromPath(CString sPath)

@@ -1,7 +1,7 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2016 - TortoiseGit
-// Copyright (C) 2009-2012, 2014-2015, 2018 - TortoiseSVN
+// Copyright (C) 2009-2012, 2014-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 #include "IconBitmapUtils.h"
 #include "registry.h"
 #include "OnOutOfScope.h"
-#include "LoadIconEx.h"
 
 #pragma comment(lib, "UxTheme.lib")
 
@@ -42,7 +41,7 @@ HBITMAP IconBitmapUtils::IconToBitmap(HINSTANCE hInst, UINT uIcon)
     if (bitmap_it != bitmaps.end() && bitmap_it->first == uIcon)
         return bitmap_it->second;
 
-    auto hIcon = LoadIconEx(hInst, MAKEINTRESOURCE(uIcon), 12, 12);
+    HICON hIcon = (HICON)LoadImage(hInst, MAKEINTRESOURCE(uIcon), IMAGE_ICON, 12, 12, LR_DEFAULTCOLOR);
     if (!hIcon)
         return NULL;
     OnOutOfScope(DestroyIcon(hIcon));
@@ -102,7 +101,7 @@ HBITMAP IconBitmapUtils::IconToBitmapPARGB32(HINSTANCE hInst, UINT uIcon)
 
     int iconWidth = GetSystemMetrics(SM_CXSMICON);
     int iconHeight = GetSystemMetrics(SM_CYSMICON);
-    auto hIcon = LoadIconEx(hInst, MAKEINTRESOURCE(uIcon), iconWidth, iconHeight);
+    HICON hIcon = (HICON)LoadImage(hInst, MAKEINTRESOURCE(uIcon), IMAGE_ICON, iconWidth, iconHeight, LR_DEFAULTCOLOR);
 
     HBITMAP hBmp = IconToBitmapPARGB32(hIcon, iconWidth, iconHeight);
 

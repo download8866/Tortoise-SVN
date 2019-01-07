@@ -1,4 +1,4 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // External Cache Copyright (C) 2005 - 2009, 2011-2012, 2014-2016 - TortoiseSVN
 
@@ -31,7 +31,6 @@
 #include <ioevent.h>
 #include "svn_dso.h"
 #include "SmartHandle.h"
-#include "LoadIconEx.h"
 
 #include <ShellAPI.h>
 
@@ -174,8 +173,13 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
             niData.uFlags = NIF_ICON | NIF_MESSAGE;
 
             // load the icon
-            niData.hIcon = LoadIconEx(hInstance,
-                MAKEINTRESOURCE(IDI_TSVNCACHE));
+            niData.hIcon =
+                (HICON)LoadImage(hInstance,
+                    MAKEINTRESOURCE(IDI_TSVNCACHE),
+                    IMAGE_ICON,
+                    GetSystemMetrics(SM_CXSMICON),
+                    GetSystemMetrics(SM_CYSMICON),
+                    LR_DEFAULTCOLOR);
 
             // set the message to send
             // note: the message value should be in the

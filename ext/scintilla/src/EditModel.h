@@ -63,8 +63,6 @@ public:
 	virtual Point GetVisibleOriginInMain() const = 0;
 	virtual Sci::Line LinesOnScreen() const = 0;
 	virtual Range GetHotSpotRange() const = 0;
-	bool BidirectionalEnabled() const;
-	bool BidirectionalR2L() const;
 };
 
 }

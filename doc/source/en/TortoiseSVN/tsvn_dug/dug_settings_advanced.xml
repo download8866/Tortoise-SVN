@@ -471,19 +471,6 @@
       </listitem>
     </varlistentry>
     <varlistentry>
-      <term condition="pot">ScintillaBidirectional</term>
-      <listitem>
-        <para>
-          This option enables the bidirectional mode
-          for the commit message edit box. If enabled,
-          right-to-left language text editing is done
-          properly. Since this feature is expensive, it
-          is disabled by default. You can enable this by
-          setting this value to <literal>true</literal>.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
       <term condition="pot">ScintillaDirect2D</term>
       <listitem>
         <para>
@@ -549,20 +536,6 @@
       </listitem>
     </varlistentry>
     <varlistentry>
-      <term condition="pot">PlaySound</term>
-      <listitem>
-        <para>
-          If set to <literal>true</literal>, TortoiseSVN will play a system sound
-          when an error or warning occurs, or another situation which
-          is important and requires your attention.
-          Set this to <literal>false</literal> if you want to keep
-          TortoiseSVN quiet. Note that the project monitor has its own
-          setting for playing sounds, which you can configure in its settings
-          dialog.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
       <term condition="pot">ShellMenuAccelerators</term>
       <listitem>
         <para>
@@ -619,19 +592,6 @@
           available.
           This might be useful for company admins who don't want
           their users to update TortoiseSVN until they approve it.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
-      <term condition="pot">UseCustomWordBreak</term>
-      <listitem>
-        <para>
-          The standard edit controls do not stop on forward slashes
-          like they're found in paths and urls. TortoiseSVN uses
-          a custom word break procedure for the edit controls.
-          If you don't want that and use the default instead,
-          set this value to 0. If you only want the default
-          for edit controls in combo boxes, set this value to 1.
         </para>
       </listitem>
     </varlistentry>

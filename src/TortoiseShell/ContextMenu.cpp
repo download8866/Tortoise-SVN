@@ -26,7 +26,6 @@
 #include "CreateProcessHelper.h"
 #include "FormatMessageWrapper.h"
 #include "PathUtils.h"
-#include "LoadIconEx.h"
 
 #define GetPIDLFolder(pida) (PIDLIST_ABSOLUTE)(((LPBYTE)pida)+(pida)->aoffset[0])
 #define GetPIDLItem(pida, i) (PCUITEMID_CHILD)(((LPBYTE)pida)+(pida)->aoffset[i+1])
@@ -294,8 +293,8 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                         continue;
                     CTSVNPath strpath;
                     // only use GetLongPathname for the first item, since we only get the status for
-                    // that first item. TortoiseProc later converts the file names before using them too.
-                    strpath.SetFromWin(i != 0 ? str.c_str() : CPathUtils::GetLongPathname(str).c_str());
+                    // that first item. TortoiseProc later converts the filesnames before using them too.
+                    strpath.SetFromWin(i != 0 ? str.c_str() : CPathUtils::GetLongPathname(str.c_str()));
                     if (itemStates & ITEMIS_ONLYONE)
                     {
                         itemStates |= (strpath.GetFileExtension().CompareNoCase(L".diff")==0) ? ITEMIS_PATCHFILE : 0;
@@ -451,7 +450,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                         continue;
 
                     CTSVNPath strpath;
-                    strpath.SetFromWin(CPathUtils::GetLongPathname(str).c_str());
+                    strpath.SetFromWin(CPathUtils::GetLongPathname(str.c_str()));
                     files_.push_back(strpath.GetWinPath());
                     itemStates |= (strpath.GetFileExtension().CompareNoCase(L".diff")==0) ? ITEMIS_PATCHFILE : 0;
                     itemStates |= (strpath.GetFileExtension().CompareNoCase(L".patch")==0) ? ITEMIS_PATCHFILE : 0;
@@ -606,7 +605,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                 try
                 {
                     CTSVNPath strpath;
-                    strpath.SetFromWin(CPathUtils::GetLongPathname(folder_).c_str());
+                    strpath.SetFromWin(CPathUtils::GetLongPathname(folder_.c_str()));
                     SVNStatus stat;
                     stat.GetStatus(strpath, false, true, true);
                     if (stat.status)
@@ -703,7 +702,7 @@ STDMETHODIMP CShellExt::Initialize(PCIDLIST_ABSOLUTE pIDFolder,
                     try
                     {
                         CTSVNPath strpath;
-                        strpath.SetFromWin(CPathUtils::GetLongPathname(folder_).c_str());
+                        strpath.SetFromWin(CPathUtils::GetLongPathname(folder_.c_str()));
                         if (strpath.IsWCRoot())
                             itemStates |= ITEMIS_WCROOT;
                         SVNStatus stat;
@@ -1889,7 +1888,7 @@ STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, 
                 return S_OK;
             int iconWidth = GetSystemMetrics(SM_CXSMICON);
             int iconHeight = GetSystemMetrics(SM_CYSMICON);
-            auto hIcon = LoadIconEx(g_hResInst, resource, iconWidth, iconHeight);
+            HICON hIcon = (HICON)LoadImage(g_hResInst, resource, IMAGE_ICON, iconWidth, iconHeight, LR_DEFAULTCOLOR);
             if (hIcon == NULL)
                 return S_OK;
             DrawIconEx(lpdis->hDC,
@@ -2415,7 +2414,7 @@ void CShellExt::InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst,
         else
             GetMenuTextFromResource(ShellMenuIgnoreSub);
         menuiteminfo.dwTypeData = stringtablebuffer;
-        menuiteminfo.cch = (UINT)std::min((UINT)wcslen(menuiteminfo.dwTypeData), UINT_MAX);
+        menuiteminfo.cch = (UINT)min(wcslen(menuiteminfo.dwTypeData), UINT_MAX);
 
         InsertMenuItem((topmenu & MENUIGNORE) ? hMenu : subMenu, (topmenu & MENUIGNORE) ? indexMenu++ : indexSubMenu++, TRUE, &menuiteminfo);
         if (itemStates & ITEMIS_IGNORED)

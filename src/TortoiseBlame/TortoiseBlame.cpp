@@ -26,10 +26,9 @@
 #include <ClipboardHelper.h>
 #include "TaskbarUUID.h"
 #include "BlameIndexColors.h"
-#include "CrashReport.h"
-#include "DebugOutput.h"
-#include "DPIAware.h"
-#include "LoadIconEx.h"
+#include "../Utils/CrashReport.h"
+#include "../Utils/DebugOutput.h"
+#include "../Utils/DPIAware.h"
 
 #include <algorithm>
 #include <cctype>
@@ -1867,12 +1866,12 @@ ATOM MyRegisterClass(HINSTANCE hResource)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hResource;
-    wcex.hIcon          = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEBLAME), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcex.hIcon          = LoadIcon(hResource, (LPCTSTR)IDI_TORTOISEBLAME);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = (LPCTSTR)IDC_TORTOISEBLAME;
     wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIconEx(wcex.hInstance, (LPCTSTR)IDI_TORTOISEBLAME);
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
     return RegisterClassEx(&wcex);
 }
@@ -1888,12 +1887,12 @@ ATOM MyRegisterBlameClass(HINSTANCE hResource)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hResource;
-    wcex.hIcon          = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEBLAME), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcex.hIcon          = LoadIcon(hResource, (LPCTSTR)IDI_TORTOISEBLAME);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = 0;
     wcex.lpszClassName  = L"TortoiseBlameBlame";
-    wcex.hIconSm        = LoadIconEx(wcex.hInstance, (LPCTSTR)IDI_TORTOISEBLAME);
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
     return RegisterClassEx(&wcex);
 }
@@ -1909,12 +1908,12 @@ ATOM MyRegisterHeaderClass(HINSTANCE hResource)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hResource;
-    wcex.hIcon          = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEBLAME), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcex.hIcon          = LoadIcon(hResource, (LPCTSTR)IDI_TORTOISEBLAME);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_BTNFACE+1);
     wcex.lpszMenuName   = 0;
     wcex.lpszClassName  = L"TortoiseBlameHeader";
-    wcex.hIconSm        = LoadIconEx(wcex.hInstance, (LPCTSTR)IDI_TORTOISEBLAME);
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
     return RegisterClassEx(&wcex);
 }
@@ -1930,12 +1929,12 @@ ATOM MyRegisterLocatorClass(HINSTANCE hResource)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hResource;
-    wcex.hIcon          = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEBLAME), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcex.hIcon          = LoadIcon(hResource, (LPCTSTR)IDI_TORTOISEBLAME);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = 0;
     wcex.lpszClassName  = L"TortoiseBlameLocator";
-    wcex.hIconSm        = LoadIconEx(wcex.hInstance, (LPCTSTR)IDI_TORTOISEBLAME);
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
     return RegisterClassEx(&wcex);
 }

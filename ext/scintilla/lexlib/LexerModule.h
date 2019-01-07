@@ -20,9 +20,8 @@ typedef ILexer4 *(*LexerFactoryFunction)();
 
 /**
  * A LexerModule is responsible for lexing and folding a particular language.
- * The Catalogue class maintains a list of LexerModules which can be searched to find a
+ * The class maintains a list of LexerModules which can be searched to find a
  * module appropriate to a particular language.
- * The ExternalLexerModule subclass holds lexers loaded from DLLs or shared libraries.
  */
 class LexerModule {
 protected:
@@ -36,21 +35,20 @@ protected:
 
 public:
 	const char *languageName;
-	LexerModule(
-		int language_,
+	LexerModule(int language_,
 		LexerFunction fnLexer_,
-		const char *languageName_=nullptr,
-		LexerFunction fnFolder_= nullptr,
-		const char * const wordListDescriptions_[]=nullptr,
+		const char *languageName_=0,
+		LexerFunction fnFolder_=0,
+		const char * const wordListDescriptions_[] = NULL,
 		const LexicalClass *lexClasses_=nullptr,
 		size_t nClasses_=0);
-	LexerModule(
-		int language_,
+	LexerModule(int language_,
 		LexerFactoryFunction fnFactory_,
 		const char *languageName_,
-		const char * const wordListDescriptions_[]=nullptr);
-	virtual ~LexerModule();
-	int GetLanguage() const;
+		const char * const wordListDescriptions_[] = NULL);
+	virtual ~LexerModule() {
+	}
+	int GetLanguage() const { return language; }
 
 	// -1 is returned if no WordList information is available
 	int GetNumWordLists() const;

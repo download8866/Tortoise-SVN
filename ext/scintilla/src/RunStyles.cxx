@@ -13,7 +13,6 @@
 #include <climits>
 
 #include <stdexcept>
-#include <string_view>
 #include <vector>
 #include <algorithm>
 #include <memory>
@@ -309,7 +308,7 @@ void RunStyles<DISTANCE, STYLE>::Check() const {
 
 template class Scintilla::RunStyles<int, int>;
 template class Scintilla::RunStyles<int, char>;
-#if (PTRDIFF_MAX != INT_MAX) || PLAT_HAIKU
+#if PTRDIFF_MAX != INT_MAX
 template class Scintilla::RunStyles<ptrdiff_t, int>;
 template class Scintilla::RunStyles<ptrdiff_t, char>;
 #endif

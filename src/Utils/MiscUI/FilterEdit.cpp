@@ -19,7 +19,6 @@
 #include "stdafx.h"
 #include "FilterEdit.h"
 #include "DPIAware.h"
-#include "LoadIconEx.h"
 
 
 const UINT CFilterEdit::WM_FILTEREDIT_INFOCLICKED
@@ -405,7 +404,7 @@ HICON CFilterEdit::LoadDpiScaledIcon(UINT resourceId, int cx96dpi, int cy96dpi)
     int cx = MulDiv(cx96dpi, dc.GetDeviceCaps(LOGPIXELSX), 96);
     int cy = MulDiv(cy96dpi, dc.GetDeviceCaps(LOGPIXELSY), 96);
 
-    return LoadIconEx(AfxGetResourceHandle(), MAKEINTRESOURCE(resourceId), cx, cy);
+    return (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(resourceId), IMAGE_ICON, cx, cy, LR_DEFAULTCOLOR);
 }
 
 void CFilterEdit::OnEnKillfocus()

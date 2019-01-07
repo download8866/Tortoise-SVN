@@ -1,7 +1,7 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2018 - TortoiseSVN
-// Copyright (C) 2012-2016, 2018 - TortoiseGit
+// Copyright (C) 2012-2016 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@
 #include "UDiffColors.h"
 #include "registry.h"
 #include "DPIAware.h"
-#include "LoadIconEx.h"
 #include <VersionHelpers.h>
 
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
@@ -61,10 +60,10 @@ bool CMainWindow::RegisterAndCreateWindow()
     wcx.hCursor = nullptr;
     ResString clsname(hResource, IDS_APP_TITLE);
     wcx.lpszClassName = clsname;
-    wcx.hIcon = LoadIconEx(hResource, MAKEINTRESOURCE(IDI_TORTOISEUDIFF), GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+    wcx.hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_TORTOISEUDIFF));
     wcx.hbrBackground = (HBRUSH)(COLOR_3DFACE+1);
     wcx.lpszMenuName = MAKEINTRESOURCE(IDC_TORTOISEUDIFF);
-    wcx.hIconSm = LoadIconEx(wcx.hInstance, MAKEINTRESOURCE(IDI_TORTOISEUDIFF));
+    wcx.hIconSm = LoadIcon(wcx.hInstance, MAKEINTRESOURCE(IDI_TORTOISEUDIFF));
     if (RegisterWindow(&wcx))
     {
         if (Create(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SIZEBOX | WS_SYSMENU | WS_CLIPCHILDREN, nullptr))
@@ -710,14 +709,7 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
     FILE* fp = nullptr;
     _wfopen_s(&fp, filename, L"w+b");
     if (!fp)
-    {
-        TCHAR fmt[1024] = {0};
-        LoadString(hResource, IDS_ERRORSAVE, fmt, _countof(fmt));
-        TCHAR error[1024] = {0};
-        _snwprintf_s(error, _countof(error), fmt, filename, (LPCTSTR)CFormatMessageWrapper());
-        MessageBox(*this, error, L"TortoiseUDiff", MB_OK);
         return false;
-    }
 
     LRESULT len = SendEditor(SCI_GETTEXT, 0, 0);
     auto data = std::make_unique<char[]>(len + 1);

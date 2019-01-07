@@ -1,4 +1,4 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008, 2015 - TortoiseSVN
 
@@ -259,7 +259,7 @@ void CStrictOrderNodePositioning::AssignRows
                     ; subBranch != NULL
                     ; subBranch = subBranch->nextBranch)
                 {
-                    maxTargetColumn = max(maxTargetColumn, (int)subBranch->treeShift.cx);
+                    maxTargetColumn = max (maxTargetColumn, subBranch->treeShift.cx);
                 }
 
                 int halfHeight = node->rect.Height() / 2;

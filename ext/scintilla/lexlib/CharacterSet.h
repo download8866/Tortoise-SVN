@@ -59,7 +59,7 @@ public:
 	}
 	~CharacterSet() {
 		delete []bset;
-		bset = nullptr;
+		bset = 0;
 		size = 0;
 	}
 	CharacterSet &operator=(const CharacterSet &other) {

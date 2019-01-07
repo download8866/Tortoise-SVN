@@ -81,8 +81,8 @@ void CRevisionGraphWnd::BuildPreview()
 
     // make sure the preview window has a minimal size
 
-    m_previewWidth  = min((int)max(graphRect.Width() * m_previewZoom, 30.0f), (int)preViewSize.cx);
-    m_previewHeight = min((int)max(graphRect.Height() * m_previewZoom, 30.0f), (int)preViewSize.cy);
+    m_previewWidth = (int)min (max (graphRect.Width() * m_previewZoom, 30), preViewSize.cx);
+    m_previewHeight = (int)min (max (graphRect.Height() * m_previewZoom, 30), preViewSize.cy);
 
     CClientDC ddc(this);
     CDC dc;
@@ -355,12 +355,12 @@ void CRevisionGraphWnd::CompareRevs(bool bHead)
     {
         SVNDiff diff (svn.get(), this->m_hWnd);
         diff.SetAlternativeTool (alternativeTool);
-        diff.ShowCompare (url1, rev1, url2, rev2, peg, false, true, L"");
+        diff.ShowCompare (url1, rev1, url2, rev2, peg, false, L"");
     }
     else
     {
         CAppUtils::StartShowCompare (m_hWnd, url1, rev1,
-            url2, rev2, peg, SVNRev(), false, true, L"", alternativeTool);
+            url2, rev2, peg, SVNRev(), false, L"", alternativeTool);
     }
 }
 
@@ -385,13 +385,13 @@ void CRevisionGraphWnd::UnifiedDiffRevs(bool bHead)
     {
         SVNDiff diff (svn.get(), this->m_hWnd);
         diff.SetAlternativeTool (alternativeTool);
-        diff.ShowUnifiedDiff (url1, rev1, url2, rev2, peg, true, L"", false, false, false);
+        diff.ShowUnifiedDiff (url1, rev1, url2, rev2, peg, L"", false, false, false);
     }
     else
     {
         CAppUtils::StartShowUnifiedDiff(m_hWnd, url1, rev1,
             url2, rev2, peg,
-            SVNRev(), true, L"", alternativeTool, false, false, false);
+            SVNRev(), L"", alternativeTool, false, false, false);
     }
 }
 
@@ -402,7 +402,7 @@ void CRevisionGraphWnd::DoZoom (float fZoomFactor, bool updateScrollbars)
 
     m_nFontSize = max(1, int(DEFAULT_ZOOM_FONT * fZoomFactor));
     if (m_nFontSize < SMALL_ZOOM_FONT_THRESHOLD)
-        m_nFontSize = min((int)SMALL_ZOOM_FONT_THRESHOLD, int(SMALL_ZOOM_FONT * fZoomFactor));
+        m_nFontSize = min (SMALL_ZOOM_FONT_THRESHOLD, int(SMALL_ZOOM_FONT * fZoomFactor));
 
     for (int i=0; i<MAXFONTS; i++)
     {

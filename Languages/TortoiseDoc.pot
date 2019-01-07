@@ -336,10 +336,6 @@ msgid "The <xref linkend=\"tsvn-dug\"/> is the most important section as it expl
 msgstr ""
 
 #. (para)
-msgid "The <xref linkend=\"tsvn-projectmonitor\"/> explains how you can monitor your Subversion projects so you don't miss important commits from your other team members."
-msgstr ""
-
-#. (para)
 msgid "<xref linkend=\"tsvn-subwcrev\"/> is a separate program included with TortoiseSVN which can extract the information from your working copy and write it into a file. This is useful for including build information in your projects."
 msgstr ""
 
@@ -3099,11 +3095,7 @@ msgid "Shelve dialog"
 msgstr ""
 
 #. (para)
-msgid "To shelve your local changes, select your working copy and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Shelve</guimenuitem></menuchoice> The following dialog allows you to select the files you want to shelve and give a name under which you want to store them. <placeholder-1/> If you select an existing shelf, then a new version is created for that shelf. If you provide a new name, a new shelf is created for the selected files."
-msgstr ""
-
-#. (para)
-msgid "If you click the <guibutton>Shelve</guibutton> button, the shelf is created and your working copy files are reset to a clean state. If you click the <guibutton>Checkpoint</guibutton> button, the shelf is created but your local modifications are kept."
+msgid "To shelve your local changes, select your working copy and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Shelve</guimenuitem></menuchoice> The following dialog allows you to select the files you want to shelve and give a name under which you want to store them. <placeholder-1/> Then click <guibutton>OK</guibutton> and the changes are stored under the name you specified, and your working copy is reset to a clean state."
 msgstr ""
 
 #. (title)
@@ -3111,23 +3103,15 @@ msgid "Unshelve dialog"
 msgstr ""
 
 #. (para)
-msgid "To unshelve your changes, use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Unshelve</guimenuitem></menuchoice> to get the unshelve dialog. This dialog shows you a list of all shelved items. Select the shelved item you want and the version to apply back to your working copy and click <guibutton>Apply</guibutton>. <placeholder-1/>"
+msgid "To unshelve your changes, use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Unshelve</guimenuitem></menuchoice> to get the unshelve dialog. This dialog shows you a list of all shelved items. Select the shelved item you want to apply back to your working copy and click <guibutton>OK</guibutton>. <placeholder-1/>"
 msgstr ""
 
 #. (para)
 msgid "Shelves are purely a local client feature. Creating and removing Shelves will not affect the repository, nor anyone else's working copy."
 msgstr ""
 
-#. (title)
-msgid "Experimental"
-msgstr ""
-
 #. (para)
-msgid "The shelving feature is still marked as <literal>experimental</literal>."
-msgstr ""
-
-#. (para)
-msgid "That means that while shelving works as advertised, it is still in a stage where it's heavily improved and worked on. That also means that there's no guarantee that the shelves you create are upwards compatible and future versions might not be able to use them. And of course the UI might change as well in future versions to accommodate new features and behaviors."
+msgid "Currently only text files can be shelved and unshelved. Binary files and text files encoded in utf-16 (unicode) can not be shelved."
 msgstr ""
 
 #. (title)
@@ -5123,7 +5107,7 @@ msgid "In the Commit dialog you have the option to paste in the list of changed 
 msgstr ""
 
 #. (para)
-msgid "TortoiseSVN can use a spell checker. On Windows 10, the spell checker of the OS is used. On earlier Windows versions, it can use spell checker modules which are also used by OpenOffice and Mozilla. If you have those installed this property will determine which spell checker to use, i.e. in which language the log messages for your project should be written. <literal>tsvn:projectlanguage</literal> sets the language module the spell checking engine should use when you enter a log message. You can find the values for your language on this page: <ulink url=\"https://docs.microsoft.com/en-us/windows/desktop/intl/language-identifier-constants-and-strings\"><citetitle>MSDN: Language Identifiers</citetitle></ulink>."
+msgid "TortoiseSVN can use a spell checker. On Windows 10, the spell checker of the OS is used. On earlier Windows versions, it can use spell checker modules which are also used by OpenOffice and Mozilla. If you have those installed this property will determine which spell checker to use, i.e. in which language the log messages for your project should be written. <literal>tsvn:projectlanguage</literal> sets the language module the spell checking engine should use when you enter a log message. You can find the values for your language on this page: <ulink url=\"http://msdn2.microsoft.com/en-us/library/ms776260.aspx\"><citetitle>MSDN: Language Identifiers</citetitle></ulink>."
 msgstr ""
 
 #. (para)
@@ -9594,10 +9578,6 @@ msgid "The repository browser tries to fetch the web page that's generated by an
 msgstr ""
 
 #. (para)
-msgid "This option enables the bidirectional mode for the commit message edit box. If enabled, right-to-left language text editing is done properly. Since this feature is expensive, it is disabled by default. You can enable this by setting this value to <literal>true</literal>."
-msgstr ""
-
-#. (para)
 msgid "This option enables the use of Direct2D accelerated drawing in the Scintilla control which is used as the edit box in e.g. the commit dialog, and also for the unified diff viewer. With some graphic cards however this sometimes doesn't work properly so that the cursor to enter text isn't always visible. If that happens, you can turn this feature off by setting this value to <literal>false</literal>."
 msgstr ""
 
@@ -9622,10 +9602,6 @@ msgid "This parameter specifies how TortoiseSVN behaves if a commit fails due to
 msgstr ""
 
 #. (para)
-msgid "If set to <literal>true</literal>, TortoiseSVN will play a system sound when an error or warning occurs, or another situation which is important and requires your attention. Set this to <literal>false</literal> if you want to keep TortoiseSVN quiet. Note that the project monitor has its own setting for playing sounds, which you can configure in its settings dialog."
-msgstr ""
-
-#. (para)
 msgid "TortoiseSVN uses accelerators for its explorer context menu entries. Since this can lead to doubled accelerators (e.g. the <literal>SVN Commit</literal> has the <keycap>Alt-C</keycap> accelerator, but so does the <literal>Copy</literal> entry of explorer). If you don't want or need the accelerators of the TortoiseSVN entries, set this value to <literal>false</literal>."
 msgstr ""
 
@@ -9643,10 +9619,6 @@ msgstr ""
 
 #. (para)
 msgid "This value contains the URL from which TortoiseSVN tries to download a text file to find out if there are updates available. This might be useful for company admins who don't want their users to update TortoiseSVN until they approve it."
-msgstr ""
-
-#. (para)
-msgid "The standard edit controls do not stop on forward slashes like they're found in paths and urls. TortoiseSVN uses a custom word break procedure for the edit controls. If you don't want that and use the default instead, set this value to 0. If you only want the default for edit controls in combo boxes, set this value to 1."
 msgstr ""
 
 #. (para)
@@ -12167,31 +12139,6 @@ msgstr ""
 msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. If the specified file also has property modifications, the external diff tool is also started for each modified property. To prevent that, pass the option <placeholder-5/>. To explicitly set the revision numbers use <placeholder-6/> and <placeholder-7/>, and for the optional peg revision use <placeholder-8/>. If <placeholder-9/> is set and <placeholder-10/> is not set, then the diff is done by first blaming the files with the given revisions. The parameter <placeholder-11/> specifies the line to jump to when the diff is shown."
 msgstr ""
 
-#. (option)
-#. (option)
-msgid "/shelfname:name"
-msgstr ""
-
-#. (option)
-msgid "/logmsg:message"
-msgstr ""
-
-#. (option)
-msgid "/checkpoint"
-msgstr ""
-
-#. (entry)
-msgid "Shelves the specified paths in a new shelf. The option <placeholder-1/> specifies the name of the shelf. An optional log message can be specified with <placeholder-2/>. If option <placeholder-3/> is passed, the modifications of the files are kept."
-msgstr ""
-
-#. (option)
-msgid "/version:X"
-msgstr ""
-
-#. (entry)
-msgid "Applies the shelf with the name <placeholder-1/> to the working copy path. By default the last version of the shelf is applied, but you can specify a version with <placeholder-2/>."
-msgstr ""
-
 #. (para)
 msgid "Depending on the URLs and revisions to compare, this either shows a unified diff (if the option <option>unified</option> is set), a dialog with a list of files that have changed or if the URLs point to files starts the diff viewer for those two files."
 msgstr ""
@@ -12202,10 +12149,6 @@ msgstr ""
 
 #. (para)
 msgid "If the specified url also has property modifications, the external diff tool is also started for each modified property. To prevent that, pass the option <option>/ignoreprops</option>."
-msgstr ""
-
-#. (para)
-msgid "If a unified diff is requested, an optional <option>prettyprint</option> option can be specified which will show the merge-info properties in a more user readable format."
 msgstr ""
 
 #. (entry)
@@ -12289,12 +12232,8 @@ msgstr ""
 msgid "/noview"
 msgstr ""
 
-#. (option)
-msgid "prettyprint"
-msgstr ""
-
 #. (entry)
-msgid "Creates a patch file for the path given in <placeholder-1/>. To skip the file Save-As dialog you can pass <placeholder-2/> to specify the path where to save the patch file to directly. To prevent the unified diff viewer from being started showing the patch file, pass <placeholder-3/>. If a unified diff is requested, an optional <placeholder-4/> option can be specified which will show the merge-info properties in a more user readable format."
+msgid "Creates a patch file for the path given in <placeholder-1/>. To skip the file Save-As dialog you can pass <placeholder-2/> to specify the path where to save the patch file to directly. To prevent the unified diff viewer from being started showing the patch file, pass <placeholder-3/>."
 msgstr ""
 
 #. (para)

@@ -57,11 +57,7 @@ class LinePPState {
 		return level >= 0 && level < 32;
 	}
 	int maskLevel() const {
-		if (level >= 0) {
-			return 1 << level;
-		} else {
-			return 1;
-		}
+		return 1 << level;
 	}
 public:
 	LinePPState() : state(0), ifTaken(0), level(-1) {

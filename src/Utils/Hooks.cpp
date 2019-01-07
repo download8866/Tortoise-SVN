@@ -1,7 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2007-2018 - TortoiseSVN
-// Copyright (C) 2019 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -315,13 +314,11 @@ bool CHooks::StartCommit(HWND hWnd, const CTSVNPathList& pathList, CString& mess
     hookiterator it = FindItem(start_commit_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
+    if (!ApproveHook(hWnd, it))
     {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
+        exitcode = 1;
+        error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
+        return false;
     }
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
@@ -341,13 +338,11 @@ bool CHooks::CheckCommit(HWND hWnd, const CTSVNPathList& pathList, CString& mess
     hookiterator it = FindItem(check_commit_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
+    if (!ApproveHook(hWnd, it))
     {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
+        exitcode = 1;
+        error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
+        return false;
     }
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
@@ -366,14 +361,8 @@ bool CHooks::PreCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t dep
     hookiterator it = FindItem(pre_commit_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
-    {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
-    }
+    if (!ApproveHook(hWnd, it))
+        return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     AddDepthParam(sCmd, depth);
@@ -392,14 +381,8 @@ bool CHooks::ManualPreCommit( HWND hWnd, const CTSVNPathList& pathList, CString&
     hookiterator it = FindItem(manual_precommit, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
-    {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
-    }
+    if (!ApproveHook(hWnd, it))
+        return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     CTSVNPath temppath = AddMessageFileParam(sCmd, message);
@@ -418,14 +401,8 @@ bool CHooks::PostCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t de
     hookiterator it = FindItem(post_commit_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
-    {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
-    }
+    if (!ApproveHook(hWnd, it))
+        return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     AddDepthParam(sCmd, depth);
@@ -442,14 +419,8 @@ bool CHooks::StartUpdate(HWND hWnd, const CTSVNPathList& pathList, DWORD& exitco
     hookiterator it = FindItem(start_update_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
-    {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
-    }
+    if (!ApproveHook(hWnd, it))
+        return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     AddCWDParam(sCmd, pathList);
@@ -462,14 +433,8 @@ bool CHooks::PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t dep
     hookiterator it = FindItem(pre_update_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
-    {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
-    }
+    if (!ApproveHook(hWnd, it))
+        return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     AddDepthParam(sCmd, depth);
@@ -484,14 +449,8 @@ bool CHooks::PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t de
     hookiterator it = FindItem(post_update_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
-    {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
-    }
+    if (!ApproveHook(hWnd, it))
+        return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     AddDepthParam(sCmd, depth);
@@ -546,14 +505,8 @@ bool CHooks::PreLock(HWND hWnd, const CTSVNPathList & pathList,bool lock, bool s
     hookiterator it = FindItem(pre_lock_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
-    {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
-    }
+    if (!ApproveHook(hWnd, it))
+        return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     AddParam(sCmd, lock ? L"true" : L"false");
@@ -573,14 +526,8 @@ bool CHooks::PostLock(HWND hWnd, const CTSVNPathList & pathList, bool lock, bool
     hookiterator it = FindItem(post_lock_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it, exitcode))
-    {
-        if (exitcode == 1)
-            error.LoadString(IDS_SVN_USERCANCELLED);
-        else
-            error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return true;
-    }
+    if (!ApproveHook(hWnd, it))
+        return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     AddParam(sCmd, lock ? L"true" : L"false");
@@ -927,45 +874,37 @@ bool CHooks::ParseAndInsertProjectProperty( hooktype t, const CString& strhook, 
     return false;
 }
 
-bool CHooks::ApproveHook(HWND hWnd, hookiterator it, DWORD& exitcode)
+bool CHooks::ApproveHook( HWND hWnd, hookiterator it )
 {
     if (it->second.bApproved || it->second.bStored)
-    {
-        exitcode = 0;
         return it->second.bApproved;
-    }
 
     CString sQuestion;
     sQuestion.Format(IDS_HOOKS_APPROVE_TASK1, (LPCWSTR)it->second.commandline);
+    bool bApproved = false;
+    bool bDoNotAskAgain = false;
     CTaskDialog taskdlg(sQuestion,
                         CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK2)),
                         L"TortoiseSVN",
                         0,
                         TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT);
-    taskdlg.AddCommandControl(101, CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK3)));
-    taskdlg.AddCommandControl(102, CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK4)));
+    taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK3)));
+    taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK4)));
     taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
     taskdlg.SetVerificationCheckboxText(CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK5)));
     taskdlg.SetVerificationCheckbox(false);
     taskdlg.SetDefaultCommandControl(2);
     taskdlg.SetMainIcon(TD_WARNING_ICON);
-    auto ret = taskdlg.DoModal(hWnd);
-    if (ret == IDCANCEL)
-    {
-        exitcode = 1;
-        return false;
-    }
-    bool bApproved      = (ret == 101);
-    bool bDoNotAskAgain = !!taskdlg.GetVerificationCheckboxState();
+    bApproved = taskdlg.DoModal(hWnd) == 1;
+    bDoNotAskAgain = !!taskdlg.GetVerificationCheckboxState();
 
     if (bDoNotAskAgain)
     {
         CRegDWORD reg(it->second.sRegKey, 0);
-        reg                  = bApproved ? 1 : 0;
-        it->second.bStored   = true;
-        it->second.bApproved = bApproved;
+        reg = bApproved ? 1 : 0;
+        it->second.bStored = true;
     }
-    exitcode = 0;
+    it->second.bApproved = bApproved;
     return bApproved;
 }
 

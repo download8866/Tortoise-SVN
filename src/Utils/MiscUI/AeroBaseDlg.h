@@ -1,4 +1,4 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2009-2010, 2013-2014 - TortoiseSVN
 
@@ -258,17 +258,14 @@ protected:
         {
             CFont * font = pwndDlgItem->GetFont();
             CFont * pOldFont = pDC->SelectObject(font);
-            if (pDC->DrawText(sControlText, -1, &controlrect, DT_EDITCONTROL | DT_EXPANDTABS | DT_LEFT | DT_CALCRECT))
+            if (pDC->DrawText(sControlText, -1, &controlrect, DT_WORDBREAK | DT_EDITCONTROL | DT_EXPANDTABS | DT_LEFT | DT_CALCRECT))
             {
                 // now we have the rectangle the control really needs
                 if ((controlrectorig.right - controlrectorig.left) > (controlrect.right - controlrect.left))
                 {
                     // we're dealing with radio buttons and check boxes,
                     // which means we have to add a little space for the checkbox
-                    // the value of 3 pixels added here is necessary in case certain visual styles have
-                    // been disabled. Without this, the width is calculated too short.
-                    const int checkWidth  = GetSystemMetrics(SM_CXMENUCHECK) + 2 * GetSystemMetrics(SM_CXEDGE) + 3;
-                    controlrectorig.right = controlrectorig.left + (controlrect.right - controlrect.left) + checkWidth;
+                    controlrectorig.right = controlrectorig.left + (controlrect.right - controlrect.left) + 20;
                     pwndDlgItem->MoveWindow(&controlrectorig);
                 }
             }

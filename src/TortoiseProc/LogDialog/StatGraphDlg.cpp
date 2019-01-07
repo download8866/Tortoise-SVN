@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@ using namespace Gdiplus;
 
 // BinaryPredicate for comparing authors based on their commit count
 template<class DataType>
-class MoreCommitsThan {
+class MoreCommitsThan : public std::binary_function<tstring, tstring, bool> {
 public:
     typedef std::map<tstring, DataType> MapType;
     MoreCommitsThan(MapType &author_commits) : m_authorCommits(author_commits) {}
@@ -139,7 +139,7 @@ void CStatGraphDlg::SetSkipper (bool reloadSkiper)
     // the resolution limit of the screen will already not allow for displaying
     // it in a reasonable way
 
-    int max_authors_count = std::max(1, (int)std::min((int)m_authorNames.size(), 250));
+    int max_authors_count = max(1, (int)min(m_authorNames.size(), 250) );
     m_Skipper.SetRange (1, max_authors_count);
     m_Skipper.SetPageSize(5);
 
@@ -181,19 +181,19 @@ BOOL CStatGraphDlg::OnInitDialog()
 
     int iconWidth = GetSystemMetrics(SM_CXSMICON);
     int iconHeight = GetSystemMetrics(SM_CYSMICON);
-    m_btnGraphBar.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHBAR, iconWidth, iconHeight));
+    m_btnGraphBar.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHBAR, iconWidth, iconHeight, LR_DEFAULTCOLOR));
     m_btnGraphBar.SizeToContent();
     m_btnGraphBar.Invalidate();
-    m_btnGraphBarStacked.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHBARSTACKED, iconWidth, iconHeight));
+    m_btnGraphBarStacked.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHBARSTACKED, iconWidth, iconHeight, LR_DEFAULTCOLOR));
     m_btnGraphBarStacked.SizeToContent();
     m_btnGraphBarStacked.Invalidate();
-    m_btnGraphLine.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHLINE, iconWidth, iconHeight));
+    m_btnGraphLine.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHLINE, iconWidth, iconHeight, LR_DEFAULTCOLOR));
     m_btnGraphLine.SizeToContent();
     m_btnGraphLine.Invalidate();
-    m_btnGraphLineStacked.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHLINESTACKED, iconWidth, iconHeight));
+    m_btnGraphLineStacked.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHLINESTACKED, iconWidth, iconHeight, LR_DEFAULTCOLOR));
     m_btnGraphLineStacked.SizeToContent();
     m_btnGraphLineStacked.Invalidate();
-    m_btnGraphPie.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHPIE, iconWidth, iconHeight));
+    m_btnGraphPie.SetImage(CCommonAppUtils::LoadIconEx(IDI_GRAPHPIE, iconWidth, iconHeight, LR_DEFAULTCOLOR));
     m_btnGraphPie.SizeToContent();
     m_btnGraphPie.Invalidate();
 

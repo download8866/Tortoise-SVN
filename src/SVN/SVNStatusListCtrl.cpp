@@ -474,21 +474,21 @@ void CSVNStatusListCtrl::Init(DWORD dwColumns, const CString& sColumnInfoContain
         SetWindowTheme(m_hWnd, L"Explorer", NULL);
 
         m_nIconFolder = SYS_IMAGE_LIST().GetDirIconIndex();
-        int ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_EXTERNALOVL, 0, 0));
+        int ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_EXTERNALOVL, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_EXTERNAL);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_EXTERNALPEGGEDOVL, 0, 0));
+        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_EXTERNALPEGGEDOVL, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_EXTERNALPEGGED);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_NESTEDOVL, 0, 0));
+        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_NESTEDOVL, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_NESTED);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHFILESOVL, 0, 0));
+        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHFILESOVL, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_DEPTHFILES);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHIMMEDIATEDOVL, 0, 0));
+        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHIMMEDIATEDOVL, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_DEPTHIMMEDIATES);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHEMPTYOVL, 0, 0));
+        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHEMPTYOVL, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_DEPTHEMPTY);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_RESTOREOVL, 0, 0));
+        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_RESTOREOVL, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_RESTORE);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MERGEINFOOVL, 0, 0));
+        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MERGEINFOOVL, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_MERGEINFO);
         SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
 
@@ -3941,24 +3941,20 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                     else
                     {
                         CString options;
-                        bool prettyprint = true;
                         if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
                         {
                             CDiffOptionsDlg dlg(this);
                             if (dlg.DoModal() == IDOK)
-                            {
                                 options = dlg.GetDiffOptionsString();
-                                prettyprint = dlg.GetPrettyPrint();
-                            }
                             else
                                 break;
                         }
                         SVNDiff diff(NULL, this->m_hWnd, true);
 
                         if (entry->remotestatus <= svn_wc_status_normal)
-                            CAppUtils::StartShowUnifiedDiff(m_hWnd, entry->path, SVNRev::REV_BASE, entry->path, SVNRev::REV_WC, SVNRev(), SVNRev(), prettyprint, options, false, false, false, false);
+                            CAppUtils::StartShowUnifiedDiff(m_hWnd, entry->path, SVNRev::REV_BASE, entry->path, SVNRev::REV_WC, SVNRev(), SVNRev(), options, false, false, false, false);
                         else
-                            CAppUtils::StartShowUnifiedDiff(m_hWnd, entry->path, SVNRev::REV_WC, entry->path, SVNRev::REV_HEAD, SVNRev(), SVNRev(), prettyprint, options, false, false, false, false);
+                            CAppUtils::StartShowUnifiedDiff(m_hWnd, entry->path, SVNRev::REV_WC, entry->path, SVNRev::REV_HEAD, SVNRev(), SVNRev(), options, false, false, false, false);
                     }
                 }
                 break;
@@ -6546,7 +6542,7 @@ LRESULT CSVNStatusListCtrl::OnRefreshStatusMsg(WPARAM, LPARAM)
 bool CSVNStatusListCtrl::CheckMultipleDiffs()
 {
     UINT selCount = GetSelectedCount();
-    if (selCount > max((DWORD)3, (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\NumDiffWarning", 10)))
+    if (selCount > max(3, (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\NumDiffWarning", 10)))
     {
         CString message;
         message.Format(CString(MAKEINTRESOURCE(IDS_STATUSLIST_WARN_MAXDIFF)), selCount);

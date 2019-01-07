@@ -21,16 +21,17 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-10-02 02:10+0000\n"
+"PO-Revision-Date: 2018-09-16 01:39+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
-"Language-Team: Latvian (http://www.transifex.com/luebbe/tortoisesvn/language/lv/)\n"
+"Language-Team: Latvian (http://www.transifex.com/luebbe/tortoisesvn/language/"
+"lv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: lv\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : "
+"2);\n"
 
-#. Resource IDs: (IDS_STATUSBAR_CONFLICTEDLINES)
 # msgid/msgstr fields for Accelerator keys
 # Format is: "ID:xxxxxx:VACS+X" where:
 #    ID:xxxxx = the menu ID corresponding to the accelerator
@@ -44,6 +45,7 @@ msgstr ""
 # updated i.e. function keys (F2), special keys (Delete, HoMe) etc. will not.
 # ONLY change the msgstr field. Do NOT change any other.
 # If you do not want to change an Accelerator Key, copy msgid to msgstr
+#. Resource IDs: (IDS_STATUSBAR_CONFLICTEDLINES)
 #, c-format
 msgid "! %d"
 msgstr "! %d"
@@ -94,9 +96,9 @@ msgstr "%1!d! atzīmēti faili, kopā %2!d! faili"
 
 #. Resource IDs: (IDS_STATGRAPH_AUTHORSLIDER_TT)
 #, c-format
-msgid ""
+msgid "%1!d! most active author(s) with at least %2!d! commits each (%3!d! %%)"
+msgstr ""
 "%1!d! most active author(s) with at least %2!d! commits each (%3!d! %%)"
-msgstr "%1!d! most active author(s) with at least %2!d! commits each (%3!d! %%)"
 
 #. Resource IDs: (IDS_PROGRS_TIME)
 #, c-format
@@ -117,11 +119,6 @@ msgstr "%1!ls! - revīzijā: %2!d!"
 #, c-format
 msgid "%1!ls! : Working Base, Revision %2!ld!"
 msgstr "%1!ls! : Darba bāze, revīzija %2!ld!"
-
-#. Resource IDs: (IDS_PROGRS_UPDATE)
-#, c-format
-msgid "%1!ls! from %2!ls!"
-msgstr ""
 
 #. Resource IDs: (IDS_PROGRS_FINALINFO)
 #, c-format
@@ -148,28 +145,36 @@ msgstr "%1!ls!\\%2!ls! - Eksportēt (%3!d!)"
 msgid ""
 "%1!ls!\r\n"
 "Revision %2!ls!, Author %3!ls!, Date %4!ls!"
-msgstr "%1!ls!\r\nRevīzija %2!ls!, Autors %3!ls!, Datums %4!ls!"
+msgstr ""
+"%1!ls!\r\n"
+"Revīzija %2!ls!, Autors %3!ls!, Datums %4!ls!"
 
 #. Resource IDs: (IDS_REPOBROWSE_INFOFILE)
 #, c-format
 msgid ""
 "%1!ls!\r\n"
 "Revision %2!ls!, Author %3!ls!, Size %4!ls!, Date %5!ls!"
-msgstr "%1!ls!\nRevīzija %2!ls!, Autors %3!ls!, Izmērs %4!ls!, Datums %5!ls!"
+msgstr ""
+"%1!ls!\n"
+"Revīzija %2!ls!, Autors %3!ls!, Izmērs %4!ls!, Datums %5!ls!"
 
 #. Resource IDs: (IDS_REPOBROWSE_INFO)
 #, c-format
 msgid ""
 "%1!ls!\r\n"
 "Showing %2!d! files and %3!d! folders, %4!d! items in total"
-msgstr "%1!ls!\r\nRādu %2!d! failus un %3!d! mapes, %4!d! vienumu kopā"
+msgstr ""
+"%1!ls!\r\n"
+"Rādu %2!d! failus un %3!d! mapes, %4!d! vienumu kopā"
 
 #. Resource IDs: (61744)
 #, c-format
 msgid ""
 "%1: %2\n"
 "Continue running script?"
-msgstr "%1: %2\nTurpināt izpildīt skriptu?"
+msgstr ""
+"%1: %2\n"
+"Turpināt izpildīt skriptu?"
 
 #. Resource IDs: (61729)
 #, c-format
@@ -177,7 +182,10 @@ msgid ""
 "%1\n"
 "Cannot find this file.\n"
 "Verify that the correct path and file name are given."
-msgstr "%1\nNevar atrast šo failu.\nPārliecinieties, vai tam ir pareizs ceļš un nosaukums."
+msgstr ""
+"%1\n"
+"Nevar atrast šo failu.\n"
+"Pārliecinieties, vai tam ir pareizs ceļš un nosaukums."
 
 #. Resource IDs: (IDS_SVN_PROGRESS_TOTALBYTESTRANSFERRED)
 #, c-format
@@ -217,7 +225,10 @@ msgid ""
 "%i%% alpha\n"
 "click to toggle alpha\n"
 "double click to automatically toggle alpha"
-msgstr "%i%% alpha\nnoklikšķiniet, lai izvēlētos alpha\ndubultklikšķis, lai automātiski izvēlētos alpha"
+msgstr ""
+"%i%% alpha\n"
+"noklikšķiniet, lai izvēlētos alpha\n"
+"dubultklikšķis, lai automātiski izvēlētos alpha"
 
 #. Resource IDs: (IDS_DIMENSIONSANDFRAMES)
 #, c-format
@@ -269,29 +280,40 @@ msgstr "%ls : Darba kopija"
 msgid ""
 "%ls\n"
 "%ld failed hunk(s)"
-msgstr "%ls\n%ld nesekmīgi gabali(s)"
+msgstr ""
+"%ls\n"
+"%ld nesekmīgi gabali(s)"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK1_1)
 #, c-format
 msgid ""
 "%ls\n"
 "Do you want to remove the %d files anyway?"
-msgstr "%ls\nVēlaties izmest %d failus tik un tā?"
+msgstr ""
+"%ls\n"
+"Vēlaties izmest %d failus tik un tā?"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK1)
 #, c-format
 msgid ""
 "%ls\n"
 "Do you want to remove the file '%ls' anyway?"
-msgstr "%ls\nVēlaties izmest failu '%ls' tik un tā?"
+msgstr ""
+"%ls\n"
+"Vēlaties izmest failu '%ls' tik un tā?"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK1_2)
 #, c-format
 msgid ""
 "%ls\n"
 "The folder %ls\n"
-"contains unversioned and/or modified file(s). Do you want to remove it anyway?"
-msgstr "%ls\nMape %ls\nsatur neversionētu(s) un/vai labotu(s) failu(s). Vēlaties to(s) izmest tik un tā?"
+"contains unversioned and/or modified file(s). Do you want to remove it "
+"anyway?"
+msgstr ""
+"%ls\n"
+"Mape %ls\n"
+"satur neversionētu(s) un/vai labotu(s) failu(s). Vēlaties to(s) izmest tik "
+"un tā?"
 
 #. Resource IDs: (IDS_ERR_FILE_NOTAFILE)
 #, c-format
@@ -299,7 +321,10 @@ msgid ""
 "%ls\n"
 "is a directory, not a file!\n"
 "TortoiseMerge can't diff directories."
-msgstr "%ls\n ir mape, nevis fails!\n TortoiseMerge nevar salīdzināt mapes."
+msgstr ""
+"%ls\n"
+" ir mape, nevis fails!\n"
+" TortoiseMerge nevar salīdzināt mapes."
 
 #. Resource IDs: (IDS_HOOKFAILED_TASK3)
 msgid ""
@@ -335,8 +360,7 @@ msgstr ""
 msgid "&Add..."
 msgstr "&Pievienot..."
 
-#. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 1090, Dialog
-#. IDD_SETTINGSPROGSMERGE: Control id 1093)
+#. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 1090, Dialog IDD_SETTINGSPROGSMERGE: Control id 1093)
 msgid "&Advanced..."
 msgstr "&Papildus..."
 
@@ -348,21 +372,7 @@ msgstr "&Viss"
 msgid "&Allow ambiguous URLs"
 msgstr "&Atļaut divdomīgus URLus"
 
-#. Resource IDs: (Dialog IDD_UNSHELVE: Control id 1)
-msgid "&Apply"
-msgstr ""
-
-#. Resource IDs: (Dialog IDD_EDITPROPBUGTRAQ: Control id 1294, Dialog
-#. IDD_EDITPROPEOL: Control id 1294, Dialog IDD_EDITPROPERTYVALUE: Control id
-#. 1294, Dialog IDD_EDITPROPEXECUTABLE: Control id 1294, Dialog
-#. IDD_EDITPROPKEYWORDS: Control id 1294, Dialog IDD_EDITPROPLOCALHOOKS:
-#. Control id 1294, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 1294,
-#. Dialog IDD_EDITPROPMIMETYPE: Control id 1294, Dialog IDD_EDITPROPNEEDSLOCK:
-#. Control id 1294, Dialog IDD_EDITPROPTSVNLANG: Control id 1294, Dialog
-#. IDD_EDITPROPTSVNSIZES: Control id 1294, Dialog IDD_EDITPROPUSERBOOL:
-#. Control id 1294, Dialog IDD_EDITPROPUSERMULTILINE: Control id 1294, Dialog
-#. IDD_EDITPROPUSERSINGLELINE: Control id 1294, Dialog IDD_EDITPROPUSERSTATE:
-#. Control id 1294)
+#. Resource IDs: (Dialog IDD_EDITPROPBUGTRAQ: Control id 1294, Dialog IDD_EDITPROPEOL: Control id 1294, Dialog IDD_EDITPROPERTYVALUE: Control id 1294, Dialog IDD_EDITPROPEXECUTABLE: Control id 1294, Dialog IDD_EDITPROPKEYWORDS: Control id 1294, Dialog IDD_EDITPROPLOCALHOOKS: Control id 1294, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 1294, Dialog IDD_EDITPROPMIMETYPE: Control id 1294, Dialog IDD_EDITPROPNEEDSLOCK: Control id 1294, Dialog IDD_EDITPROPTSVNLANG: Control id 1294, Dialog IDD_EDITPROPTSVNSIZES: Control id 1294, Dialog IDD_EDITPROPUSERBOOL: Control id 1294, Dialog IDD_EDITPROPUSERMULTILINE: Control id 1294, Dialog IDD_EDITPROPUSERSINGLELINE: Control id 1294, Dialog IDD_EDITPROPUSERSTATE: Control id 1294)
 msgid "&Apply property recursively"
 msgstr "&Pielietot īpašību rekursīvi"
 
@@ -418,8 +428,7 @@ msgstr ""
 msgid "&Browse repository"
 msgstr "&Šķirstīt repozitāriju"
 
-#. Resource IDs: (Dialog IDD_OPENDLG: Control id 1001, Dialog IDD_OPENDLG:
-#. Control id 1009)
+#. Resource IDs: (Dialog IDD_OPENDLG: Control id 1001, Dialog IDD_OPENDLG: Control id 1009)
 msgid "&Browse..."
 msgstr "&Šķirstīt..."
 
@@ -431,9 +440,7 @@ msgstr "&Bugtraq (Problēmu izsekotāja integrācija)"
 msgid "&CD-ROM"
 msgstr "&Kompaktdisks"
 
-#. Resource IDs: (Dialog IDD_ADD: Control id 2, Dialog IDD_GOOFFLINE: Control
-#. id 2, IDS_MERGE_WCDIRTYASK_TASK4, IDS_MONITOR_DELETE_TASK4,
-#. IDS_MSGBOX_CANCEL, IDS_WARN_LOCKOUTDATED_TASK4)
+#. Resource IDs: (Dialog IDD_ADD: Control id 2, Dialog IDD_GOOFFLINE: Control id 2, IDS_MERGE_WCDIRTYASK_TASK4, IDS_MONITOR_DELETE_TASK4, IDS_MSGBOX_CANCEL, IDS_WARN_LOCKOUTDATED_TASK4)
 msgid "&Cancel"
 msgstr "&Atcelt"
 
@@ -569,10 +576,6 @@ msgid ""
 "keep the current format."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SHELVE: Control id 1678)
-msgid "&Checkpoint"
-msgstr ""
-
 #. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1606)
 msgid "&Choose items..."
 msgstr "&Izvēlēties vienumus..."
@@ -605,13 +608,11 @@ msgstr "&Iesniegt..."
 msgid "&Compare URLs"
 msgstr "&Salīdzināt URL"
 
-#. Resource IDs: (IDS_LOG_POPUP_COMPARETWO, IDS_REVGRAPH_POPUP_COMPAREREVS,
-#. ID_VIEW_COMPAREREVISIONS - Menu)
+#. Resource IDs: (IDS_LOG_POPUP_COMPARETWO, IDS_REVGRAPH_POPUP_COMPAREREVS, ID_VIEW_COMPAREREVISIONS - Menu)
 msgid "&Compare revisions"
 msgstr "&Salīdzināt izdevumus"
 
-#. Resource IDs: (Dialog IDD_BLAME: Control id 1390, Dialog IDD_MERGEALL:
-#. Control id 1390, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1390)
+#. Resource IDs: (Dialog IDD_BLAME: Control id 1390, Dialog IDD_MERGEALL: Control id 1390, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1390)
 msgid "&Compare whitespaces"
 msgstr "&Salīdzināt atstarpes"
 
@@ -627,8 +628,7 @@ msgstr "&Sākot kontaktēties ar repozitāriju"
 msgid "&Convert files when diffing against BASE"
 msgstr "&Konvertēt failus, kad salīdzina ar BASE"
 
-#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1471, Dialog
-#. IDD_SETTINGSHOOKS: Control id 1367, IDS_EDIT_COPY, ID_EDIT_COPY - Menu)
+#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1471, Dialog IDD_SETTINGSHOOKS: Control id 1367, IDS_EDIT_COPY, ID_EDIT_COPY - Menu)
 msgid "&Copy"
 msgstr "&Kopēt"
 
@@ -648,13 +648,11 @@ msgstr "&Kopēt uz..."
 msgid "&Create folder structure"
 msgstr "&Izveidot mapju struktūru"
 
-#. Resource IDs: (Dialog IDD_EDITPROPMIMETYPE: Control id 1560, Dialog
-#. IDD_SETTINGSPROGSDIFF: Control id 1097)
+#. Resource IDs: (Dialog IDD_EDITPROPMIMETYPE: Control id 1560, Dialog IDD_SETTINGSPROGSDIFF: Control id 1097)
 msgid "&Custom"
 msgstr "&Pielāgots"
 
-#. Resource IDs: (Dialog IDD_REVISIONRANGE: Control id 1638, Dialog
-#. IDD_REVISIONRANGE: Control id 1641)
+#. Resource IDs: (Dialog IDD_REVISIONRANGE: Control id 1638, Dialog IDD_REVISIONRANGE: Control id 1641)
 msgid "&Date"
 msgstr "&Datums"
 
@@ -666,8 +664,7 @@ msgstr "&Neaktivitātes dienas līdz mazās kešatmiņas tiks dzēstas"
 msgid "&Default"
 msgstr "&Noklusējuma"
 
-#. Resource IDs: (Dialog IDD_SETTINGSLOGCACHELIST: Control id 1382,
-#. IDS_MENUREMOVE)
+#. Resource IDs: (Dialog IDD_SETTINGSLOGCACHELIST: Control id 1382, IDS_MENUREMOVE)
 msgid "&Delete"
 msgstr "&Dzēst"
 
@@ -723,8 +720,7 @@ msgstr ""
 msgid "&EOL"
 msgstr "&Rindas beigas"
 
-#. Resource IDs: (65535 - PopupMenu, Dialog IDD_SETTINGSMAIN: Control id 1031,
-#. IDS_REPOBROWSE_EDITFILE)
+#. Resource IDs: (65535 - PopupMenu, Dialog IDD_SETTINGSMAIN: Control id 1031, IDS_REPOBROWSE_EDITFILE)
 msgid "&Edit"
 msgstr "&Rediģēt"
 
@@ -740,9 +736,7 @@ msgstr "&Rediģēt konfliktus"
 msgid "&Edit project"
 msgstr "&Labot projektu"
 
-#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1282, Dialog
-#. IDD_EDITPROPEXTERNALS: Control id 1596, Dialog IDD_SETTINGSPROGSADV:
-#. Control id 1099, IDS_PROP_EDIT)
+#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1282, Dialog IDD_EDITPROPEXTERNALS: Control id 1596, Dialog IDD_SETTINGSPROGSADV: Control id 1099, IDS_PROP_EDIT)
 msgid "&Edit..."
 msgstr "&Rediģēt..."
 
@@ -784,9 +778,7 @@ msgid ""
 "Export into the non-empty folder."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 1092, Dialog
-#. IDD_SETTINGSPROGSDIFF: Control id 1094, Dialog IDD_SETTINGSPROGSMERGE:
-#. Control id 1095)
+#. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 1092, Dialog IDD_SETTINGSPROGSDIFF: Control id 1094, Dialog IDD_SETTINGSPROGSMERGE: Control id 1095)
 msgid "&External"
 msgstr "Ā&rējais"
 
@@ -826,9 +818,7 @@ msgstr "&Fiksētie diskdziņi"
 msgid "&Font for log messages:"
 msgstr "&Fonts log-iem:"
 
-#. Resource IDs: (Dialog IDD_SETMAINPAGE: Control id 65535, Dialog
-#. IDD_SETTINGSTBLAME: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id
-#. 65535)
+#. Resource IDs: (Dialog IDD_SETMAINPAGE: Control id 65535, Dialog IDD_SETTINGSTBLAME: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id 65535)
 msgid "&Font:"
 msgstr "&Fonts:"
 
@@ -860,12 +850,7 @@ msgstr "&Grupēt pēc zara"
 msgid "&HEAD Revision"
 msgstr "&HEAD revīzija"
 
-#. Resource IDs: (Dialog IDD_BLAME: Control id 1032, Dialog IDD_CHECKOUT:
-#. Control id 1032, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1032, Dialog
-#. IDD_EXPORT: Control id 1032, Dialog IDD_REVISION: Control id 1032, Dialog
-#. IDD_REVISIONRANGE: Control id 1636, Dialog IDD_REVISIONRANGE: Control id
-#. 1639, Dialog IDD_SWITCH: Control id 1032, Dialog IDD_UPDATE: Control id
-#. 1032, Dialog IDD_URLDIFF: Control id 1032)
+#. Resource IDs: (Dialog IDD_BLAME: Control id 1032, Dialog IDD_CHECKOUT: Control id 1032, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1032, Dialog IDD_EXPORT: Control id 1032, Dialog IDD_REVISION: Control id 1032, Dialog IDD_REVISIONRANGE: Control id 1636, Dialog IDD_REVISIONRANGE: Control id 1639, Dialog IDD_SWITCH: Control id 1032, Dialog IDD_UPDATE: Control id 1032, Dialog IDD_URLDIFF: Control id 1032)
 msgid "&HEAD revision"
 msgstr "&HEAD revīzija"
 
@@ -873,8 +858,7 @@ msgstr "&HEAD revīzija"
 msgid "&HEAD revision in the repository"
 msgstr "&HEAD revīzija repozitārijā"
 
-#. Resource IDs: (57670, 65535 - PopupMenu, Dialog IDD_ADD: Control id 9,
-#. Dialog IDD_CLEANUP: Control id 9, IDS_MENUHELP, ID_MENUHELP - Menu)
+#. Resource IDs: (57670, 65535 - PopupMenu, Dialog IDD_ADD: Control id 9, Dialog IDD_CLEANUP: Control id 9, IDS_MENUHELP, ID_MENUHELP - Menu)
 msgid "&Help"
 msgstr "&Palīdzība"
 
@@ -998,17 +982,11 @@ msgstr "&Nepieciešama bloķēšana (read-only atjaunināšana)"
 msgid "&Log Sizes"
 msgstr "&Log-u izmēri"
 
-#. Resource IDs: (Dialog IDD_SHELVE: Control id 1673, Dialog IDD_UNSHELVE:
-#. Control id 1673)
-msgid "&Log message:"
-msgstr ""
-
 #. Resource IDs: (Dialog IDD_EDITPROPEOL: Control id 1591)
 msgid "&Mac (CR)"
 msgstr "&Mac (CR)"
 
-#. Resource IDs: (Dialog IDD_SWITCH: Control id 1562, Dialog IDD_UPDATE:
-#. Control id 1562)
+#. Resource IDs: (Dialog IDD_SWITCH: Control id 1562, Dialog IDD_UPDATE: Control id 1562)
 msgid "&Make depth sticky"
 msgstr "&Padarīt dziļumu lipīgu"
 
@@ -1052,7 +1030,7 @@ msgstr "&Pārveidot krāsu stumbra kopijām"
 msgid "&Moved blocks"
 msgstr "&Pārvietotie bloki"
 
-#. Resource IDs: (Dialog IDD_UNSHELVE: Control id 1672)
+#. Resource IDs: (Dialog IDD_SHELVE: Control id 1672, Dialog IDD_UNSHELVE: Control id 1672)
 msgid "&Name"
 msgstr ""
 
@@ -1068,8 +1046,7 @@ msgstr "&Tīkla dziņi"
 msgid "&New "
 msgstr "&Jauns"
 
-#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1310, Dialog
-#. IDD_EDITPROPEXTERNALS: Control id 1542)
+#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1310, Dialog IDD_EDITPROPEXTERNALS: Control id 1542)
 msgid "&New..."
 msgstr "&Jauns..."
 
@@ -1102,35 +1079,7 @@ msgstr "&Nav izpildāms"
 msgid "&Numeric"
 msgstr "&Cipars"
 
-#. Resource IDs: (Dialog IDD_ABOUT: Control id 1, Dialog IDD_ADD: Control id
-#. 1, Dialog IDD_BLAME: Control id 1, Dialog IDD_CHANGEDFILES: Control id 1,
-#. Dialog IDD_CHECKOUT: Control id 1, Dialog IDD_CLEANUP: Control id 1, Dialog
-#. IDD_COMMITDLG: Control id 1, Dialog IDD_COPY: Control id 1, Dialog
-#. IDD_CREATECHANGELIST: Control id 1, Dialog IDD_CREATEPATCH: Control id 1,
-#. Dialog IDD_DELUNVERSIONED: Control id 1, Dialog IDD_DIFFOPTIONS: Control id
-#. 1, Dialog IDD_EDITPROPBUGTRAQ: Control id 1, Dialog IDD_EDITPROPEOL:
-#. Control id 1, Dialog IDD_EDITPROPERTIES: Control id 1, Dialog
-#. IDD_EDITPROPERTYVALUE: Control id 1, Dialog IDD_EDITPROPEXECUTABLE: Control
-#. id 1, Dialog IDD_EDITPROPEXTERNALS: Control id 1, Dialog
-#. IDD_EDITPROPEXTERNALSVALUE: Control id 1, Dialog IDD_EDITPROPKEYWORDS:
-#. Control id 1, Dialog IDD_EDITPROPMIMETYPE: Control id 1, Dialog
-#. IDD_EDITPROPNEEDSLOCK: Control id 1, Dialog IDD_EDITPROPTSVNLANG: Control
-#. id 1, Dialog IDD_EDITPROPTSVNSIZES: Control id 1, Dialog IDD_EXPORT:
-#. Control id 1, Dialog IDD_HISTORYDLG: Control id 1, Dialog IDD_IMPORT:
-#. Control id 1, Dialog IDD_INPUTDLG: Control id 1, Dialog IDD_INPUTLOGDLG:
-#. Control id 1, Dialog IDD_LOCK: Control id 1, Dialog IDD_LOGCACHESTATISTICS:
-#. Control id 1, Dialog IDD_LOGMESSAGE: Control id 1, Dialog IDD_PROMPT:
-#. Control id 1, Dialog IDD_PROPERTIES: Control id 1, Dialog IDD_RELOCATE:
-#. Control id 1, Dialog IDD_RENAME: Control id 1, Dialog
-#. IDD_REPOCREATEFINISHED: Control id 1, Dialog IDD_REPOSITORY_BROWSER:
-#. Control id 1, Dialog IDD_RESOLVE: Control id 1, Dialog IDD_REVERT: Control
-#. id 1607, Dialog IDD_REVGRAPHFILTER: Control id 1, Dialog IDD_REVISION:
-#. Control id 1, Dialog IDD_REVISIONRANGE: Control id 1, Dialog
-#. IDD_SIMPLEPROMPT: Control id 1, Dialog IDD_STATGRAPH: Control id 1, Dialog
-#. IDD_SVNPROGRESS: Control id 1, Dialog IDD_SWITCH: Control id 1, Dialog
-#. IDD_TOOLASSOC: Control id 1, Dialog IDD_UNLOCK: Control id 1, Dialog
-#. IDD_UPDATE: Control id 1, Dialog IDD_URL: Control id 1, Dialog IDD_URLDIFF:
-#. Control id 1, IDS_MSGBOX_OK)
+#. Resource IDs: (Dialog IDD_ABOUT: Control id 1, Dialog IDD_ADD: Control id 1, Dialog IDD_BLAME: Control id 1, Dialog IDD_CHANGEDFILES: Control id 1, Dialog IDD_CHECKOUT: Control id 1, Dialog IDD_CLEANUP: Control id 1, Dialog IDD_COMMITDLG: Control id 1, Dialog IDD_COPY: Control id 1, Dialog IDD_CREATECHANGELIST: Control id 1, Dialog IDD_CREATEPATCH: Control id 1, Dialog IDD_DELUNVERSIONED: Control id 1, Dialog IDD_DIFFOPTIONS: Control id 1, Dialog IDD_EDITPROPBUGTRAQ: Control id 1, Dialog IDD_EDITPROPEOL: Control id 1, Dialog IDD_EDITPROPERTIES: Control id 1, Dialog IDD_EDITPROPERTYVALUE: Control id 1, Dialog IDD_EDITPROPEXECUTABLE: Control id 1, Dialog IDD_EDITPROPEXTERNALS: Control id 1, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1, Dialog IDD_EDITPROPKEYWORDS: Control id 1, Dialog IDD_EDITPROPMIMETYPE: Control id 1, Dialog IDD_EDITPROPNEEDSLOCK: Control id 1, Dialog IDD_EDITPROPTSVNLANG: Control id 1, Dialog IDD_EDITPROPTSVNSIZES: Control id 1, Dialog IDD_EXPORT: Control id 1, Dialog IDD_HISTORYDLG: Control id 1, Dialog IDD_IMPORT: Control id 1, Dialog IDD_INPUTDLG: Control id 1, Dialog IDD_INPUTLOGDLG: Control id 1, Dialog IDD_LOCK: Control id 1, Dialog IDD_LOGCACHESTATISTICS: Control id 1, Dialog IDD_LOGMESSAGE: Control id 1, Dialog IDD_PROMPT: Control id 1, Dialog IDD_PROPERTIES: Control id 1, Dialog IDD_RELOCATE: Control id 1, Dialog IDD_RENAME: Control id 1, Dialog IDD_REPOCREATEFINISHED: Control id 1, Dialog IDD_REPOSITORY_BROWSER: Control id 1, Dialog IDD_RESOLVE: Control id 1, Dialog IDD_REVERT: Control id 1607, Dialog IDD_REVGRAPHFILTER: Control id 1, Dialog IDD_REVISION: Control id 1, Dialog IDD_REVISIONRANGE: Control id 1, Dialog IDD_SHELVE: Control id 1, Dialog IDD_SIMPLEPROMPT: Control id 1, Dialog IDD_STATGRAPH: Control id 1, Dialog IDD_SVNPROGRESS: Control id 1, Dialog IDD_SWITCH: Control id 1, Dialog IDD_TOOLASSOC: Control id 1, Dialog IDD_UNLOCK: Control id 1, Dialog IDD_UNSHELVE: Control id 1, Dialog IDD_UPDATE: Control id 1, Dialog IDD_URL: Control id 1, Dialog IDD_URLDIFF: Control id 1, IDS_MSGBOX_OK)
 msgid "&OK"
 msgstr "&Labi"
 
@@ -1142,8 +1091,7 @@ msgstr "&Patreiz bezsaistē"
 msgid "&One Page"
 msgstr "&Viena lapa"
 
-#. Resource IDs: (IDS_LOG_POPUP_OPEN, IDS_REPOBROWSE_OPEN,
-#. cmdOpen_LabelTitle_RESID)
+#. Resource IDs: (IDS_LOG_POPUP_OPEN, IDS_REPOBROWSE_OPEN, cmdOpen_LabelTitle_RESID)
 msgid "&Open"
 msgstr "&Atvērt"
 
@@ -1185,13 +1133,11 @@ msgid ""
 "The target file is replaced."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSPROXY: Control id 1411, Dialog
-#. IDD_SIMPLEPROMPT: Control id 65535)
+#. Resource IDs: (Dialog IDD_SETTINGSPROXY: Control id 1411, Dialog IDD_SIMPLEPROMPT: Control id 65535)
 msgid "&Password:"
 msgstr "&Parole:"
 
-#. Resource IDs: (IDS_EDIT_PASTE, IDS_MENUCLIPPASTE, IDS_SCIEDIT_PASTE,
-#. ID_EDIT_PASTE - Menu)
+#. Resource IDs: (IDS_EDIT_PASTE, IDS_MENUCLIPPASTE, IDS_SCIEDIT_PASTE, ID_EDIT_PASTE - Menu)
 msgid "&Paste"
 msgstr "&Ielīmēt"
 
@@ -1221,10 +1167,6 @@ msgstr "&Spēka lietotāja noklusējumi"
 
 #. Resource IDs: (Dialog IDD_SETTINGSDIALOGS3: Control id 1562)
 msgid "&Pre-fetch folders for faster browsing"
-msgstr ""
-
-#. Resource IDs: (Dialog IDD_DIFFOPTIONS: Control id 1676)
-msgid "&Pretty print"
 msgstr ""
 
 #. Resource IDs: (58116)
@@ -1261,9 +1203,7 @@ msgstr "&Īpašības"
 msgid "&Properties..."
 msgstr "&Īpašības..."
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1246, Dialog IDD_COPY:
-#. Control id 1246, Dialog IDD_IMPORT: Control id 1246, Dialog
-#. IDD_INPUTLOGDLG: Control id 1246, Dialog IDD_LOCK: Control id 1246)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1246, Dialog IDD_COPY: Control id 1246, Dialog IDD_IMPORT: Control id 1246, Dialog IDD_INPUTLOGDLG: Control id 1246, Dialog IDD_LOCK: Control id 1246)
 msgid "&Recent messages"
 msgstr "&Nesenās ziņas"
 
@@ -1291,9 +1231,7 @@ msgstr ""
 msgid "&Remind me to enter a bug-ID"
 msgstr "&Atgādināt man, lai ievadu blusas-ID"
 
-#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1285, Dialog
-#. IDD_EDITPROPEXTERNALS: Control id 1597, Dialog IDD_SETTINGSPROGSADV:
-#. Control id 1100, IDS_PROP_REMOVE)
+#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1285, Dialog IDD_EDITPROPEXTERNALS: Control id 1597, Dialog IDD_SETTINGSPROGSADV: Control id 1100, IDS_PROP_REMOVE)
 msgid "&Remove"
 msgstr "&Aizvākt"
 
@@ -1354,16 +1292,11 @@ msgstr ""
 msgid "&Restore defaults"
 msgstr "&Atiestatīt noklusējumus"
 
-#. Resource IDs: (Dialog IDD_GOOFFLINE: Control id 1542)
-msgid "&Retry"
-msgstr ""
-
 #. Resource IDs: (Dialog IDD_SVNPROGRESS: Control id 1545)
 msgid "&Retry as different user"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SVNPROGRESS: Control id 1542,
-#. IDS_MSGBOX_RETRYWITHOUTHOOKS)
+#. Resource IDs: (Dialog IDD_SVNPROGRESS: Control id 1542, IDS_MSGBOX_RETRYWITHOUTHOOKS)
 msgid "&Retry without hooks"
 msgstr "Mēģināt vēl&reiz bez āķiem"
 
@@ -1385,13 +1318,7 @@ msgid ""
 "Changes will be applied to the working copy."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_BLAME: Control id 1033, Dialog IDD_CHECKOUT:
-#. Control id 1033, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1033, Dialog
-#. IDD_EXPORT: Control id 1033, Dialog IDD_MERGEWIZARD_TREE: Control id 1116,
-#. Dialog IDD_REVISION: Control id 1033, Dialog IDD_REVISIONRANGE: Control id
-#. 1637, Dialog IDD_REVISIONRANGE: Control id 1640, Dialog IDD_SWITCH: Control
-#. id 1033, Dialog IDD_UPDATE: Control id 1033, Dialog IDD_URLDIFF: Control id
-#. 1033)
+#. Resource IDs: (Dialog IDD_BLAME: Control id 1033, Dialog IDD_CHECKOUT: Control id 1033, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1033, Dialog IDD_EXPORT: Control id 1033, Dialog IDD_MERGEWIZARD_TREE: Control id 1116, Dialog IDD_REVISION: Control id 1033, Dialog IDD_REVISIONRANGE: Control id 1637, Dialog IDD_REVISIONRANGE: Control id 1640, Dialog IDD_SWITCH: Control id 1033, Dialog IDD_UPDATE: Control id 1033, Dialog IDD_URLDIFF: Control id 1033)
 msgid "&Revision"
 msgstr "&Revīzija"
 
@@ -1413,13 +1340,11 @@ msgstr "&SVN"
 msgid "&Save"
 msgstr "&Saglabāt"
 
-#. Resource IDs: (Dialog IDD_PROMPT: Control id 1023, Dialog IDD_SIMPLEPROMPT:
-#. Control id 1023)
+#. Resource IDs: (Dialog IDD_PROMPT: Control id 1023, Dialog IDD_SIMPLEPROMPT: Control id 1023)
 msgid "&Save authentication"
 msgstr "&Saglabāt autentifikāciju"
 
-#. Resource IDs: (IDS_REVGRAPH_SAVEPIC, ID_FILE_SAVEGRAPHAS - Menu,
-#. ID_FILE_SAVESTATGRAPHAS - Menu)
+#. Resource IDs: (IDS_REVGRAPH_SAVEPIC, ID_FILE_SAVEGRAPHAS - Menu, ID_FILE_SAVESTATGRAPHAS - Menu)
 msgid "&Save graph as..."
 msgstr "&Saglabāt grafiku kā..."
 
@@ -1427,18 +1352,13 @@ msgstr "&Saglabāt grafiku kā..."
 msgid "&Save list of selected files to..."
 msgstr "&Saglabāt izvēlēto failu sarakstu uz..."
 
-#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1308,
-#. IDS_PROP_SAVEVALUE)
+#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 1308, IDS_PROP_SAVEVALUE)
 msgid "&Save value..."
 msgstr "&Saglabāt vērtību..."
 
 #. Resource IDs: (IDS_MENUSETTINGS, ID_FILE_SETTINGS - Menu)
 msgid "&Settings"
 msgstr "&Uzstādījumi"
-
-#. Resource IDs: (Dialog IDD_SHELVE: Control id 1)
-msgid "&Shelve"
-msgstr ""
 
 #. Resource IDs: (ID_REFRESHBROWSER - Menu)
 msgid "&Show HEAD revisions"
@@ -1520,13 +1440,11 @@ msgstr "&Taimauts sekundēs līdz apturēt auto-aizpildīšanas parsēšanu"
 msgid "&To Revision"
 msgstr "&Uz revīziju"
 
-#. Resource IDs: (Dialog IDD_RELOCATE: Control id 1384, Dialog IDD_URLDIFF:
-#. Control id 1305)
+#. Resource IDs: (Dialog IDD_RELOCATE: Control id 1384, Dialog IDD_URLDIFF: Control id 1305)
 msgid "&To URL:"
 msgstr "&Uz URL:"
 
-#. Resource IDs: (Dialog IDD_COPY: Control id 1384, Dialog IDD_SWITCH: Control
-#. id 1305)
+#. Resource IDs: (Dialog IDD_COPY: Control id 1384, Dialog IDD_SWITCH: Control id 1305)
 msgid "&To path:"
 msgstr "&Uz ceļu:"
 
@@ -1542,9 +1460,7 @@ msgstr "&Rīkjosla"
 msgid "&Top"
 msgstr "&Augša"
 
-#. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 1091, Dialog
-#. IDD_SETTINGSPROGSDIFF: Control id 1093, Dialog IDD_SETTINGSPROGSMERGE:
-#. Control id 1094)
+#. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 1091, Dialog IDD_SETTINGSPROGSDIFF: Control id 1093, Dialog IDD_SETTINGSPROGSMERGE: Control id 1094)
 msgid "&TortoiseMerge"
 msgstr "&TortoiseMerge"
 
@@ -1564,14 +1480,11 @@ msgstr "S&tumbrs"
 msgid "&Two Page"
 msgstr "&Divas lapas"
 
-#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1376, Dialog IDD_EXPORT:
-#. Control id 1394, Dialog IDD_IMPORT: Control id 1058)
+#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1376, Dialog IDD_EXPORT: Control id 1394, Dialog IDD_IMPORT: Control id 1058)
 msgid "&URL of repository:"
 msgstr "&Repozitārija URL:"
 
-#. Resource IDs: (Dialog IDD_EDITPROPBUGTRAQ: Control id 1561, Dialog
-#. IDD_EDITPROPEXTERNALSVALUE: Control id 1305, Dialog IDD_URL: Control id
-#. 1076)
+#. Resource IDs: (Dialog IDD_EDITPROPBUGTRAQ: Control id 1561, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1305, Dialog IDD_URL: Control id 1076)
 msgid "&URL:"
 msgstr "&URL:"
 
@@ -1633,18 +1546,12 @@ msgstr "&Izmantot failu ceļu un atslēgvārdu auto-aizpildīšanu"
 msgid "&Use recycle bin"
 msgstr "&Izmantot atkritumu spaini"
 
-#. Resource IDs: (Dialog IDD_PROMPT: Control id 1005, Dialog
-#. IDD_SETTINGSPROXY: Control id 1410, Dialog IDD_SIMPLEPROMPT: Control id
-#. 65535)
+#. Resource IDs: (Dialog IDD_PROMPT: Control id 1005, Dialog IDD_SETTINGSPROXY: Control id 1410, Dialog IDD_SIMPLEPROMPT: Control id 65535)
 msgid "&Username:"
 msgstr "&Lietotājs:"
 
 #. Resource IDs: (Dialog IDD_CLEANUP: Control id 1647)
 msgid "&Vacuum pristine copies"
-msgstr ""
-
-#. Resource IDs: (Dialog IDD_UNSHELVE: Control id 1674)
-msgid "&Version"
 msgstr ""
 
 #. Resource IDs: (65535 - PopupMenu)
@@ -1677,12 +1584,16 @@ msgstr "'%ls' : %ld jauni nodevumi"
 msgid ""
 "'%ls'\n"
 "is not a valid URL or path!"
-msgstr "'%ls'\nnav derīgs URL vai ceļš!"
+msgstr ""
+"'%ls'\n"
+"nav derīgs URL vai ceļš!"
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHESTATS_SKIPRANGES)
 msgid ""
 "'skip ranges' are used to mark revision ranges that have not been cached yet"
-msgstr "'izlaist apgabalus' tiek izmantots, lai atzīmētu revīzijas apgabalus, kas patreiz nav kešoti"
+msgstr ""
+"'izlaist apgabalus' tiek izmantots, lai atzīmētu revīzijas apgabalus, kas "
+"patreiz nav kešoti"
 
 #. Resource IDs: (IDS_REVGRAPH_TAGATTRIBUTED)
 #, c-format
@@ -1795,21 +1706,7 @@ msgstr "+ %d"
 msgid "- %d"
 msgstr "- %d"
 
-#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1035, Dialog IDD_CHECKOUT:
-#. Control id 1036, Dialog IDD_COPY: Control id 1035, Dialog
-#. IDD_EDITPROPEXTERNALSVALUE: Control id 1035, Dialog IDD_EXPORT: Control id
-#. 1035, Dialog IDD_EXPORT: Control id 1036, Dialog IDD_IMPORT: Control id
-#. 1035, Dialog IDD_MERGEWIZARD_REVRANGE: Control id 1035, Dialog
-#. IDD_MERGEWIZARD_TREE: Control id 1035, Dialog IDD_MERGEWIZARD_TREE: Control
-#. id 1036, Dialog IDD_OPEN: Control id 1002, Dialog IDD_OPEN: Control id
-#. 1003, Dialog IDD_SETTINGSBUGTRAQADV: Control id 1474, Dialog
-#. IDD_SETTINGSDIALOGS: Control id 1362, Dialog IDD_SETTINGSHOOKCONFIG:
-#. Control id 1324, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1333, Dialog
-#. IDD_SETTINGSPROGSDIFF: Control id 1021, Dialog IDD_SETTINGSPROGSDIFF:
-#. Control id 1022, Dialog IDD_SETTINGSPROGSDIFF: Control id 1089, Dialog
-#. IDD_SETTINGSPROGSMERGE: Control id 1022, Dialog IDD_SETTINGSSYNC: Control
-#. id 1542, Dialog IDD_SWITCH: Control id 1035, Dialog IDD_TOOLASSOC: Control
-#. id 1104, Dialog IDD_URLDIFF: Control id 1035)
+#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1035, Dialog IDD_CHECKOUT: Control id 1036, Dialog IDD_COPY: Control id 1035, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1035, Dialog IDD_EXPORT: Control id 1035, Dialog IDD_EXPORT: Control id 1036, Dialog IDD_IMPORT: Control id 1035, Dialog IDD_MERGEWIZARD_REVRANGE: Control id 1035, Dialog IDD_MERGEWIZARD_TREE: Control id 1035, Dialog IDD_MERGEWIZARD_TREE: Control id 1036, Dialog IDD_OPEN: Control id 1002, Dialog IDD_OPEN: Control id 1003, Dialog IDD_SETTINGSBUGTRAQADV: Control id 1474, Dialog IDD_SETTINGSDIALOGS: Control id 1362, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1324, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1333, Dialog IDD_SETTINGSPROGSDIFF: Control id 1021, Dialog IDD_SETTINGSPROGSDIFF: Control id 1022, Dialog IDD_SETTINGSPROGSDIFF: Control id 1089, Dialog IDD_SETTINGSPROGSMERGE: Control id 1022, Dialog IDD_SETTINGSSYNC: Control id 1542, Dialog IDD_SWITCH: Control id 1035, Dialog IDD_TOOLASSOC: Control id 1104, Dialog IDD_URLDIFF: Control id 1035)
 msgid "..."
 msgstr "..."
 
@@ -1820,11 +1717,6 @@ msgstr "... pārbaudu kešatmiņu un sagatavoju log-a vaicājumu"
 #. Resource IDs: (IDS_REVGRAPH_PROGREADINGWC)
 msgid "... reading working copy status"
 msgstr "... nolasu darba kopijas statusu"
-
-#. Resource IDs: (IDS_ERR_SHELVE_FAILED_MORE)
-#, c-format
-msgid "...and %d more paths."
-msgstr ""
 
 #. Resource IDs: (IDS_DIFF_REVISIONPATCHED)
 #, c-format
@@ -1845,8 +1737,8 @@ msgstr "<jauns izmaiņu saraksts>"
 
 #. Resource IDs: (IDS_MONITOR_TOOLBARTEXTS)
 msgid ""
-"=&Check Now=&Add Project=E&dit=&Remove=&Mark all as read=&Clear "
-"errors=&Update all=&Options=="
+"=&Check Now=&Add Project=E&dit=&Remove=&Mark all as read=&Update "
+"all=&Options=="
 msgstr ""
 
 #. Resource IDs: (ID_ABOUT - Menu)
@@ -1855,11 +1747,15 @@ msgstr "?"
 
 #. Resource IDs: (IDS_PROP_TT_TSVNUSERFILEPROPERTIES)
 msgid "A list of user defined properties for files to show in the combo box"
-msgstr "Saraksts ar lietotāja izveidotām īpašībām priekš failiem, kas tiks attēloti kombo kastē"
+msgstr ""
+"Saraksts ar lietotāja izveidotām īpašībām priekš failiem, kas tiks attēloti "
+"kombo kastē"
 
 #. Resource IDs: (IDS_PROP_TT_TSVNUSERFOLDERPROPERTIES)
 msgid "A list of user defined properties for folders to show in the combo box"
-msgstr "Saraksts ar lietotāja izveidotām īpašībām priekš mapēm, kas tiks attēloti kombo kastē"
+msgstr ""
+"Saraksts ar lietotāja izveidotām īpašībām priekš mapēm, kas tiks attēloti "
+"kombo kastē"
 
 #. Resource IDs: (IDS_CHECKNEWER_NEWERVERSIONAVAILABLE)
 msgid ""
@@ -1870,32 +1766,61 @@ msgstr ""
 #. Resource IDs: (IDS_SETTINGS_INCLUDELIST_TT)
 msgid ""
 "A newline separated list of paths for which icon overlays are shown.\r\n"
-"If you add an '?' char at the end of a path, then only this path will be included.\r\n"
-"If you add an '*' or no char at all at the end of a path, then all files and subdirs inside that path are included too."
-msgstr "Tiek rādīts ar newline sadalīts saraksts ar ceļiem, kuriem tiek attēlotas ikonu pārklāšanās.\r\nJa jūs ceļa galā pievienosiet simbolu '?', tad tikai šis ceļš tiks iekļauts.\r\nJa jūs ceļa galā pievienosiet simbolu '*' vai nepievieno neko, tad tiks iekļauti arī visi šajā ceļā esošie faili un apakšdirektorijas."
+"If you add an '?' char at the end of a path, then only this path will be "
+"included.\r\n"
+"If you add an '*' or no char at all at the end of a path, then all files and "
+"subdirs inside that path are included too."
+msgstr ""
+"Tiek rādīts ar newline sadalīts saraksts ar ceļiem, kuriem tiek attēlotas "
+"ikonu pārklāšanās.\r\n"
+"Ja jūs ceļa galā pievienosiet simbolu '?', tad tikai šis ceļš tiks iekļauts."
+"\r\n"
+"Ja jūs ceļa galā pievienosiet simbolu '*' vai nepievieno neko, tad tiks "
+"iekļauti arī visi šajā ceļā esošie faili un apakšdirektorijas."
 
 #. Resource IDs: (IDS_SETTINGS_EXCLUDECONTEXTLIST_TT)
 msgid ""
 "A newline separated list of paths for which no context menu is shown.\r\n"
-"If you add an '*' char at the end of a path, then all files and subdirs inside that path are excluded too.\r\n"
+"If you add an '*' char at the end of a path, then all files and subdirs "
+"inside that path are excluded too.\r\n"
 "An empty list will allow the context menu on all paths."
-msgstr "Tiek rādīts ar newline sadalīts saraksts ar ceļiem, kuriem netiek attēlotas kontekstu izvēlnes.\r\nJa jūs ceļa galā pievienosiet simbolu '*', tad netiks iekļauti arī visi šajā ceļā esošie faili un apakšdirektorijas.Tukšs saraksts atļaus konteksta izvēlnes visiem ceļiem."
+msgstr ""
+"Tiek rādīts ar newline sadalīts saraksts ar ceļiem, kuriem netiek attēlotas "
+"kontekstu izvēlnes.\r\n"
+"Ja jūs ceļa galā pievienosiet simbolu '*', tad netiks iekļauti arī visi šajā "
+"ceļā esošie faili un apakšdirektorijas.Tukšs saraksts atļaus konteksta "
+"izvēlnes visiem ceļiem."
 
 #. Resource IDs: (IDS_SETTINGS_EXCLUDELIST_TT)
 msgid ""
 "A newline separated list of paths for which no icon overlays are shown.\r\n"
-"If you add an '?' char at the end of a path, then only this path will be excluded.\r\n"
-"If you add an '*' or no char at all at the end of a path, then all files and subdirs inside that path are excluded too.\r\n"
+"If you add an '?' char at the end of a path, then only this path will be "
+"excluded.\r\n"
+"If you add an '*' or no char at all at the end of a path, then all files and "
+"subdirs inside that path are excluded too.\r\n"
 "An empty list will allow overlays on all paths."
-msgstr "Tiek rādīts ar newline sadalīts saraksts ar ceļiem, kuriem netiek attēlotas ikonu pārklāšanās.\r\nJa jūs ceļa galā pievienosiet simbolu '?', tad tikai šis ceļš netiks iekļauts.\r\nJa jūs ceļa galā pievienosiet simbolu '*' vai nepievieno neko, tad netiks iekļauti arī visi šajā ceļā esošie faili un apakšdirektorijas.Tukšs saraksts atļaus pārklāšanās visiem ceļiem."
+msgstr ""
+"Tiek rādīts ar newline sadalīts saraksts ar ceļiem, kuriem netiek attēlotas "
+"ikonu pārklāšanās.\r\n"
+"Ja jūs ceļa galā pievienosiet simbolu '?', tad tikai šis ceļš netiks "
+"iekļauts.\r\n"
+"Ja jūs ceļa galā pievienosiet simbolu '*' vai nepievieno neko, tad netiks "
+"iekļauti arī visi šajā ceļā esošie faili un apakšdirektorijas.Tukšs saraksts "
+"atļaus pārklāšanās visiem ceļiem."
 
 #. Resource IDs: (IDS_WARN_RELOCATEREALLY_TASK5)
 msgid ""
 "A relocate is only needed if the path to a repository has changed.\n"
-"Changing to a different path inside a repository is done by a switch operation.\n"
+"Changing to a different path inside a repository is done by a switch "
+"operation.\n"
 "\n"
 "If you are not sure what to do, try a switch operation first."
-msgstr "Pārcelšanās nepieciešama tikai tad, ja mainījies repozitārija ceļš.\nMaiņa uz citu ceļu iekš repozitārija tiek panākta, izmantojot pārslēgšanās operāciju.\n\nJa neesat pārliecināts, ko darīt, vispirms pamēģiniet pārslēgšanās operāciju."
+msgstr ""
+"Pārcelšanās nepieciešama tikai tad, ja mainījies repozitārija ceļš.\n"
+"Maiņa uz citu ceļu iekš repozitārija tiek panākta, izmantojot pārslēgšanās "
+"operāciju.\n"
+"\n"
+"Ja neesat pārliecināts, ko darīt, vispirms pamēģiniet pārslēgšanās operāciju."
 
 #. Resource IDs: (61474)
 msgid "A required resource was unavailable."
@@ -1904,16 +1829,25 @@ msgstr "Nepieciešamais resurss nav pieejams."
 #. Resource IDs: (IDS_WARN_NOVALIDPATH_TASK5)
 #, c-format
 msgid ""
-"A valid path on windows must not contain '<>|\"?*:' or one of the following device names:\n"
+"A valid path on windows must not contain '<>|\"?*:' or one of the following "
+"device names:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$\n"
-"See the <a href=\"http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx\">documentation</a> from Microsoft about this."
-msgstr "Derīgs ceļš uz logiem nedrīkst saturēt '<>|\"?*:' vai kādu no sekojošiem ierīču nosaukumiem:\ncom1-com9, lpt1-lpt9, prn, aux, con, nul, clock$\nSkatīties Microsoft <a href=\"http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx\">dokumentāciju</a> par šo tematu."
+"See the <a href=\"http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%"
+"29.aspx\">documentation</a> from Microsoft about this."
+msgstr ""
+"Derīgs ceļš uz logiem nedrīkst saturēt '<>|\"?*:' vai kādu no sekojošiem "
+"ierīču nosaukumiem:\n"
+"com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$\n"
+"Skatīties Microsoft <a href=\"http://msdn.microsoft.com/en-us/library/"
+"aa365247%28VS.85%29.aspx\">dokumentāciju</a> par šo tematu."
 
 #. Resource IDs: (IDS_SETTINGS_DIFFVIEWER_TT)
 msgid ""
 "A viewer program for GNU diff files (patch files).\r\n"
 "If you don't have one use NotePad."
-msgstr "Skatīšanās programma priekš GNU atšķirību failiem (ielāpu faili).\r\nJa jums tādas nav, lietojiet NotePad."
+msgstr ""
+"Skatīšanās programma priekš GNU atšķirību failiem (ielāpu faili).\r\n"
+"Ja jums tādas nav, lietojiet NotePad."
 
 #. Resource IDs: (IDS_REPOBROWSE_IMPORTFOLDER)
 msgid "A&dd folder..."
@@ -1971,7 +1905,9 @@ msgstr "Aktivizēt uzdevumu sarakstu"
 msgid ""
 "ActiveX objects cannot be saved while exiting Windows!\n"
 "Discard all changes to %1?"
-msgstr "ActiveX objekti nevar tikt saglabāti ejot ārā no Windows!\nAtmest visas izmaiņas līdz %1?"
+msgstr ""
+"ActiveX objekti nevar tikt saglabāti ejot ārā no Windows!\n"
+"Atmest visas izmaiņas līdz %1?"
 
 #. Resource IDs: (IDS_WARN_ADDCASERENAMED_TASK3)
 msgid ""
@@ -1979,8 +1915,7 @@ msgid ""
 "The file is not added."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_ADD: Control id 155, IDS_PROGRS_CMD_ADD,
-#. IDS_PROGRS_TITLE_ADD, IDS_STATUSLIST_CONTEXT_ADD)
+#. Resource IDs: (Dialog IDD_ADD: Control id 155, IDS_PROGRS_CMD_ADD, IDS_PROGRS_TITLE_ADD, IDS_STATUSLIST_CONTEXT_ADD)
 msgid "Add"
 msgstr "Pievienot"
 
@@ -2034,18 +1969,16 @@ msgstr "Pievienot &ignorējamo sarakstam"
 msgid "Add to Bookmarks"
 msgstr "Pievienot grāmatzīmēm"
 
-#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1279, Dialog
-#. IDD_SETTINGSHOOKS: Control id 1279, IDS_STATUSLIST_CONTEXT_ADD_RECURSIVE)
+#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1279, Dialog IDD_SETTINGSHOOKS: Control id 1279, IDS_STATUSLIST_CONTEXT_ADD_RECURSIVE)
 msgid "Add..."
 msgstr "Pievienot..."
 
 #. Resource IDs: (Dialog IDD_TOOLASSOC: Control id 171)
 msgid "Add/Edit Extension Specific Diff/Merge Program"
-msgstr "Pievienot/rediģēt paplašinājumiem raksturīgo atšķirīgu/apvienošanas programmu"
+msgstr ""
+"Pievienot/rediģēt paplašinājumiem raksturīgo atšķirīgu/apvienošanas programmu"
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1509, Dialog
-#. IDD_SETCOLORPAGE: Control id 65535, Dialog IDD_SETTINGSOVERLAYHANDLERS:
-#. Control id 1549, IDS_SVNACTION_ADD, IDS_SVN_SUMMARIZEADDED)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1509, Dialog IDD_SETCOLORPAGE: Control id 65535, Dialog IDD_SETTINGSOVERLAYHANDLERS: Control id 1549, IDS_SVNACTION_ADD, IDS_SVN_SUMMARIZEADDED)
 msgid "Added"
 msgstr "Pievienots"
 
@@ -2067,7 +2000,10 @@ msgid ""
 "Added the file pattern(s)\n"
 "%ls\n"
 "to the ignore list."
-msgstr "Pievienoju faila šablonu(s)\n%ls\nignorējamo sarakstā."
+msgstr ""
+"Pievienoju faila šablonu(s)\n"
+"%ls\n"
+"ignorējamo sarakstā."
 
 #. Resource IDs: (IDS_SVNACTION_ADDING)
 msgid "Adding"
@@ -2089,14 +2025,15 @@ msgstr "Pievieno izvēlēto(s) failu(s) vai failu masku ignorējamo sarakstā"
 msgid ""
 "Adjust the settings\n"
 "Settings"
-msgstr "Noregulējiet uzstādījumus\n Uzstādījumi"
+msgstr ""
+"Noregulējiet uzstādījumus\n"
+" Uzstādījumi"
 
 #. Resource IDs: (IDS_EDITPROPS_ADJUST_TO_HEAD)
 msgid "Adjust to HEAD revision"
 msgstr "Piemērot GALVENAJAI revīzijai"
 
-#. Resource IDs: (Dialog IDD_SETTINGS_CONFIG: Control id 307, ID_EDIT_ADVANCED
-#. - Menu)
+#. Resource IDs: (Dialog IDD_SETTINGS_CONFIG: Control id 307, ID_EDIT_ADVANCED - Menu)
 msgid "Advanced"
 msgstr "Papildus"
 
@@ -2111,10 +2048,6 @@ msgstr "Papildus atšķirību uzstādījumi"
 #. Resource IDs: (IDS_DLGTITLE_ADV_MERGE)
 msgid "Advanced merge settings"
 msgstr "Papildus apvienošanas uzstādījumi"
-
-#. Resource IDs: (Dialog IDD_UNSHELVE: Control id 1675)
-msgid "Affected &files:"
-msgstr ""
 
 #. Resource IDs: (Dialog IDD_LOGCACHESTATISTICS: Control id 65535)
 msgid "Age"
@@ -2148,14 +2081,18 @@ msgstr "Atļaut divdomīgus &UUID-us"
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHE_AMBIGUOUSURL)
 msgid ""
-"Allow different repositories to use the same URL, e.g. "
-"http://localhost/myrepos/"
-msgstr "Atļaut dažādiem repozitārijiem izmantot vienu un to pašu URL, piem., http://localhost/myrepos/"
+"Allow different repositories to use the same URL, e.g. http://localhost/"
+"myrepos/"
+msgstr ""
+"Atļaut dažādiem repozitārijiem izmantot vienu un to pašu URL, piem., http://"
+"localhost/myrepos/"
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHE_AMBIGUOUSUUID)
 msgid ""
 "Allow different repositories to use the same UUID, e.g. copied repositories"
-msgstr "Atļaut dažādiem repozitārijiem izmantot vienu un to pašu UUID, piem.,  kopētus repozitārijus"
+msgstr ""
+"Atļaut dažādiem repozitārijiem izmantot vienu un to pašu UUID, piem.,  "
+"kopētus repozitārijus"
 
 #. Resource IDs: (IDS_LOG_ALREADYMERGED)
 msgid "Already merged"
@@ -2169,14 +2106,15 @@ msgstr "Jau apgriezti apvienoti"
 msgid "Always close dialogs for local operations"
 msgstr "Vienmēr aizvērt dialoglogus vietājām darbībām"
 
-#. Resource IDs: (Dialog IDD_EDITPROPLOCALHOOKS: Control id 1339, Dialog
-#. IDD_SETTINGSHOOKCONFIG: Control id 1339)
+#. Resource IDs: (Dialog IDD_EDITPROPLOCALHOOKS: Control id 1339, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1339)
 msgid "Always execute the script"
 msgstr "Vienmēr izpildīt skriptu"
 
 #. Resource IDs: (IDS_SETTINGS_USESYSTEMLOCALEFORDATES_TT)
 msgid "Always use the system locale settings to show times and dates"
-msgstr "Vienmēr izmantot sistēmas lokalizācijas uzstādījumus laika un datuma attēlošanai"
+msgstr ""
+"Vienmēr izmantot sistēmas lokalizācijas uzstādījumus laika un datuma "
+"attēlošanai"
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHESTATS_RAM)
 msgid "Amount of memory required to load the cache"
@@ -2191,7 +2129,13 @@ msgid ""
 "You can specify the following parameters to the path:\r\n"
 "%base : the base file\r\n"
 "%mine : the modified file"
-msgstr "Izmantota ārējā atšķirību programma\r\nlai salīdzinātu dažādas failu revīzijas\r\n\r\nJūs varat norādīt ceļam sekojošus parametrus:\r\n%base : bāzes fails\r\n%mine : mainītais fails"
+msgstr ""
+"Izmantota ārējā atšķirību programma\r\n"
+"lai salīdzinātu dažādas failu revīzijas\r\n"
+"\r\n"
+"Jūs varat norādīt ceļam sekojošus parametrus:\r\n"
+"%base : bāzes fails\r\n"
+"%mine : mainītais fails"
 
 #. Resource IDs: (IDS_SETTINGS_EXTMERGE_TT)
 #, c-format
@@ -2204,7 +2148,15 @@ msgid ""
 "%theirs : the file as it is in the repository\r\n"
 "%mine : your own file, with your changes\r\n"
 "%base : the original file without your changes"
-msgstr "Izmantota ārējā atšķirību programma\r\nkonfliktējošo failu atrisināšanai.\r\n\r\nJūs varat norādīt ceļam sekojošus parametrus:\r\n%merged : konfliktējošais fails, kur saglabāt\r\n%theirs : fails, kāds tas ir repozitārijā\r\n%mine : jūsu fails ar jūsu izmaiņām\r\n%base : oriģinālais fails bez jūsu izmaiņām"
+msgstr ""
+"Izmantota ārējā atšķirību programma\r\n"
+"konfliktējošo failu atrisināšanai.\r\n"
+"\r\n"
+"Jūs varat norādīt ceļam sekojošus parametrus:\r\n"
+"%merged : konfliktējošais fails, kur saglabāt\r\n"
+"%theirs : fails, kāds tas ir repozitārijā\r\n"
+"%mine : jūsu fails ar jūsu izmaiņām\r\n"
+"%base : oriģinālais fails bez jūsu izmaiņām"
 
 #. Resource IDs: (61862)
 #, c-format
@@ -2222,8 +2174,8 @@ msgstr "Piekļūstot pie %1, parādījās nezināma kļūda."
 
 #. Resource IDs: (IDS_ERR_PATCH_UNKOWNLINETYPE)
 #, c-format
-msgid "An unknown line type was found in line %d!"
-msgstr ""
+msgid "An unknown line type was found in line %d !"
+msgstr "Rindā %d tika atrasts nezināms rindas tips!"
 
 #. Resource IDs: (IDS_SVNERR_SQLITEBUSY)
 msgid ""
@@ -2253,7 +2205,9 @@ msgstr "Pielietot ielā&pu..."
 msgid ""
 "Apply 'Power User' defaults. Those will provide a smoother experience.\n"
 "You should know the meaning of all the settings above."
-msgstr "Pielietot 'Power User' noklusējumus. Tie nodrošinās nevainojamāku darbību.\nJums vajadzētu zināt visu augstāk esošo uzstādījumu jēgu."
+msgstr ""
+"Pielietot 'Power User' noklusējumus. Tie nodrošinās nevainojamāku darbību.\n"
+"Jums vajadzētu zināt visu augstāk esošo uzstādījumu jēgu."
 
 #. Resource IDs: (IDS_OPENDIFFFILETITLE)
 msgid "Apply Patch..."
@@ -2277,19 +2231,24 @@ msgstr "Patvaļ&īgs teksts"
 
 #. Resource IDs: (IDS_PROC_RESOLVE)
 msgid "Are you sure you want to mark the conflicted file(s) as resolved?"
-msgstr "Vai jūs esat pārliecināts, ka vēlaties konfilktējošo(s) failu(s) atzīmēt kā atrisinātus?"
+msgstr ""
+"Vai jūs esat pārliecināts, ka vēlaties konfilktējošo(s) failu(s) atzīmēt kā "
+"atrisinātus?"
 
 #. Resource IDs: (IDS_SETTINGS_CACHEDELETEQUESTION)
 #, c-format
 msgid "Are you sure you want to remove the cache of the selected %d items?"
-msgstr "Vai jūs esat pārliecināts, ka vēlaties izmest %d iezīmēto vienumu kešatmiņu?"
+msgstr ""
+"Vai jūs esat pārliecināts, ka vēlaties izmest %d iezīmēto vienumu kešatmiņu?"
 
 #. Resource IDs: (IDS_PROC_WARNREVERT)
 #, c-format
 msgid ""
 "Are you sure you want to revert %d item(s)? You will lose all changes since "
 "the last update!"
-msgstr "Vai jūs esat pārliecināts, ka vēlaties atgriezt %d vienumu(s) ? Jūs pazaudēsiet visas izmaiņas kopš pēdējās atjaunināšanas!"
+msgstr ""
+"Vai jūs esat pārliecināts, ka vēlaties atgriezt %d vienumu(s) ? Jūs "
+"pazaudēsiet visas izmaiņas kopš pēdējās atjaunināšanas!"
 
 #. Resource IDs: (ID_VIEW_ARRANGEVERTICAL - Menu)
 msgid "Arrange &vertical\t(V)"
@@ -2332,8 +2291,7 @@ msgstr "Mēģināja lasīt no rakstījuma %1."
 msgid "Attempted to write to the reading %1."
 msgstr "Mēģināja rakstīt lasījumā %1."
 
-#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, Dialog
-#. IDD_PROMPT: Control id 131, Dialog IDD_SIMPLEPROMPT: Control id 160)
+#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, Dialog IDD_PROMPT: Control id 131, Dialog IDD_SIMPLEPROMPT: Control id 160)
 msgid "Authentication"
 msgstr "Autentifikācija"
 
@@ -2341,8 +2299,7 @@ msgstr "Autentifikācija"
 msgid "Authentication data"
 msgstr "Autentifikācijas dati"
 
-#. Resource IDs: (Dialog IDD_EDITPROPKEYWORDS: Control id 1562,
-#. IDS_HEADER_AUTHOR, IDS_LOG_AUTHOR, IDS_STATUSLIST_COLAUTHOR)
+#. Resource IDs: (Dialog IDD_EDITPROPKEYWORDS: Control id 1562, IDS_HEADER_AUTHOR, IDS_LOG_AUTHOR, IDS_STATUSLIST_COLAUTHOR)
 msgid "Author"
 msgstr "Autors"
 
@@ -2382,7 +2339,10 @@ msgstr "Automātiski aizvērt, ja nav apvienošanu, pievienošanu vai dzēšanu"
 msgid ""
 "Auto-complete suggests words (usually class or member names)\r\n"
 "from the files that you have changed as you type a log message."
-msgstr "Automātiskā aizpildīšana iesaka vārdus (parasti klases vai locekļa vārdus)\r\nno failiem, kurus jūs izmainījāt, rakstot log ziņojumu."
+msgstr ""
+"Automātiskā aizpildīšana iesaka vārdus (parasti klases vai locekļa vārdus)"
+"\r\n"
+"no failiem, kurus jūs izmainījāt, rakstot log ziņojumu."
 
 #. Resource IDs: (IDS_PROGRS_CMD_MERGEAUTOMATIC)
 #, c-format
@@ -2401,14 +2361,11 @@ msgstr "Automātiskā teksta testeris"
 msgid "Average"
 msgstr "Vidējais"
 
-#. Resource IDs: (Dialog IDD_OPENDLG: Control id 1003, Dialog IDD_OPENDLG:
-#. Control id 1011)
+#. Resource IDs: (Dialog IDD_OPENDLG: Control id 1003, Dialog IDD_OPENDLG: Control id 1011)
 msgid "B&rowse..."
 msgstr "Cau&rskatīt..."
 
-#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535, Dialog
-#. IDD_SETTINGSTBLAME: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id
-#. 65535)
+#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535, Dialog IDD_SETTINGSTBLAME: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id 65535)
 msgid "Background"
 msgstr "Fons"
 
@@ -2428,7 +2385,9 @@ msgstr "Bāzes fails:"
 msgid ""
 "Bitmap\n"
 "a bitmap"
-msgstr "Bitmap\na bitmaps"
+msgstr ""
+"Bitmap\n"
+"a bitmaps"
 
 #. Resource IDs: (Dialog IDD_BLAME: Control id 162)
 msgid "Blame"
@@ -2462,7 +2421,9 @@ msgstr "Grāmatzīmes"
 msgid ""
 "Both /logmsg and /logmsgfile were specified!\n"
 "Only one of those can be specified."
-msgstr "Tika norādīts gan /logmsg, gan /logmsgfile!\nTikai vienu no tiem drīkst norādīt."
+msgstr ""
+"Tika norādīts gan /logmsg, gan /logmsgfile!\n"
+"Tikai vienu no tiem drīkst norādīt."
 
 #. Resource IDs: (IDS_ERR_PATCHPATHS)
 msgid ""
@@ -2501,8 +2462,7 @@ msgstr ""
 msgid "Browse..."
 msgstr "Caurskatīt..."
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1119, Dialog IDD_COPY:
-#. Control id 1119, Dialog IDD_INPUTLOGDLG: Control id 1119)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1119, Dialog IDD_COPY: Control id 1119, Dialog IDD_INPUTLOGDLG: Control id 1119)
 msgid "Bug-&ID / Issue-Nr:"
 msgstr "Bug-&ID / Problēmas-Nr:"
 
@@ -2510,8 +2470,7 @@ msgstr "Bug-&ID / Problēmas-Nr:"
 msgid "Bug-ID"
 msgstr "Bug-ID"
 
-#. Resource IDs: (Dialog IDD_BUGTRAQREGEXTESTER: Control id 1578, Dialog
-#. IDD_EDITPROPBUGTRAQ: Control id 1578)
+#. Resource IDs: (Dialog IDD_BUGTRAQREGEXTESTER: Control id 1578, Dialog IDD_EDITPROPBUGTRAQ: Control id 1578)
 msgid "Bug-ID e&xpression:"
 msgstr "Bug-ID izteik&sme:"
 
@@ -2573,7 +2532,8 @@ msgstr "Kešotie repozitāriji"
 
 #. Resource IDs: (Dialog IDD_SETTINGSDIALOGS: Control id 1127)
 msgid "Can double-click in log list to compare with previous revision"
-msgstr "Ar dubultklikšķi log sarakstā var veikt salīdzināšanu ar iepriekšējo revīziju"
+msgstr ""
+"Ar dubultklikšķi log sarakstā var veikt salīdzināšanu ar iepriekšējo revīziju"
 
 #. Resource IDs: (61824)
 msgid "Can not activate a static ActiveX object."
@@ -2586,47 +2546,13 @@ msgid ""
 "%1!ls!\n"
 "to\n"
 "%2!ls!"
-msgstr "Nevar nokopēt \n%1!ls!\nuz\n%2!ls!"
+msgstr ""
+"Nevar nokopēt \n"
+"%1!ls!\n"
+"uz\n"
+"%2!ls!"
 
-#. Resource IDs: (2, Dialog IDD_BLAME: Control id 2, Dialog
-#. IDD_BUGTRAQREGEXTESTER: Control id 2, Dialog IDD_CHECKOUT: Control id 2,
-#. Dialog IDD_CLEANUP: Control id 2, Dialog IDD_COLLABORATORSETTINGS: Control
-#. id 2, Dialog IDD_COMMITDLG: Control id 2, Dialog IDD_COPY: Control id 2,
-#. Dialog IDD_CREATECHANGELIST: Control id 2, Dialog IDD_CREATEPATCH: Control
-#. id 2, Dialog IDD_DELUNVERSIONED: Control id 2, Dialog IDD_DIFFOPTIONS:
-#. Control id 2, Dialog IDD_EDITPROPBUGTRAQ: Control id 2, Dialog
-#. IDD_EDITPROPEOL: Control id 2, Dialog IDD_EDITPROPERTYVALUE: Control id 2,
-#. Dialog IDD_EDITPROPEXECUTABLE: Control id 2, Dialog IDD_EDITPROPEXTERNALS:
-#. Control id 2, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 2, Dialog
-#. IDD_EDITPROPKEYWORDS: Control id 2, Dialog IDD_EDITPROPLOCALHOOKS: Control
-#. id 2, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 2, Dialog
-#. IDD_EDITPROPMIMETYPE: Control id 2, Dialog IDD_EDITPROPNEEDSLOCK: Control
-#. id 2, Dialog IDD_EDITPROPTSVNLANG: Control id 2, Dialog
-#. IDD_EDITPROPTSVNSIZES: Control id 2, Dialog IDD_EDITPROPUSERBOOL: Control
-#. id 2, Dialog IDD_EDITPROPUSERMULTILINE: Control id 2, Dialog
-#. IDD_EDITPROPUSERSINGLELINE: Control id 2, Dialog IDD_EDITPROPUSERSTATE:
-#. Control id 2, Dialog IDD_ENCODING: Control id 2, Dialog IDD_EXPORT: Control
-#. id 2, Dialog IDD_FIND: Control id 2, Dialog IDD_GOTO: Control id 2, Dialog
-#. IDD_GOTODLG: Control id 2, Dialog IDD_HISTORYDLG: Control id 2, Dialog
-#. IDD_IMPORT: Control id 2, Dialog IDD_INPUTDLG: Control id 2, Dialog
-#. IDD_INPUTLOGDLG: Control id 2, Dialog IDD_LOCK: Control id 2, Dialog
-#. IDD_LOGMESSAGE: Control id 1383, Dialog IDD_MERGEALL: Control id 2, Dialog
-#. IDD_MONITOROPTIONS: Control id 2, Dialog IDD_MONITORPROJECT: Control id 2,
-#. Dialog IDD_OPEN: Control id 2, Dialog IDD_OPENDLG: Control id 2, Dialog
-#. IDD_PASSWORD: Control id 2, Dialog IDD_PROMPT: Control id 2, Dialog
-#. IDD_REGEXFILTER: Control id 2, Dialog IDD_REGEXFILTERS: Control id 2,
-#. Dialog IDD_RELOCATE: Control id 2, Dialog IDD_RENAME: Control id 2, Dialog
-#. IDD_REPOSITORY_BROWSER: Control id 2, Dialog IDD_RESOLVE: Control id 2,
-#. Dialog IDD_REVERT: Control id 2, Dialog IDD_REVGRAPHFILTER: Control id 2,
-#. Dialog IDD_REVISION: Control id 2, Dialog IDD_REVISIONRANGE: Control id 2,
-#. Dialog IDD_SETTINGSBUGTRAQADV: Control id 2, Dialog IDD_SETTINGSHOOKCONFIG:
-#. Control id 2, Dialog IDD_SETTINGSPROGSADV: Control id 2, Dialog
-#. IDD_SETTINGS_CLEARAUTH: Control id 2, Dialog IDD_SHELVE: Control id 2,
-#. Dialog IDD_SIMPLEPROMPT: Control id 2, Dialog IDD_SVNPROGRESS: Control id
-#. 2, Dialog IDD_SWITCH: Control id 2, Dialog IDD_TOOLASSOC: Control id 2,
-#. Dialog IDD_UNLOCK: Control id 2, Dialog IDD_UNSHELVE: Control id 2, Dialog
-#. IDD_UPDATE: Control id 2, Dialog IDD_URL: Control id 2, Dialog IDD_URLDIFF:
-#. Control id 2, IDS_PROPPAGE_CANCEL)
+#. Resource IDs: (2, Dialog IDD_BLAME: Control id 2, Dialog IDD_BUGTRAQREGEXTESTER: Control id 2, Dialog IDD_CHECKOUT: Control id 2, Dialog IDD_CLEANUP: Control id 2, Dialog IDD_COLLABORATORSETTINGS: Control id 2, Dialog IDD_COMMITDLG: Control id 2, Dialog IDD_COPY: Control id 2, Dialog IDD_CREATECHANGELIST: Control id 2, Dialog IDD_CREATEPATCH: Control id 2, Dialog IDD_DELUNVERSIONED: Control id 2, Dialog IDD_DIFFOPTIONS: Control id 2, Dialog IDD_EDITPROPBUGTRAQ: Control id 2, Dialog IDD_EDITPROPEOL: Control id 2, Dialog IDD_EDITPROPERTYVALUE: Control id 2, Dialog IDD_EDITPROPEXECUTABLE: Control id 2, Dialog IDD_EDITPROPEXTERNALS: Control id 2, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 2, Dialog IDD_EDITPROPKEYWORDS: Control id 2, Dialog IDD_EDITPROPLOCALHOOKS: Control id 2, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 2, Dialog IDD_EDITPROPMIMETYPE: Control id 2, Dialog IDD_EDITPROPNEEDSLOCK: Control id 2, Dialog IDD_EDITPROPTSVNLANG: Control id 2, Dialog IDD_EDITPROPTSVNSIZES: Control id 2, Dialog IDD_EDITPROPUSERBOOL: Control id 2, Dialog IDD_EDITPROPUSERMULTILINE: Control id 2, Dialog IDD_EDITPROPUSERSINGLELINE: Control id 2, Dialog IDD_EDITPROPUSERSTATE: Control id 2, Dialog IDD_ENCODING: Control id 2, Dialog IDD_EXPORT: Control id 2, Dialog IDD_FIND: Control id 2, Dialog IDD_GOTO: Control id 2, Dialog IDD_GOTODLG: Control id 2, Dialog IDD_HISTORYDLG: Control id 2, Dialog IDD_IMPORT: Control id 2, Dialog IDD_INPUTDLG: Control id 2, Dialog IDD_INPUTLOGDLG: Control id 2, Dialog IDD_LOCK: Control id 2, Dialog IDD_LOGMESSAGE: Control id 1383, Dialog IDD_MERGEALL: Control id 2, Dialog IDD_MONITOROPTIONS: Control id 2, Dialog IDD_MONITORPROJECT: Control id 2, Dialog IDD_OPEN: Control id 2, Dialog IDD_OPENDLG: Control id 2, Dialog IDD_PASSWORD: Control id 2, Dialog IDD_PROMPT: Control id 2, Dialog IDD_REGEXFILTER: Control id 2, Dialog IDD_REGEXFILTERS: Control id 2, Dialog IDD_RELOCATE: Control id 2, Dialog IDD_RENAME: Control id 2, Dialog IDD_REPOSITORY_BROWSER: Control id 2, Dialog IDD_RESOLVE: Control id 2, Dialog IDD_REVERT: Control id 2, Dialog IDD_REVGRAPHFILTER: Control id 2, Dialog IDD_REVISION: Control id 2, Dialog IDD_REVISIONRANGE: Control id 2, Dialog IDD_SETTINGSBUGTRAQADV: Control id 2, Dialog IDD_SETTINGSHOOKCONFIG: Control id 2, Dialog IDD_SETTINGSPROGSADV: Control id 2, Dialog IDD_SETTINGS_CLEARAUTH: Control id 2, Dialog IDD_SHELVE: Control id 2, Dialog IDD_SIMPLEPROMPT: Control id 2, Dialog IDD_SVNPROGRESS: Control id 2, Dialog IDD_SWITCH: Control id 2, Dialog IDD_TOOLASSOC: Control id 2, Dialog IDD_UNLOCK: Control id 2, Dialog IDD_UNSHELVE: Control id 2, Dialog IDD_UPDATE: Control id 2, Dialog IDD_URL: Control id 2, Dialog IDD_URLDIFF: Control id 2, IDS_PROPPAGE_CANCEL)
 msgid "Cancel"
 msgstr "Atcelt"
 
@@ -2634,31 +2560,41 @@ msgstr "Atcelt"
 msgid ""
 "Cancel\n"
 "Change the selection for the commit."
-msgstr "Atcelt\nMainiet iezīmējumu priekš kommita."
+msgstr ""
+"Atcelt\n"
+"Mainiet iezīmējumu priekš kommita."
 
 #. Resource IDs: (IDS_ASKFORSAVE_TASK5)
 msgid ""
 "Cancel\n"
 "Don't quit TortoiseMerge"
-msgstr "Atcelt\nNeaizvēriet TortoiseMerge"
+msgstr ""
+"Atcelt\n"
+"Neaizvēriet TortoiseMerge"
 
 #. Resource IDs: (IDS_ASKFORSAVE_TASK8)
 msgid ""
 "Cancel\n"
 "Don't switch the views"
-msgstr "Atcelt\nNepārslēdziet skatus"
+msgstr ""
+"Atcelt\n"
+"Nepārslēdziet skatus"
 
 #. Resource IDs: (IDS_DELETEWHENEMPTY_TASK4)
 msgid ""
 "Cancel\n"
 "Keep the empty file."
-msgstr "Atcelt\nPaturēt tukšo failu."
+msgstr ""
+"Atcelt\n"
+"Paturēt tukšo failu."
 
 #. Resource IDs: (IDS_ERR_MAINFRAME_FILEHASCONFLICTS_TASK4)
 msgid ""
 "Cancel\n"
 "Resolve the conflicts first."
-msgstr "Atcelt\nVispirms atrisināt konfliktus."
+msgstr ""
+"Atcelt\n"
+"Vispirms atrisināt konfliktus."
 
 #. Resource IDs: (IDS_ASKFORSAVE_CANCEL_OPEN)
 msgid ""
@@ -2676,7 +2612,9 @@ msgstr ""
 msgid ""
 "Cancel\n"
 "The items are not moved."
-msgstr "Atcelt\nVienumi nav pārvietoti."
+msgstr ""
+"Atcelt\n"
+"Vienumi nav pārvietoti."
 
 #. Resource IDs: (IDS_WARN_SYNCPWWRONG_TASK4)
 msgid ""
@@ -2806,7 +2744,9 @@ msgstr "Pārbaudiet jūsu ievadīto ceļu un/vai URL-i."
 msgid ""
 "Check those menu entries you want to appear in the top context menu instead "
 "of the TortoiseSVN submenu"
-msgstr "Atzīmējiet, kurus izvēlnes ierakstus vēlāties, lai tie parādās augšējā konteksta izvēlnē TortoiseSVN apakšizvēlņu vietā"
+msgstr ""
+"Atzīmējiet, kurus izvēlnes ierakstus vēlāties, lai tie parādās augšējā "
+"konteksta izvēlnē TortoiseSVN apakšizvēlņu vietā"
 
 #. Resource IDs: (IDS_SETTINGS_SHORTDATEFORMAT_TT)
 msgid "Check to use a less verbose date and time format in log messages"
@@ -2826,8 +2766,7 @@ msgstr ""
 msgid "Check-Commit Hook"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1504, Dialog IDD_COPY:
-#. Control id 1504)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1504, Dialog IDD_COPY: Control id 1504)
 msgid "Check:"
 msgstr "Atzīmēt/Pārbaudīt:"
 
@@ -2845,8 +2784,7 @@ msgstr "Pārbauda vai projektam '%ls' nav pieejami atjauninājumi..."
 msgid "Checking r%1!ld!..."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 133, Dialog
-#. IDD_SETTINGSDIALOGS: Control id 65535, IDS_PROGRS_TITLE_CHECKOUT)
+#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 133, Dialog IDD_SETTINGSDIALOGS: Control id 65535, IDS_PROGRS_TITLE_CHECKOUT)
 msgid "Checkout"
 msgstr "Paņemt"
 
@@ -2893,24 +2831,24 @@ msgstr "Satīrīšana"
 msgid ""
 "Cleanup failed to process the following paths:\n"
 "%ls"
-msgstr "Satīrīšana izgāzās sekojošiem ceļiem:\n%ls"
+msgstr ""
+"Satīrīšana izgāzās sekojošiem ceļiem:\n"
+"%ls"
 
 #. Resource IDs: (IDS_PROC_CLEANUPFINISHED)
 #, c-format
 msgid ""
 "Cleanup has successfully processed the following paths:\n"
 "%ls"
-msgstr "Satīrīšana notika sekmīgi sekojošiem ceļiem:\n%ls"
+msgstr ""
+"Satīrīšana notika sekmīgi sekojošiem ceļiem:\n"
+"%ls"
 
 #. Resource IDs: (IDS_MENUDESCCLEANUP)
 msgid "Cleanup interrupted operations, locked files, ..."
 msgstr "Satīru pārtrauktās operācijas, bloķētos failus, ..."
 
-#. Resource IDs: (Dialog IDD_SETTINGSSAVEDDATA: Control id 1273, Dialog
-#. IDD_SETTINGSSAVEDDATA: Control id 1275, Dialog IDD_SETTINGSSAVEDDATA:
-#. Control id 1276, Dialog IDD_SETTINGSSAVEDDATA: Control id 1281, Dialog
-#. IDD_SETTINGSSAVEDDATA: Control id 1283, Dialog IDD_SETTINGSSAVEDDATA:
-#. Control id 1427)
+#. Resource IDs: (Dialog IDD_SETTINGSSAVEDDATA: Control id 1273, Dialog IDD_SETTINGSSAVEDDATA: Control id 1275, Dialog IDD_SETTINGSSAVEDDATA: Control id 1276, Dialog IDD_SETTINGSSAVEDDATA: Control id 1281, Dialog IDD_SETTINGSSAVEDDATA: Control id 1283, Dialog IDD_SETTINGSSAVEDDATA: Control id 1427)
 msgid "Clear"
 msgstr "Notīrīt"
 
@@ -2937,7 +2875,9 @@ msgstr "Notīra %1!ld! log ziņojumus, kas noglabāti priekš %2!ld! darba kopij
 msgid ""
 "Clears %1!ld! username/password pairs, %2!ld! ssl certificates and %3!ld! "
 "usernames"
-msgstr "Notīra %1!ld! lietotāju/paroļu pārus, %2!ld! SSL sertifikātus un %3!ld! lietotājvārdus"
+msgstr ""
+"Notīra %1!ld! lietotāju/paroļu pārus, %2!ld! SSL sertifikātus un %3!ld! "
+"lietotājvārdus"
 
 #. Resource IDs: (IDS_SETTINGS_CLEARHOOKS_TT)
 #, c-format
@@ -2966,19 +2906,25 @@ msgstr "Spiežiet te, lai izvēlētos nesen ievadīto ziņojumu"
 msgid ""
 "Click on \"Advanced\" to specify alternate diff programs based on file "
 "extension"
-msgstr "Spiediet uz \"Advanced\" lai norādītu citas atšķirību programmas, atkarībā no faila paplašinājuma"
+msgstr ""
+"Spiediet uz \"Advanced\" lai norādītu citas atšķirību programmas, atkarībā "
+"no faila paplašinājuma"
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROGSMERGE: Control id 65535)
 msgid ""
 "Click on \"Advanced\" to specify alternate merge programs based on file "
 "extension"
-msgstr "Spiediet uz \"Advanced\" lai norādītu citas apvienošanas programmas, atkarībā no faila paplašinājuma"
+msgstr ""
+"Spiediet uz \"Advanced\" lai norādītu citas apvienošanas programmas, "
+"atkarībā no faila paplašinājuma"
 
 #. Resource IDs: (cmdUseBlocks)
 msgid ""
 "Click to see commands to move blocks of text\n"
 "Use text blocks"
-msgstr "Spiediet, lai redzēu komandas, ar kurām pārvietot tekstu blokus\nTekstu bloku izmantošana"
+msgstr ""
+"Spiediet, lai redzēu komandas, ar kurām pārvietot tekstu blokus\n"
+"Tekstu bloku izmantošana"
 
 #. Resource IDs: (IDS_CLIPBOARD_PROGRESS_DEST)
 msgid "Clipboard"
@@ -3016,7 +2962,9 @@ msgstr "Atritināt sekojošo ko&ku"
 msgid ""
 "Collapse unchanged sections\n"
 "Collapse"
-msgstr "Atritināt nemainītās sadaļas\nAtritināt"
+msgstr ""
+"Atritināt nemainītās sadaļas\n"
+"Atritināt"
 
 #. Resource IDs: (Dialog IDD_SETTINGSREVGRAPHCOLORS: Control id 65535)
 msgid "Color 1"
@@ -3038,9 +2986,7 @@ msgstr "Krāsa pēc ve&cuma, ilgstoša"
 msgid "Color by au&thor"
 msgstr "Krāsa pēc au&tora"
 
-#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 138, Dialog
-#. IDD_SETTINGSTBLAME: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id
-#. 65535)
+#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 138, Dialog IDD_SETTINGSTBLAME: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id 65535)
 msgid "Colors"
 msgstr "Krāsas"
 
@@ -3060,7 +3006,9 @@ msgstr "Komandas rinda, ko izpildīt:"
 #, c-format
 msgid ""
 "Command Line To Execute:\r\n"
-"To specify a path inside a working copy, specify the url in the repository with the repository root url as %REPOROOT%, or %REPOROOT+% deeper down the working copy root."
+"To specify a path inside a working copy, specify the url in the repository "
+"with the repository root url as %REPOROOT%, or %REPOROOT+% deeper down the "
+"working copy root."
 msgstr ""
 
 #. Resource IDs: (IDS_MSG_NEEDSUPDATE_TITLE)
@@ -3083,8 +3031,7 @@ msgid ""
 "Commit the changes to the target."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 135, Dialog
-#. IDD_SETTINGSMISC: Control id 1083, IDS_PROGRS_TITLE_COMMIT)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 135, Dialog IDD_SETTINGSMISC: Control id 1083, IDS_PROGRS_TITLE_COMMIT)
 msgid "Commit"
 msgstr "Izpildīt"
 
@@ -3125,8 +3072,13 @@ msgstr "Izpilda/uzsūta jūsu izmaiņas uz repozitārija"
 #. Resource IDs: (IDS_COMMITDLG_WARNUNVERSIONEDFOLDER_TASK1)
 msgid ""
 "Committing an unversioned folder will not recursively add its child items!\n"
-"You might want to add these folders recursively by using the 'Add...' context menu item."
-msgstr "Izpildot/uzsūtot neversionētu mapi, rekursīvi nepievienos tās apakšvienumus!\nJums vajadzētu pievienot šīs mapes rekursīvi, izmantojot 'Pievienot...' konteksta izvēlnes ierakstu."
+"You might want to add these folders recursively by using the 'Add...' "
+"context menu item."
+msgstr ""
+"Izpildot/uzsūtot neversionētu mapi, rekursīvi nepievienos tās "
+"apakšvienumus!\n"
+"Jums vajadzētu pievienot šīs mapes rekursīvi, izmantojot 'Pievienot...' "
+"konteksta izvēlnes ierakstu."
 
 #. Resource IDs: (IDS_PROGRS_COMMITT_TRUNK_TASK2)
 msgid "Committing to a tag"
@@ -3136,8 +3088,7 @@ msgstr "Izpilda līdz tag-am"
 msgid "Committing transaction..."
 msgstr ""
 
-#. Resource IDs: (IDS_REVGRAPH_POPUP_COMPAREHEADS,
-#. ID_VIEW_COMPAREHEADREVISIONS - Menu)
+#. Resource IDs: (IDS_REVGRAPH_POPUP_COMPAREHEADS, ID_VIEW_COMPAREHEADREVISIONS - Menu)
 msgid "Compare &HEAD revisions"
 msgstr "Salīdzināt &HEAD revīzijas"
 
@@ -3161,8 +3112,7 @@ msgstr "Salīdzināt revīzijas (tikai &saturu)"
 msgid "Compare two files"
 msgstr "Salīdzināt divus failus"
 
-#. Resource IDs: (ID_VIEW_COMPAREWHITESPACES - Menu,
-#. cmdCompareWhitespaces_LabelTitle_RESID)
+#. Resource IDs: (ID_VIEW_COMPAREWHITESPACES - Menu, cmdCompareWhitespaces_LabelTitle_RESID)
 msgid "Compare whitespaces"
 msgstr "Salīdzināt tukšumzīmes"
 
@@ -3190,13 +3140,17 @@ msgstr "Salīdzināt ar iepriekšējo revīziju"
 msgid ""
 "Compares all whitespaces when diffing\n"
 "Compare whitespaces"
-msgstr "Salīdzina visas tukšumzīmes, kad atšķiras\nSalīdzināt tukšumzīmes"
+msgstr ""
+"Salīdzina visas tukšumzīmes, kad atšķiras\n"
+"Salīdzināt tukšumzīmes"
 
 #. Resource IDs: (IDS_MENUDESCDIFF)
 msgid ""
 "Compares the file with the last committed revision to show you the changes "
 "you made"
-msgstr "Salīdzina failu ar pēdējo iesūtīto revīziju, lai jūs redzētu izmaiņas, kuras veicāt"
+msgstr ""
+"Salīdzina failu ar pēdējo iesūtīto revīziju, lai jūs redzētu izmaiņas, kuras "
+"veicāt"
 
 #. Resource IDs: (IDS_MENUDESCURLDIFF)
 msgid "Compares the selected file with a file in the repository"
@@ -3232,16 +3186,19 @@ msgstr "Konfigurēt problēmu izsekotāja integrāciju"
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 65535)
 msgid "Configure the program used for comparing different revisions of files"
-msgstr "Konfigurēt programmu, kuru izmanto dažādu faila revīziju salīdzināšanai"
+msgstr ""
+"Konfigurēt programmu, kuru izmanto dažādu faila revīziju salīdzināšanai"
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 65535)
 msgid ""
 "Configure the program used for comparing different revisions of properties"
-msgstr "Konfigurēt programmu, kuru izmanto dažādu īpašību revīziju salīdzināšanai"
+msgstr ""
+"Konfigurēt programmu, kuru izmanto dažādu īpašību revīziju salīdzināšanai"
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROGSMERGE: Control id 65535)
 msgid "Configure the program used to resolve conflicted files."
-msgstr "Konfigurēt programmu, kuru izmanto, lai atrisinātu konfliktējošus failus."
+msgstr ""
+"Konfigurēt programmu, kuru izmanto, lai atrisinātu konfliktējošus failus."
 
 #. Resource IDs: (Dialog IDD_SETTINGSPROGSDIFF: Control id 65535)
 msgid "Configure viewer program for GNU diff files (patch files)."
@@ -3260,8 +3217,7 @@ msgstr ""
 msgid "Conflict resolved"
 msgstr "Konflikts atrisināts"
 
-#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535,
-#. IDS_SVNACTION_CONFLICTED)
+#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535, IDS_SVNACTION_CONFLICTED)
 msgid "Conflicted"
 msgstr "Konfliktējoši"
 
@@ -3276,7 +3232,8 @@ msgstr "Konflikti: %d"
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHE_UPDATE)
 msgid "Connect to the repository server and download missing log data"
-msgstr "Pieslēdzieties pie repozitārija servera un lejuplādējiet trūkstošos log datus"
+msgstr ""
+"Pieslēdzieties pie repozitārija servera un lejuplādējiet trūkstošos log datus"
 
 #. Resource IDs: (Dialog IDD_LOGCACHESTATISTICS: Control id 65535)
 msgid "Container sizes"
@@ -3324,7 +3281,9 @@ msgstr "Kopēt"
 msgid ""
 "Copy %1!ld! items to\r\n"
 "%2!ls!"
-msgstr "Kopēt %1!ld! vienumus uz\r\n%2!ls!"
+msgstr ""
+"Kopēt %1!ld! vienumus uz\r\n"
+"%2!ls!"
 
 #. Resource IDs: (IDS_PROGRS_CMD_COPY)
 #, c-format
@@ -3336,7 +3295,9 @@ msgstr "Kopēt %1!ls! uz %2!ls!, Revīzija %3!ls!"
 msgid ""
 "Copy %1!ls!\r\n"
 "to %2!ls!"
-msgstr "Kopēt %1!ls!\r\nuz %2!ls!"
+msgstr ""
+"Kopēt %1!ls!\r\n"
+"uz %2!ls!"
 
 #. Resource IDs: (ID_COPYTOCLIPBOARD_REV - Menu)
 msgid "Copy &revision number to clipboard"
@@ -3380,7 +3341,9 @@ msgstr "Kopēt iezīmēto uz star&plikni"
 msgid ""
 "Copy the selection and put it on the Clipboard\n"
 "Copy"
-msgstr "Kopēt iezīmēto un ielikt to starpliknī\nKopēt"
+msgstr ""
+"Kopēt iezīmēto un ielikt to starpliknī\n"
+"Kopēt"
 
 #. Resource IDs: (IDS_DROPDESC_COPY)
 #, c-format
@@ -3443,7 +3406,9 @@ msgstr "Nespēju pārbaudīt, vai ir jaunāka versija!"
 msgid ""
 "Could not copy the files!\n"
 "%ls"
-msgstr "Nespēju nokopēt failus!\n%ls"
+msgstr ""
+"Nespēju nokopēt failus!\n"
+"%ls"
 
 #. Resource IDs: (61864)
 #, c-format
@@ -3473,7 +3438,9 @@ msgstr "Nespēju noteikt pēdējo uzsūtīto revīziju!"
 msgid ""
 "Could not find a parent folder for\n"
 "%ls"
-msgstr "Nespēju atras vecāka mapi priekš\n%ls"
+msgstr ""
+"Nespēju atras vecāka mapi priekš\n"
+"%ls"
 
 #. Resource IDs: (IDS_ERR_NOSTATUS)
 msgid "Could not get the status!"
@@ -3499,7 +3466,9 @@ msgstr "Nespēju atvērt %1, jo ir pārāk daudz atvērtu failu."
 msgid ""
 "Could not open the file\n"
 "%ls"
-msgstr "Nespēju atvērt failu\n%ls"
+msgstr ""
+"Nespēju atvērt failu\n"
+"%ls"
 
 #. Resource IDs: (61863)
 #, c-format
@@ -3526,35 +3495,45 @@ msgstr "Nespēju aizvietot īpašību '%1!ls!' uz '%2!ls!', jo"
 msgid ""
 "Could not retrieve URL of the file!\n"
 "%ls"
-msgstr "Nespēju iegūt faila URL!\n%ls"
+msgstr ""
+"Nespēju iegūt faila URL!\n"
+"%ls"
 
 #. Resource IDs: (IDS_ERR_MAINFRAME_FILEVERSIONNOTFOUND)
 #, c-format
 msgid ""
 "Could not retrieve revision %1!ls! of the file %2!ls!.\n"
 "Patching is not possible!"
-msgstr "Nespēju iegūt faila file %2!ls! revīziju %1!ls!.\nIelāpa uzlikšana nav iespējama!"
+msgstr ""
+"Nespēju iegūt faila file %2!ls! revīziju %1!ls!.\n"
+"Ielāpa uzlikšana nav iespējama!"
 
 #. Resource IDs: (IDS_ERR_DIFFVIEWSTART)
 #, c-format
 msgid ""
 "Could not start diff viewer!\n"
 "%ls"
-msgstr "Nespēju ieslēgt atšķirību skatītāju\n%ls"
+msgstr ""
+"Nespēju ieslēgt atšķirību skatītāju\n"
+"%ls"
 
 #. Resource IDs: (IDS_ERR_EXTDIFFSTART)
 #, c-format
 msgid ""
 "Could not start external diff program!\n"
 "%ls"
-msgstr "Nespēju ieslēgt ārējo atšķirību skatītāju\n%ls"
+msgstr ""
+"Nespēju ieslēgt ārējo atšķirību skatītāju\n"
+"%ls"
 
 #. Resource IDs: (IDS_ERR_EXTMERGESTART)
 #, c-format
 msgid ""
 "Could not start external merge program!\n"
 "%ls"
-msgstr "Nespēju ieslēgt ārējo apvienotājprogrammu\n%ls"
+msgstr ""
+"Nespēju ieslēgt ārējo apvienotājprogrammu\n"
+"%ls"
 
 #. Resource IDs: (61702)
 msgid "Could not start print job."
@@ -3565,7 +3544,9 @@ msgstr "Nespēju sākt drukāšanas darbu."
 msgid ""
 "Could not start text viewer!\n"
 "%ls"
-msgstr "Nespēju sākt teksta skatītāju!\n%ls"
+msgstr ""
+"Nespēju sākt teksta skatītāju!\n"
+"%ls"
 
 #. Resource IDs: (IDS_ERR_THREADSTARTFAILED)
 msgid "Could not start thread!"
@@ -3600,12 +3581,6 @@ msgstr "Izveidot izmaiņu sarakstu"
 msgid "Create Patch"
 msgstr "Izveidot ielāpu"
 
-#. Resource IDs: (IDS_CHECKPOINT_BTN_TT)
-msgid ""
-"Create a checkpoint.\n"
-"The selected modifications are saved to a shelf, but the local modifications are kept."
-msgstr ""
-
 #. Resource IDs: (IDS_LOG_CODE_COLLABORATOR)
 msgid "Create code collaborator revie&w..."
 msgstr ""
@@ -3623,7 +3598,9 @@ msgstr "Izveidot starpposma folderus"
 msgid ""
 "Create new directory:\r\n"
 "%ls"
-msgstr "Izveidot jaunu direktoriju:\r\n%ls"
+msgstr ""
+"Izveidot jaunu direktoriju:\r\n"
+"%ls"
 
 #. Resource IDs: (ID_EDIT_CREATEUNIFIEDDIFFFILE - Menu)
 msgid "Create patch file"
@@ -3645,13 +3622,17 @@ msgstr "Izveidot 'lētu' kopiju iekš repozitārija priekš zariem un tag-ošana
 #. Resource IDs: (IDS_SETTINGS_CREATELIB_TT)
 msgid ""
 "Creates a library folder with special settings for Subversion working copies"
-msgstr "Izveido bibliotēkas mapi ar speciāliem uzstādījumiem priekš Apakšversiju darba kopijām"
+msgstr ""
+"Izveido bibliotēkas mapi ar speciāliem uzstādījumiem priekš Apakšversiju "
+"darba kopijām"
 
 #. Resource IDs: (cmdCreateUnifiedDiff)
 msgid ""
 "Creates a patch file from the differences of the two files\n"
 "Create patch file"
-msgstr "Izveido ielāpa failu no atšķirībām starp abiem failiem\nIelāpu faila veidošana"
+msgstr ""
+"Izveido ielāpa failu no atšķirībām starp abiem failiem\n"
+"Ielāpu faila veidošana"
 
 #. Resource IDs: (IDS_MENUDESCCREATEREPOS)
 msgid "Creates a repository database at the current location"
@@ -3660,11 +3641,6 @@ msgstr "Izveido repozitāriju datubāzi tekošajā vietā"
 #. Resource IDs: (IDS_MENUDESCCREATEPATCH)
 msgid "Creates a unified diff file with all changes you made"
 msgstr "Izveido vienotu atšķirību failu ar visām jūsu veiktajām izmaiņām"
-
-#. Resource IDs: (IDS_SHELF_CHECKPOINTING)
-#, c-format
-msgid "Creating checkpoint \"%s\""
-msgstr ""
 
 #. Resource IDs: (Dialog IDD_ABOUT: Control id 65535)
 msgid "Credits:"
@@ -3691,23 +3667,26 @@ msgstr "Pielāgotie dziļumi"
 msgid ""
 "Custom title string. Available keywords are:\r\n"
 "{mergeurl}:\tthe source url of the merge\r\n"
-"{revisions}:\tA comma separated list of the merged revisions, e.g., 3, 5, 6, 7\r\n"
+"{revisions}:\tA comma separated list of the merged revisions, e.g., 3, 5, 6, "
+"7\r\n"
 "{revisionsr}:\tLike {revisions} but with an 'r' in front of the revisions\r\n"
-"{revrange}:\tA comma separated list of the merged revisions, grouped into ranges if possible, e.g., 3, 5-7"
+"{revrange}:\tA comma separated list of the merged revisions, grouped into "
+"ranges if possible, e.g., 3, 5-7"
 msgstr ""
 
 #. Resource IDs: (57635)
 msgid ""
 "Cut the selection and put it on the Clipboard\n"
 "Cut"
-msgstr "Izgriezt iezīmēto un ielikt to starpliknē\nIzgriezt"
+msgstr ""
+"Izgriezt iezīmēto un ielikt to starpliknē\n"
+"Izgriezt"
 
 #. Resource IDs: (Dialog IDD_SETTINGSLOGCACHELIST: Control id 1279)
 msgid "D&etails"
 msgstr "D&etaļas"
 
-#. Resource IDs: (Dialog IDD_EDITPROPKEYWORDS: Control id 1529,
-#. IDS_HEADER_DATE, IDS_LOG_DATE, IDS_STATUSLIST_COLDATE)
+#. Resource IDs: (Dialog IDD_EDITPROPKEYWORDS: Control id 1529, IDS_HEADER_DATE, IDS_LOG_DATE, IDS_STATUSLIST_COLDATE)
 msgid "Date"
 msgstr "Datums"
 
@@ -3789,11 +3768,11 @@ msgstr "Dzēst neversionētos vienumus..."
 msgid ""
 "Delete\n"
 "The file is removed."
-msgstr "Dzēst\nFails ir noņemts."
+msgstr ""
+"Dzēst\n"
+"Fails ir noņemts."
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1510, Dialog
-#. IDD_SETTINGSOVERLAYHANDLERS: Control id 1551, IDS_SVNACTION_DELETE,
-#. IDS_SVN_SUMMARIZEDELETED)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1510, Dialog IDD_SETTINGSOVERLAYHANDLERS: Control id 1551, IDS_SVNACTION_DELETE, IDS_SVN_SUMMARIZEDELETED)
 msgid "Deleted"
 msgstr "Dzēsts"
 
@@ -3804,7 +3783,8 @@ msgstr "Nodzēsts mezgls"
 #. Resource IDs: (IDS_MENUDESCDELETEIGNORE)
 msgid ""
 "Deletes and adds the selected file(s) or the filemask to the 'ignore' list"
-msgstr "Nodzēš un pievieno izvēlēto(s) failu(s) vai failu masku ignorējamo sarakstā"
+msgstr ""
+"Nodzēš un pievieno izvēlēto(s) failu(s) vai failu masku ignorējamo sarakstā"
 
 #. Resource IDs: (IDS_MENUDESCREMOVE)
 msgid "Deletes files / folders from version control"
@@ -3862,7 +3842,9 @@ msgstr "Noteikt un iekrāsot pārvietotos blokus"
 msgid ""
 "Device Independent Bitmap\n"
 "a device independent bitmap"
-msgstr "No iekārtām neatkarīgs Bitmap\nno iekārtām neatkarīgs bitmap"
+msgstr ""
+"No iekārtām neatkarīgs Bitmap\n"
+"no iekārtām neatkarīgs bitmap"
 
 #. Resource IDs: (Dialog IDD_SETTINGSSAVEDDATA: Control id 1277)
 msgid "Dialog sizes and positions"
@@ -3947,7 +3929,8 @@ msgstr "Atšķiras"
 
 #. Resource IDs: (IDS_MENUDESCPREVDIFF)
 msgid "Diffs the working copy file with the one before the last commit."
-msgstr "Atšķiras darba kopijas fails no tā, kas bija pirms pēdējās uzsūtīšanas."
+msgstr ""
+"Atšķiras darba kopijas fails no tā, kas bija pirms pēdējās uzsūtīšanas."
 
 #. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1513)
 msgid "Directories"
@@ -3979,13 +3962,17 @@ msgstr "Izvietošanas izgāšanās: %1"
 msgid ""
 "Display help for clicked on buttons, menus and windows\n"
 "Help"
-msgstr "Attēlot palīdzību uzklikšķinātām pogām, izvēlnēm un logiem\nPalīdzība"
+msgstr ""
+"Attēlot palīdzību uzklikšķinātām pogām, izvēlnēm un logiem\n"
+"Palīdzība"
 
 #. Resource IDs: (cmdHelp)
 msgid ""
 "Display help for current task or command\n"
 "Help"
-msgstr "Attēlot palīdzību tekošajam uzdevumam vai komandai\nPalīdzība"
+msgstr ""
+"Attēlot palīdzību tekošajam uzdevumam vai komandai\n"
+"Palīdzība"
 
 #. Resource IDs: (57668)
 msgid ""
@@ -3997,7 +3984,9 @@ msgstr "Attēlot instrukcijas par to, kā lietot palīdzībuPalīdzība"
 msgid ""
 "Display program information, version number and copyright\n"
 "About"
-msgstr "Attēlot informāciju par programmu, versijas numuru un autortiesības\nPar"
+msgstr ""
+"Attēlot informāciju par programmu, versijas numuru un autortiesības\n"
+"Par"
 
 #. Resource IDs: (IDS_HOOKS_APPROVE_TASK5)
 msgid "Do not ask again for this script"
@@ -4058,7 +4047,10 @@ msgid ""
 "Do you want to make this working copy unversioned?\n"
 "This will remove all Subversion admin directories from\n"
 "%ls!"
-msgstr "Vai jūs vēlaties padarīt šo darba kopiju par neversionētu?\nŠis noņems visas Subversion administratora direktorijas no\n%ls!"
+msgstr ""
+"Vai jūs vēlaties padarīt šo darba kopiju par neversionētu?\n"
+"Šis noņems visas Subversion administratora direktorijas no\n"
+"%ls!"
 
 #. Resource IDs: (IDS_PROC_RESOLVE_TASK1)
 #, c-format
@@ -4071,7 +4063,10 @@ msgid ""
 "Do you want to mark the file\n"
 "%ls\n"
 "as resolved?"
-msgstr "Vai vēlaties atzīmēt failu\n%ls\nkā atrisinātu?"
+msgstr ""
+"Vai vēlaties atzīmēt failu\n"
+"%ls\n"
+"kā atrisinātu?"
 
 #. Resource IDs: (IDS_SSL_ACCEPTQUESTION)
 msgid "Do you want to proceed?"
@@ -4085,7 +4080,10 @@ msgstr "Vai jūs gribat atgūt šos automātiski saglabātos dokumentus?"
 msgid ""
 "Do you want to reload the documents to reflect the settings changes?\n"
 "Note: you will lose all changes you've made!"
-msgstr "Vai jūs gribat pārlādēd dokumentus, lai tiktu attēlotas uzstādījumu izmaiņas?\nPiezīme: jūs pazaudēsiet visas izmaiņas, kuras veicāt!"
+msgstr ""
+"Vai jūs gribat pārlādēd dokumentus, lai tiktu attēlotas uzstādījumu "
+"izmaiņas?\n"
+"Piezīme: jūs pazaudēsiet visas izmaiņas, kuras veicāt!"
 
 #. Resource IDs: (IDS_MONITOR_DELETE_TASK2)
 #, c-format
@@ -4108,7 +4106,10 @@ msgid ""
 "Do you want to revert all changes in\n"
 "%ls\n"
 "and go back to this revision?"
-msgstr "Vai vēlaties atgriezt visas izmaiņas iekš\n%ls\nun atgriezties uz šo revīziju?"
+msgstr ""
+"Vai vēlaties atgriezt visas izmaiņas iekš\n"
+"%ls\n"
+"un atgriezties uz šo revīziju?"
 
 #. Resource IDs: (IDS_LOG_REVERT_CONFIRM_TASK1)
 #, c-format
@@ -4116,7 +4117,10 @@ msgid ""
 "Do you want to revert all changes in\n"
 "%ls\n"
 "which were made in this revision?"
-msgstr "Vai vēlaties atgriezt visas izmaiņas iekš\n%ls\n, kuras veiktas šajā revīzijā?"
+msgstr ""
+"Vai vēlaties atgriezt visas izmaiņas iekš\n"
+"%ls\n"
+", kuras veiktas šajā revīzijā?"
 
 #. Resource IDs: (IDS_DROPEXT_UPDATE_TASK1)
 #, c-format
@@ -4132,7 +4136,9 @@ msgstr "Dokuments :"
 msgid ""
 "Documentation : Simon Large\n"
 "Code : Tobias Schäfer, Stefan Fuhrmann"
-msgstr "Dokumentācija: Saimons Lārdžs\nKods: Tobias Šēfers, Stefans Fūrmans"
+msgstr ""
+"Dokumentācija: Saimons Lārdžs\n"
+"Kods: Tobias Šēfers, Stefans Fūrmans"
 
 #. Resource IDs: (IDS_CHECKOUT_TT_MULTIWC)
 msgid ""
@@ -4140,13 +4146,19 @@ msgid ""
 "Instead, all URLs get checked out into a separate\n"
 "working copies next to each other.\n"
 "This works for directory URLs only."
-msgstr "Neveidot izdošanas direktoriju par atsevišķu darba kopiju.\nTā vietā visas adreses tiek izdotas iekš atsevišķām\ndarba kopijām blakus viena otrai.\nŠis strādā tikai direktoriju adresēm."
+msgstr ""
+"Neveidot izdošanas direktoriju par atsevišķu darba kopiju.\n"
+"Tā vietā visas adreses tiek izdotas iekš atsevišķām\n"
+"darba kopijām blakus viena otrai.\n"
+"Šis strādā tikai direktoriju adresēm."
 
 #. Resource IDs: (62185)
 msgid ""
 "Don't recover the auto-saved documents\n"
 "Use the last explicitly saved versions of the documents"
-msgstr "Neatgūt automātiski saglabātos dokumentus\nLietot pēdējās atsevišķi saglabātās dokumentu versijas"
+msgstr ""
+"Neatgūt automātiski saglabātos dokumentus\n"
+"Lietot pēdējās atsevišķi saglabātās dokumentu versijas"
 
 #. Resource IDs: (IDS_ASKFORSAVE_NOSAVE_OPEN)
 msgid ""
@@ -4158,7 +4170,9 @@ msgstr ""
 msgid ""
 "Don't save\n"
 "Reload the views without saving the modifications"
-msgstr "Nesaglabāt\nVēleiz ielādēt skatus, nesaglabājot modifikācijas"
+msgstr ""
+"Nesaglabāt\n"
+"Vēleiz ielādēt skatus, nesaglabājot modifikācijas"
 
 #. Resource IDs: (Dialog IDD_SETTINGSOVERLAY: Control id 1079)
 msgid "Drive Types"
@@ -4189,8 +4203,7 @@ msgstr "Neiekļaut &ceļus:"
 msgid "E&xecutable"
 msgstr "Iz&pildāmais"
 
-#. Resource IDs: (105 - Menu, ID_APP_EXIT - Menu, ID_POPUP_EXIT - Menu,
-#. cmdExit_LabelTitle_RESID)
+#. Resource IDs: (105 - Menu, ID_APP_EXIT - Menu, ID_POPUP_EXIT - Menu, cmdExit_LabelTitle_RESID)
 msgid "E&xit"
 msgstr "I&zeja"
 
@@ -4222,8 +4235,7 @@ msgstr ""
 msgid "EXT"
 msgstr "EXT"
 
-#. Resource IDs: (65535 - PopupMenu, Dialog IDD_SETTINGSPROXY: Control id
-#. 1237, cmdGroupEdit_LabelTitle_RESID, cmdTabEdit_LabelTitle_RESID)
+#. Resource IDs: (65535 - PopupMenu, Dialog IDD_SETTINGSPROXY: Control id 1237, cmdGroupEdit_LabelTitle_RESID, cmdTabEdit_LabelTitle_RESID)
 msgid "Edit"
 msgstr "Rediģēt"
 
@@ -4235,18 +4247,9 @@ msgstr "Rediģēt ārējo"
 msgid "Edit Project to monitor"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_EDITPROPERTYVALUE: Control id 227,
-#. IDS_EDITPROPS_EDITTITLE)
+#. Resource IDs: (Dialog IDD_EDITPROPERTYVALUE: Control id 227, IDS_EDITPROPS_EDITTITLE)
 msgid "Edit Properties"
 msgstr "Rediģēt īpašības"
-
-#. Resource IDs: (IDS_PROC_EDIT_PROP_CONFLICTS)
-msgid "Edit Property Conflicts"
-msgstr ""
-
-#. Resource IDs: (IDS_PROC_EDIT_TEXT_CONFLICTS)
-msgid "Edit Text Conflicts"
-msgstr ""
 
 #. Resource IDs: (IDS_PROC_EDIT_TREE_CONFLICTS)
 msgid "Edit Tree Conflicts"
@@ -4287,16 +4290,9 @@ msgid ""
 "%2!ls!"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1382, Dialog
-#. IDD_SETTINGSHOOKS: Control id 1331)
+#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1382, Dialog IDD_SETTINGSHOOKS: Control id 1331)
 msgid "Edit..."
 msgstr "Labot..."
-
-#. Resource IDs: (IDS_EDITCONFLICT_TEXT_EDITCMD)
-msgid ""
-"Edit\n"
-"Edit text conflicts"
-msgstr ""
 
 #. Resource IDs: (IDS_EDITCONFLICT_PROP_EDITCMD)
 msgid ""
@@ -4354,8 +4350,7 @@ msgid ""
 "tsvn:projectlanguage property is set."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_ENCODING: Control id 300, Dialog IDD_ENCODING:
-#. Control id 301, IDS_TEXTIDENTICAL_ENCODING)
+#. Resource IDs: (Dialog IDD_ENCODING: Control id 300, Dialog IDD_ENCODING: Control id 301, IDS_TEXTIDENTICAL_ENCODING)
 msgid "Encoding"
 msgstr ""
 
@@ -4504,13 +4499,17 @@ msgstr ""
 msgid ""
 "Erase everything\n"
 "Erase All"
-msgstr "Izdzēsti visu\nIzdzēst visu"
+msgstr ""
+"Izdzēsti visu\n"
+"Izdzēst visu"
 
 #. Resource IDs: (57632)
 msgid ""
 "Erase the selection\n"
 "Erase"
-msgstr "Izdzēst izvēlēto\nIzdzēst"
+msgstr ""
+"Izdzēst izvēlēto\n"
+"Izdzēst"
 
 #. Resource IDs: (IDS_ERR_ERROR)
 msgid "Error"
@@ -4590,8 +4589,7 @@ msgid "Export settings to file..."
 msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHE_EXPORT)
-msgid ""
-"Export the selected cache as a set of Comma Separated Value (CSV) files"
+msgid "Export the selected cache as a set of Comma Separated Value (CSV) files"
 msgstr ""
 
 #. Resource IDs: (IDS_PROC_EXPORT_2)
@@ -4658,8 +4656,7 @@ msgstr "Ārējie iekļauti"
 msgid "F"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1480, Dialog
-#. IDD_MERGEWIZARD_OPTIONS: Control id 1480)
+#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1480, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1480)
 msgid "F&orce the merge"
 msgstr "U&zspiest sapludināšanu"
 
@@ -4671,7 +4668,9 @@ msgstr "Neizdevās atgriezt"
 msgid ""
 "Failed to connect.\n"
 "Link may be broken."
-msgstr "Kļūda, pieslēdzoties.\nSaite varētu būt bojāta."
+msgstr ""
+"Kļūda, pieslēdzoties.\n"
+"Saite varētu būt bojāta."
 
 #. Resource IDs: (61835)
 msgid "Failed to convert ActiveX object."
@@ -4691,9 +4690,11 @@ msgstr "Neizdevās izveidot tukšu dokumentu."
 
 #. Resource IDs: (61839)
 msgid ""
-"Failed to create object.  Make sure the application is entered in the system"
-" registry."
-msgstr "Neizdevās izveidot objektu. Pārliecinieties, vai lietojums ir ievadīts sistēmas reģistrā."
+"Failed to create object.  Make sure the application is entered in the system "
+"registry."
+msgstr ""
+"Neizdevās izveidot objektu. Pārliecinieties, vai lietojums ir ievadīts "
+"sistēmas reģistrā."
 
 #. Resource IDs: (61703)
 msgid "Failed to launch help."
@@ -4739,8 +4740,7 @@ msgid "Fetch HEAD revision and adjust to it"
 msgstr "Izgūt GALVENO revīziju un piemērot tai"
 
 #. Resource IDs: (IDS_SETTINGS_REPOBROWSER_PREFETCH_TT)
-msgid ""
-"Fetches the contents of folders in the background so browsing is faster"
+msgid "Fetches the contents of folders in the background so browsing is faster"
 msgstr ""
 
 #. Resource IDs: (IDS_PROC_VENDORDROP_GETDATA2)
@@ -4777,8 +4777,7 @@ msgstr "Fails"
 msgid "File Encoding"
 msgstr ""
 
-#. Resource IDs: (IDS_PROC_OVERWRITE_CONFIRM_TASK2,
-#. IDS_WARN_ADDCASERENAMED_TASK2)
+#. Resource IDs: (IDS_PROC_OVERWRITE_CONFIRM_TASK2, IDS_WARN_ADDCASERENAMED_TASK2)
 msgid "File already exists"
 msgstr "Fails jau eksistē"
 
@@ -4825,7 +4824,14 @@ msgid ""
 "Vertical Resolution:\t%.1f dpi\n"
 "Depth:\t\t\t%d bit\n"
 "Zoom:\t\t\t%d%%"
-msgstr "Faila izmērs:\t\t%ls (%ls)\nPlatums:\t\t\t%ld pixel\nAugstums:\t\t\t%ld pikseļi\nHorizontālā izšķirtspēja:\t%.1f dpi\nVertikālā izšķirtspēja:\t%.1f dpi\nDziļums:\t\t\t%d biti\nTālummaiņa:\t\t\t%d%%"
+msgstr ""
+"Faila izmērs:\t\t%ls (%ls)\n"
+"Platums:\t\t\t%ld pixel\n"
+"Augstums:\t\t\t%ld pikseļi\n"
+"Horizontālā izšķirtspēja:\t%.1f dpi\n"
+"Vertikālā izšķirtspēja:\t%.1f dpi\n"
+"Dziļums:\t\t\t%d biti\n"
+"Tālummaiņa:\t\t\t%d%%"
 
 #. Resource IDs: (IDS_DUALIMAGEINFOTT)
 #, c-format
@@ -4925,8 +4931,7 @@ msgstr ""
 msgid "Filtered"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_FIND: Control id 139, ID_EDIT_FIND - Menu,
-#. cmdFind_LabelTitle_RESID)
+#. Resource IDs: (Dialog IDD_FIND: Control id 139, ID_EDIT_FIND - Menu, cmdFind_LabelTitle_RESID)
 msgid "Find"
 msgstr "Meklēšana"
 
@@ -4942,7 +4947,9 @@ msgstr "Atrast GALVENĀS revīzijas"
 msgid ""
 "Find the specified text\n"
 "Find"
-msgstr "Meklēt konkrētu tekstu\nMeklēt"
+msgstr ""
+"Meklēt konkrētu tekstu\n"
+"Meklēt"
 
 #. Resource IDs: (IDS_FIND_NOTFOUND)
 #, c-format
@@ -4994,8 +5001,7 @@ msgstr ""
 msgid "Folded tag"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSTBLAME: Control id 65535, Dialog
-#. IDD_SETTINGSUDIFF: Control id 65535)
+#. Resource IDs: (Dialog IDD_SETTINGSTBLAME: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id 65535)
 msgid "Font"
 msgstr "Fonts"
 
@@ -5015,8 +5021,7 @@ msgstr "Uzspiest"
 msgid "Force removal"
 msgstr "Uzspiest noņemšanu"
 
-#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535, Dialog
-#. IDD_SETTINGSUDIFF: Control id 65535)
+#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id 65535)
 msgid "Foreground"
 msgstr ""
 
@@ -5028,8 +5033,7 @@ msgstr "Pārvirza pārlūkošanas vēsturē"
 msgid "Found auto words:"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_LOGMESSAGE: Control id 1200, Dialog
-#. IDD_REVGRAPHFILTER: Control id 65535)
+#. Resource IDs: (Dialog IDD_LOGMESSAGE: Control id 1200, Dialog IDD_REVGRAPHFILTER: Control id 65535)
 msgid "From:"
 msgstr "No:"
 
@@ -5062,8 +5066,7 @@ msgstr ""
 msgid "Gathering information. Please wait..."
 msgstr "Informācijas apkopošana. Lūdzu, uzgaidiet..."
 
-#. Resource IDs: (Dialog IDD_SETMAINPAGE: Control id 107, Dialog
-#. IDD_SETTINGSMAIN: Control id 143)
+#. Resource IDs: (Dialog IDD_SETMAINPAGE: Control id 107, Dialog IDD_SETTINGSMAIN: Control id 143)
 msgid "General"
 msgstr "Vispārīgi"
 
@@ -5149,13 +5152,17 @@ msgstr "Iet uz rindu"
 msgid ""
 "Go to the next conflict\n"
 "Next conflict"
-msgstr "Iet uz nākošo konfliktu\nNākošais konflikts"
+msgstr ""
+"Iet uz nākošo konfliktu\n"
+"Nākošais konflikts"
 
 #. Resource IDs: (cmdNavigateNextDifference)
 msgid ""
 "Go to the next difference\n"
 "Next difference"
-msgstr "Iet uz nākošo atšķirību\nNākošā atšķirība"
+msgstr ""
+"Iet uz nākošo atšķirību\n"
+"Nākošā atšķirība"
 
 #. Resource IDs: (cmdNavigatePreviousInlineDiff)
 msgid ""
@@ -5167,13 +5174,17 @@ msgstr ""
 msgid ""
 "Go to the previous conflict\n"
 "Previous conflict"
-msgstr "Iet uz iepriekšējo konfliktu\nIepriekšējais konflikts"
+msgstr ""
+"Iet uz iepriekšējo konfliktu\n"
+"Iepriekšējais konflikts"
 
 #. Resource IDs: (cmdNavigatePreviousDifference)
 msgid ""
 "Go to the previous difference\n"
 "Previous difference"
-msgstr "Iet uz iepriekšējo atšķirību\nIepriekšējā atšķirība"
+msgstr ""
+"Iet uz iepriekšējo atšķirību\n"
+"Iepriekšējā atšķirība"
 
 #. Resource IDs: (cmdNavigateNextInlineDiff)
 msgid ""
@@ -5205,8 +5216,7 @@ msgstr ""
 msgid "H&EAD Revision"
 msgstr "&GALVENĀ revīzija"
 
-#. Resource IDs: (Dialog IDD_DIFFFILES: Control id 1353, Dialog IDD_DIFFFILES:
-#. Control id 1354, IDS_EXTERNALS_HEADREV)
+#. Resource IDs: (Dialog IDD_DIFFFILES: Control id 1353, Dialog IDD_DIFFFILES: Control id 1354, IDS_EXTERNALS_HEADREV)
 msgid "HEAD"
 msgstr "VADOŠĀ"
 
@@ -5223,27 +5233,7 @@ msgstr "GALVENĀ revīzija ir %ls"
 msgid "Header"
 msgstr "Galvene"
 
-#. Resource IDs: (Dialog IDD_BLAME: Control id 9, Dialog IDD_CHECKOUT: Control
-#. id 9, Dialog IDD_COMMITDLG: Control id 9, Dialog IDD_COPY: Control id 9,
-#. Dialog IDD_CREATEPATCH: Control id 9, Dialog IDD_EDITPROPBUGTRAQ: Control
-#. id 9, Dialog IDD_EDITPROPEOL: Control id 9, Dialog IDD_EDITPROPERTIES:
-#. Control id 9, Dialog IDD_EDITPROPERTYVALUE: Control id 9, Dialog
-#. IDD_EDITPROPEXECUTABLE: Control id 9, Dialog IDD_EDITPROPEXTERNALS: Control
-#. id 9, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 9, Dialog
-#. IDD_EDITPROPKEYWORDS: Control id 9, Dialog IDD_EDITPROPLOCALHOOKS: Control
-#. id 9, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 9, Dialog
-#. IDD_EDITPROPMIMETYPE: Control id 9, Dialog IDD_EDITPROPNEEDSLOCK: Control
-#. id 9, Dialog IDD_EDITPROPTSVNLANG: Control id 9, Dialog
-#. IDD_EDITPROPTSVNSIZES: Control id 9, Dialog IDD_EXPORT: Control id 9,
-#. Dialog IDD_IMPORT: Control id 9, Dialog IDD_LOCK: Control id 9, Dialog
-#. IDD_LOGMESSAGE: Control id 9, Dialog IDD_MERGEALL: Control id 9, Dialog
-#. IDD_OPENDLG: Control id 9, Dialog IDD_RELOCATE: Control id 9, Dialog
-#. IDD_REPOSITORY_BROWSER: Control id 9, Dialog IDD_RESOLVE: Control id 9,
-#. Dialog IDD_REVERT: Control id 9, Dialog IDD_SETTINGSBUGTRAQADV: Control id
-#. 9, Dialog IDD_SETTINGSHOOKCONFIG: Control id 9, Dialog IDD_SHELVE: Control
-#. id 9, Dialog IDD_SWITCH: Control id 9, Dialog IDD_UNLOCK: Control id 9,
-#. Dialog IDD_UNSHELVE: Control id 9, Dialog IDD_URLDIFF: Control id 9,
-#. IDS_PROPPAGE_HELP)
+#. Resource IDs: (Dialog IDD_BLAME: Control id 9, Dialog IDD_CHECKOUT: Control id 9, Dialog IDD_COMMITDLG: Control id 9, Dialog IDD_COPY: Control id 9, Dialog IDD_CREATEPATCH: Control id 9, Dialog IDD_EDITPROPBUGTRAQ: Control id 9, Dialog IDD_EDITPROPEOL: Control id 9, Dialog IDD_EDITPROPERTIES: Control id 9, Dialog IDD_EDITPROPERTYVALUE: Control id 9, Dialog IDD_EDITPROPEXECUTABLE: Control id 9, Dialog IDD_EDITPROPEXTERNALS: Control id 9, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 9, Dialog IDD_EDITPROPKEYWORDS: Control id 9, Dialog IDD_EDITPROPLOCALHOOKS: Control id 9, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 9, Dialog IDD_EDITPROPMIMETYPE: Control id 9, Dialog IDD_EDITPROPNEEDSLOCK: Control id 9, Dialog IDD_EDITPROPTSVNLANG: Control id 9, Dialog IDD_EDITPROPTSVNSIZES: Control id 9, Dialog IDD_EXPORT: Control id 9, Dialog IDD_IMPORT: Control id 9, Dialog IDD_LOCK: Control id 9, Dialog IDD_LOGMESSAGE: Control id 9, Dialog IDD_MERGEALL: Control id 9, Dialog IDD_OPENDLG: Control id 9, Dialog IDD_RELOCATE: Control id 9, Dialog IDD_REPOSITORY_BROWSER: Control id 9, Dialog IDD_RESOLVE: Control id 9, Dialog IDD_REVERT: Control id 9, Dialog IDD_SETTINGSBUGTRAQADV: Control id 9, Dialog IDD_SETTINGSHOOKCONFIG: Control id 9, Dialog IDD_SHELVE: Control id 9, Dialog IDD_SWITCH: Control id 9, Dialog IDD_UNLOCK: Control id 9, Dialog IDD_UNSHELVE: Control id 9, Dialog IDD_URLDIFF: Control id 9, IDS_PROPPAGE_HELP)
 msgid "Help"
 msgstr "Palīdzība"
 
@@ -5275,8 +5265,7 @@ msgstr ""
 msgid "Hide ta&gs"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_EDITPROPLOCALHOOKS: Control id 1326, Dialog
-#. IDD_SETTINGSHOOKCONFIG: Control id 1326)
+#. Resource IDs: (Dialog IDD_EDITPROPLOCALHOOKS: Control id 1326, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1326)
 msgid "Hide the script while running"
 msgstr "Paslēpt skriptu darbības laikā"
 
@@ -5310,8 +5299,7 @@ msgstr ""
 msgid "Hook Type"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_EDITPROPLOCALHOOKS: Control id 1334, Dialog
-#. IDD_SETTINGSHOOKCONFIG: Control id 1334)
+#. Resource IDs: (Dialog IDD_EDITPROPLOCALHOOKS: Control id 1334, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1334)
 msgid "Hook Type:"
 msgstr ""
 
@@ -5328,8 +5316,7 @@ msgstr "Kļūda āķikajā skriptā!"
 msgid "Hostname mismatch (%ls)"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1392, Dialog
-#. IDD_MERGEWIZARD_OPTIONS: Control id 1392)
+#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1392, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1392)
 msgid "I&gnore all whitespaces"
 msgstr "I&gnorēt visus tukšumus"
 
@@ -5369,8 +5356,7 @@ msgstr "ID:32773:V C +O"
 msgid "ID:32774:V C +T"
 msgstr "ID:32774:V C +T"
 
-#. Accelerator Entry for Menu ID:32775; 'Switch between single and double pane
-#. view'
+#. Accelerator Entry for Menu ID:32775; 'Switch between single and double pane view'
 msgid "ID:32775:V C +D"
 msgstr "ID:32775:V C +D"
 
@@ -5562,7 +5548,8 @@ msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_GETLOCKTOP_TT)
 msgid ""
-"If activated, the menu entry 'Get Lock' is always shown in the top level menu\n"
+"If activated, the menu entry 'Get Lock' is always shown in the top level "
+"menu\n"
 "if the selected file has the svn:needs-lock property set"
 msgstr ""
 
@@ -5580,7 +5567,8 @@ msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_USEWCURL_TT)
 msgid ""
-"If enabled, the Merge dialog initializes the 'From:' URL with the URL of the selected working copy\r\n"
+"If enabled, the Merge dialog initializes the 'From:' URL with the URL of the "
+"selected working copy\r\n"
 "instead of the last used URL."
 msgstr ""
 
@@ -5604,19 +5592,22 @@ msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_UNVERSIONEDRECURSE_TT)
 msgid ""
-"If set, files inside unversioned folders can be shown in the status control.\r\n"
+"If set, files inside unversioned folders can be shown in the status control."
+"\r\n"
 "The status control is used for example in the commit dialog."
 msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_IGNOREONCOMMITIGNORE_TT)
 msgid ""
-"If set, then modified files that are in the \"ignore-on-commit\" changelist do not mark the parent folders as modified\r\n"
+"If set, then modified files that are in the \"ignore-on-commit\" changelist "
+"do not mark the parent folders as modified\r\n"
 "i.e., they get the normal icon unless another file or folder is modified."
 msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_UNVERSIONEDASMODIFIED_TT)
 msgid ""
-"If set, then unversioned files will mark the status of the parent directory as modified\r\n"
+"If set, then unversioned files will mark the status of the parent directory "
+"as modified\r\n"
 "i.e. they get the modified overlay icon."
 msgstr ""
 
@@ -5656,13 +5647,11 @@ msgstr "Ignorēt %d pēc &paplašinājuma"
 msgid "Ignore &EOL changes"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_BLAME: Control id 1392, Dialog IDD_DIFFOPTIONS:
-#. Control id 1611)
+#. Resource IDs: (Dialog IDD_BLAME: Control id 1392, Dialog IDD_DIFFOPTIONS: Control id 1611)
 msgid "Ignore &all whitespaces"
 msgstr "Ignorēt &visas atstarpes"
 
-#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1267, Dialog
-#. IDD_MERGEWIZARD_OPTIONS: Control id 1267)
+#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1267, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1267)
 msgid "Ignore &ancestry"
 msgstr "Ignorēt &priekštecību"
 
@@ -5674,8 +5663,7 @@ msgstr ""
 msgid "Ignore EOL changes"
 msgstr ""
 
-#. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu,
-#. cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
+#. Resource IDs: (ID_VIEW_IGNOREALLWHITESPACECHANGES - Menu, cmdIgnoreAllWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore all whitespace changes"
 msgstr "Ignorēt visas izmaiņas atstarpēs"
 
@@ -5699,8 +5687,7 @@ msgstr ""
 msgid "Ignore comments"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_BLAME: Control id 1127, Dialog IDD_MERGEALL:
-#. Control id 1126, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1126)
+#. Resource IDs: (Dialog IDD_BLAME: Control id 1127, Dialog IDD_MERGEALL: Control id 1126, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1126)
 msgid "Ignore line &endings"
 msgstr "Ignorēt rindu &nobeigumus"
 
@@ -5716,14 +5703,11 @@ msgstr ""
 msgid "Ignore whitespace &changes"
 msgstr "Ignorēt &atstarpju izmaiņas"
 
-#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1391, Dialog
-#. IDD_MERGEWIZARD_OPTIONS: Control id 1391)
+#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1391, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1391)
 msgid "Ignore whitespace c&hanges"
 msgstr "Ignorēt &atstarpju izmaiņas"
 
-#. Resource IDs: (Dialog IDD_BLAME: Control id 1391,
-#. ID_VIEW_IGNOREWHITESPACECHANGES - Menu,
-#. cmdIgnoreWhitespaceChanges_LabelTitle_RESID)
+#. Resource IDs: (Dialog IDD_BLAME: Control id 1391, ID_VIEW_IGNOREWHITESPACECHANGES - Menu, cmdIgnoreWhitespaceChanges_LabelTitle_RESID)
 msgid "Ignore whitespace changes"
 msgstr "Ignorēt atstarpju izmaiņas"
 
@@ -5739,13 +5723,17 @@ msgstr "Ignorēt iekļautos"
 msgid ""
 "Ignores all whitespace changes when diffing\n"
 "Ignore all whitespace changes"
-msgstr "Salīdzinot ignorē visas atstarpju izmaiņas\nIgnorēt visas atstarpju izmaiņas"
+msgstr ""
+"Salīdzinot ignorē visas atstarpju izmaiņas\n"
+"Ignorēt visas atstarpju izmaiņas"
 
 #. Resource IDs: (cmdIgnoreWhitespaceChanges)
 msgid ""
 "Ignores changes in whitespaces when diffing\n"
 "Ignore whitespace changes"
-msgstr "Salīdzinot ignorē atstarpju izmaiņas\nIgnorēt atstarpju izmaiņas"
+msgstr ""
+"Salīdzinot ignorē atstarpju izmaiņas\n"
+"Ignorēt atstarpju izmaiņas"
 
 #. Resource IDs: (IDS_WARN_NOVALIDPATH_TASK2)
 msgid "Illegal path"
@@ -5786,21 +5774,27 @@ msgstr "Ieimportēt iepriekš saglabātu īpašību komplektu no faila"
 msgid ""
 "Import file %1!ls!\r\n"
 "to %2!ls!"
-msgstr "Importēt failu %1!ls!\r\nto %2!ls!"
+msgstr ""
+"Importēt failu %1!ls!\r\n"
+"to %2!ls!"
 
 #. Resource IDs: (IDS_INPUT_IMPORTFILE)
 #, c-format
 msgid ""
 "Import file to\r\n"
 "%ls"
-msgstr "Importēt failu\r\n%ls"
+msgstr ""
+"Importēt failu\r\n"
+"%ls"
 
 #. Resource IDs: (IDS_INPUT_IMPORTFOLDER)
 #, c-format
 msgid ""
 "Import folder %1!ls!\r\n"
 "to %2!ls!"
-msgstr "Importēt filderi %1!ls!\r\nto %2!ls!"
+msgstr ""
+"Importēt filderi %1!ls!\r\n"
+"to %2!ls!"
 
 #. Resource IDs: (IDS_DROPDESC_IMPORT)
 #, c-format
@@ -5822,8 +5816,8 @@ msgstr "Importē direktoriju repozitorijā"
 
 #. Resource IDs: (Dialog IDD_COLLABORATORSETTINGS: Control id 65535)
 msgid ""
-"In order to show this dialog in the future, press <Ctrl> while executing the"
-" Code Collaborator menu command."
+"In order to show this dialog in the future, press <Ctrl> while executing the "
+"Code Collaborator menu command."
 msgstr ""
 
 #. Resource IDs: (Dialog IDD_CLEANUP: Control id 1616)
@@ -5868,13 +5862,11 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
-#. Resource IDs: (ID_VIEW_INLINEDIFF - Menu,
-#. cmdViewInlineDiff_LabelTitle_RESID)
+#. Resource IDs: (ID_VIEW_INLINEDIFF - Menu, cmdViewInlineDiff_LabelTitle_RESID)
 msgid "Inline diff"
 msgstr ""
 
-#. Resource IDs: (ID_VIEW_INLINEDIFFWORD - Menu,
-#. cmdViewInlineDiffWord_LabelTitle_RESID)
+#. Resource IDs: (ID_VIEW_INLINEDIFFWORD - Menu, cmdViewInlineDiffWord_LabelTitle_RESID)
 msgid "Inline diff word-wise"
 msgstr ""
 
@@ -5973,7 +5965,8 @@ msgstr ""
 #. Resource IDs: (IDS_WARN_RELOCATEREALLY_TASK1)
 #, c-format
 msgid ""
-"It seems you are trying to relocate your working copy to a different path inside the same repository.\n"
+"It seems you are trying to relocate your working copy to a different path "
+"inside the same repository.\n"
 "From: %1!ls!\n"
 "To: %2!ls!\n"
 "\n"
@@ -6074,7 +6067,9 @@ msgstr "Pēdējais aktīvais autors:"
 msgid ""
 "Leave as conflicted\n"
 "The conflict status of the file is kept"
-msgstr "Atstāt konfliktējošu\nKonfliktējoša faila statuss tiks saglabāts"
+msgstr ""
+"Atstāt konfliktējošu\n"
+"Konfliktējoša faila statuss tiks saglabāts"
 
 #. Resource IDs: (IDS_VIEWCONTEXTMENU_LEAVEONLYMARKEDBLOCKS)
 msgid "Leave only marked changes"
@@ -6108,8 +6103,7 @@ msgstr "Rinda"
 msgid "Line Graph"
 msgstr ""
 
-#. Resource IDs: (ID_VIEW_LINEDIFFBAR - Menu,
-#. cmdViewLineDiffBar_LabelTitle_RESID)
+#. Resource IDs: (ID_VIEW_LINEDIFFBAR - Menu, cmdViewLineDiffBar_LabelTitle_RESID)
 msgid "Line diff bar"
 msgstr ""
 
@@ -6188,13 +6182,11 @@ msgstr ""
 msgid "Locator Bar"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSTBLAME: Control id 65535,
-#. cmdViewLocatorBar_LabelTitle_RESID)
+#. Resource IDs: (Dialog IDD_SETTINGSTBLAME: Control id 65535, cmdViewLocatorBar_LabelTitle_RESID)
 msgid "Locator bar"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSMISC: Control id 65535,
-#. IDS_PROGRS_CMD_LOCK, IDS_PROGRS_TITLE_LOCK, IDS_STATUSLIST_COLLOCK)
+#. Resource IDs: (Dialog IDD_SETTINGSMISC: Control id 65535, IDS_PROGRS_CMD_LOCK, IDS_PROGRS_TITLE_LOCK, IDS_STATUSLIST_COLLOCK)
 msgid "Lock"
 msgstr "Saslēgšana"
 
@@ -6252,7 +6244,9 @@ msgstr "Saslēgšana neizdevās"
 msgid ""
 "Locking failed because a newer version exists!\n"
 "Do you want to update and try again?"
-msgstr "Saslēgšana neizdevās, jo eksistē jaunāka versija!\nVai vēlaties atjaunināt un mēģināt vēlreiz?"
+msgstr ""
+"Saslēgšana neizdevās, jo eksistē jaunāka versija!\n"
+"Vai vēlaties atjaunināt un mēģināt vēlreiz?"
 
 #. Resource IDs: (IDS_MENUDESC_LOCK)
 msgid "Locks a file for other users and makes it editable by you."
@@ -6339,7 +6333,9 @@ msgid "Many items selected to show diff"
 msgstr ""
 
 #. Resource IDs: (IDS_MONITOR_MARKASREADTT)
-msgid "Mark all projects as read"
+msgid ""
+"Mark all projects as read\n"
+"Hold down the shift key to also clear all fetch errors."
 msgstr ""
 
 #. Resource IDs: (IDS_PROGRS_REVERTMARKERS_TASK3)
@@ -6348,8 +6344,7 @@ msgid ""
 "The conflict is resolved."
 msgstr ""
 
-#. Resource IDs: (IDS_PROC_RESOLVE_TASK2, IDS_SVNPROGRESS_MENUMARKASRESOLVED,
-#. ID_EDIT_MARKASRESOLVED - Menu, cmdMarkResolved_LabelTitle_RESID)
+#. Resource IDs: (IDS_PROC_RESOLVE_TASK2, IDS_SVNPROGRESS_MENUMARKASRESOLVED, ID_EDIT_MARKASRESOLVED - Menu, cmdMarkResolved_LabelTitle_RESID)
 msgid "Mark as resolved"
 msgstr "Atzīmēt kā atrisinātu"
 
@@ -6357,7 +6352,9 @@ msgstr "Atzīmēt kā atrisinātu"
 msgid ""
 "Mark as resolved\n"
 "The file status is changed to modified"
-msgstr "Atzīmēt kā atrisinātu\nFaila statuss mainīsies uz labots"
+msgstr ""
+"Atzīmēt kā atrisinātu\n"
+"Faila statuss mainīsies uz labots"
 
 #. Resource IDs: (32826)
 msgid "Mark current revision of your working copy"
@@ -6387,7 +6384,9 @@ msgstr "Iezīmētāji"
 msgid ""
 "Marks a file as resolved in Subversion\n"
 "Mark as resolved"
-msgstr "Atzīmē failu kā atrisinātu Subversion\nAtzīmēt kā atrisinātu"
+msgstr ""
+"Atzīmē failu kā atrisinātu Subversion\n"
+"Atzīmēt kā atrisinātu"
 
 #. Resource IDs: (IDS_EDITPROPCONFLICT_TT_RESOLVED)
 msgid ""
@@ -6421,15 +6420,11 @@ msgstr ""
 msgid "Maximum number of tool &failures until cache removal"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MERGEWIZARD_OPTIONS: Control id 111, Dialog
-#. IDD_MERGEWIZARD_REVRANGE: Control id 278, Dialog IDD_MERGEWIZARD_START:
-#. Control id 109, Dialog IDD_MERGEWIZARD_TREE: Control id 110, Dialog
-#. IDD_SETTINGSDIALOGS: Control id 65535, IDS_PROGRS_TITLE_MERGE)
+#. Resource IDs: (Dialog IDD_MERGEWIZARD_OPTIONS: Control id 111, Dialog IDD_MERGEWIZARD_REVRANGE: Control id 278, Dialog IDD_MERGEWIZARD_START: Control id 109, Dialog IDD_MERGEWIZARD_TREE: Control id 110, Dialog IDD_SETTINGSDIALOGS: Control id 65535, IDS_PROGRS_TITLE_MERGE)
 msgid "Merge"
 msgstr "Sapludināšana"
 
-#. Resource IDs: (Dialog IDD_MERGEALL: Control id 65535, Dialog
-#. IDD_MERGEWIZARD_OPTIONS: Control id 1488)
+#. Resource IDs: (Dialog IDD_MERGEALL: Control id 65535, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1488)
 msgid "Merge &depth:"
 msgstr "Sapludināšanas &dziļums:"
 
@@ -6471,8 +6466,7 @@ msgstr ""
 msgid "Merge conflict discovered in file %s"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1534, Dialog
-#. IDD_MERGEWIZARD_OPTIONS: Control id 1487, IDS_MERGEWIZARD_OPTIONSTITLE)
+#. Resource IDs: (Dialog IDD_MERGEALL: Control id 1534, Dialog IDD_MERGEWIZARD_OPTIONS: Control id 1487, IDS_MERGEWIZARD_OPTIONSTITLE)
 msgid "Merge options"
 msgstr "Sapludināšanas iespējas"
 
@@ -6492,8 +6486,7 @@ msgstr "Sapludināt revīzijas līdz..."
 msgid "Merge two different &trees"
 msgstr "Sapludināt divus atšķirīgus &kokus"
 
-#. Resource IDs: (Dialog IDD_MERGEWIZARD_START: Control id 1486,
-#. IDS_MERGEWIZARD_STARTTITLE)
+#. Resource IDs: (Dialog IDD_MERGEWIZARD_START: Control id 1486, IDS_MERGEWIZARD_STARTTITLE)
 msgid "Merge type"
 msgstr "Sapludināšanas tips"
 
@@ -6527,8 +6520,8 @@ msgstr ""
 #. Resource IDs: (IDS_PROGRS_CMD_MERGEURL)
 #, c-format
 msgid ""
-"Merging from %1!ls!, revision %2!ls! to %3!ls!, revision %4!ls! into %5!ls!,"
-" %6!ls!%7!ls!%8!ls!"
+"Merging from %1!ls!, revision %2!ls! to %3!ls!, revision %4!ls! into %5!ls!, "
+"%6!ls!%7!ls!%8!ls!"
 msgstr ""
 
 #. Resource IDs: (IDS_SVNACTION_MERGEBEGINMULTIPLE)
@@ -6546,8 +6539,7 @@ msgstr "Sapludina r%ld"
 msgid "Merging revisions %1!ls! of %2!ls! into %3!ls!, %4!ls!%5!ls!%6!ls!"
 msgstr "Sapludina revīzijas %1!ls! no %2!ls! uz %3!ls!, %4!ls!%5!ls!%6!ls!"
 
-#. Resource IDs: (Dialog IDD_EDITPROPBUGTRAQ: Control id 1241, Dialog
-#. IDD_INPUTLOGDLG: Control id 1359, IDS_LOG_MESSAGE)
+#. Resource IDs: (Dialog IDD_EDITPROPBUGTRAQ: Control id 1241, Dialog IDD_INPUTLOGDLG: Control id 1359, IDS_LOG_MESSAGE)
 msgid "Message"
 msgstr "Ziņojums"
 
@@ -6559,8 +6551,7 @@ msgstr "Ziņojuma &nosaukums:"
 msgid "Message &pattern:"
 msgstr "Ziņojuma &veids:"
 
-#. Resource IDs: (Dialog IDD_BUGTRAQREGEXTESTER: Control id 1579, Dialog
-#. IDD_EDITPROPBUGTRAQ: Control id 1579)
+#. Resource IDs: (Dialog IDD_BUGTRAQREGEXTESTER: Control id 1579, Dialog IDD_EDITPROPBUGTRAQ: Control id 1579)
 msgid "Message part &expression:"
 msgstr ""
 
@@ -6592,10 +6583,7 @@ msgstr ""
 msgid "Minimum number of chars for a lock message:"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, Dialog
-#. IDD_SETCOLORPAGE: Control id 65535, Dialog IDD_SETMAINPAGE: Control id
-#. 1023, Dialog IDD_SETTINGSDIALOGS: Control id 65535, Dialog
-#. IDD_SETTINGSREVGRAPH: Control id 65535, Dialog IDD_UPDATE: Control id 1610)
+#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, Dialog IDD_SETCOLORPAGE: Control id 65535, Dialog IDD_SETMAINPAGE: Control id 1023, Dialog IDD_SETTINGSDIALOGS: Control id 65535, Dialog IDD_SETTINGSREVGRAPH: Control id 65535, Dialog IDD_UPDATE: Control id 1610)
 msgid "Misc"
 msgstr "Dažādi"
 
@@ -6607,9 +6595,7 @@ msgstr "Jaukti"
 msgid "Modification date"
 msgstr "Modifikācijas datums"
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1511, Dialog
-#. IDD_SETCOLORPAGE: Control id 65535, IDS_SVNACTION_MODIFIED,
-#. IDS_SVN_SUMMARIZEMODIFIED)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1511, Dialog IDD_SETCOLORPAGE: Control id 65535, IDS_SVNACTION_MODIFIED, IDS_SVN_SUMMARIZEMODIFIED)
 msgid "Modified"
 msgstr "Modificēts"
 
@@ -6642,14 +6628,18 @@ msgstr "Visaktīvākais autors:"
 msgid ""
 "Move %1!ld! items to\r\n"
 "%2!ls!"
-msgstr "Pārvietot %1!ld! uz\r\n%2!ls!"
+msgstr ""
+"Pārvietot %1!ld! uz\r\n"
+"%2!ls!"
 
 #. Resource IDs: (IDS_INPUT_MOVE)
 #, c-format
 msgid ""
 "Move %1!ls!\r\n"
 "to %2!ls!"
-msgstr "Pārvietot %1!ls!\r\nto %2!ls!"
+msgstr ""
+"Pārvietot %1!ls!\r\n"
+"to %2!ls!"
 
 #. Resource IDs: (IDS_PROC_MOVEUNVERSIONED_TASK4)
 msgid ""
@@ -6766,8 +6756,7 @@ msgstr ""
 msgid "NUM"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, Dialog
-#. IDD_REGEXFILTER: Control id 65535)
+#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, Dialog IDD_REGEXFILTER: Control id 65535)
 msgid "Name:"
 msgstr ""
 
@@ -6826,25 +6815,23 @@ msgstr ""
 msgid "Newlines"
 msgstr ""
 
-#. Resource IDs: (ID_NAVIGATE_NEXTCONFLICT - Menu,
-#. cmdNavigateNextConflict_LabelTitle_RESID)
+#. Resource IDs: (ID_NAVIGATE_NEXTCONFLICT - Menu, cmdNavigateNextConflict_LabelTitle_RESID)
 msgid "Next conflict"
 msgstr "Nākošais konflikts"
 
-#. Resource IDs: (ID_NAVIGATE_NEXTDIFFERENCE - Menu,
-#. cmdNavigateNextDifference_LabelTitle_RESID)
+#. Resource IDs: (ID_NAVIGATE_NEXTDIFFERENCE - Menu, cmdNavigateNextDifference_LabelTitle_RESID)
 msgid "Next difference"
 msgstr "Nākošā atšķirība"
 
-#. Resource IDs: (ID_NAVIGATE_NEXTINLINEDIFF - Menu,
-#. cmdNavigateNextInlineDiff_LabelTitle_RESID)
+#. Resource IDs: (ID_NAVIGATE_NEXTINLINEDIFF - Menu, cmdNavigateNextInlineDiff_LabelTitle_RESID)
 msgid "Next inline difference"
 msgstr ""
 
 #. Resource IDs: (IDS_ERR_NOCOMMAND)
 msgid ""
 "No command specified!\n"
-"TortoiseProc.exe is used by the Shell extension and should not be called directly!"
+"TortoiseProc.exe is used by the Shell extension and should not be called "
+"directly!"
 msgstr ""
 
 #. Resource IDs: (IDS_ERR_EMPTYDIFF)
@@ -6872,7 +6859,8 @@ msgstr ""
 #. Resource IDs: (IDS_REPOSTATUS_EMPTYFILELIST)
 msgid ""
 "No files to show with the current setting.\n"
-"Check one or more settings below to see unversioned, ignored and/or unmodified files.\n"
+"Check one or more settings below to see unversioned, ignored and/or "
+"unmodified files.\n"
 "To see remote changes, click on 'Check Repository'"
 msgstr ""
 
@@ -6908,10 +6896,6 @@ msgstr ""
 msgid "No path or pathfile specified on the command line!"
 msgstr ""
 
-#. Resource IDs: (IDS_ERR_SHELVE_NOTHING_WAS_SHELVED)
-msgid "No path was shelved."
-msgstr ""
-
 #. Resource IDs: (IDS_SETTINGS_CACHENONE_TT)
 msgid ""
 "No status cache. Only versioned folders get an overlay, files don't get an "
@@ -6943,13 +6927,11 @@ msgstr ""
 msgid "Non-versioned"
 msgstr "Ne-versionēts"
 
-#. Resource IDs: (Dialog IDD_COPY: Control id 1506, Dialog
-#. IDD_SETTINGSOVERLAY: Control id 1271)
+#. Resource IDs: (Dialog IDD_COPY: Control id 1506, Dialog IDD_SETTINGSOVERLAY: Control id 1271)
 msgid "None"
 msgstr "Neviens"
 
-#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535,
-#. IDS_SVN_SUMMARIZENORMAL)
+#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535, IDS_SVN_SUMMARIZENORMAL)
 msgid "Normal"
 msgstr "Parasts"
 
@@ -7052,8 +7034,8 @@ msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHESTATS_PATHELEMENTS)
 msgid ""
-"Number of path elements. A path element is a folder or file name like "
-"'foo.txt' or 'mybranch'."
+"Number of path elements. A path element is a folder or file name like 'foo."
+"txt' or 'mybranch'."
 msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_LOGCACHE_FAILURELIMIT)
@@ -7070,20 +7052,7 @@ msgstr "Nedēļu skaits:"
 msgid "O&ptions"
 msgstr "&Iespējas"
 
-#. Resource IDs: (1, Dialog IDD_ABOUT: Control id 1, Dialog
-#. IDD_BUGTRAQREGEXTESTER: Control id 1, Dialog IDD_COLLABORATORSETTINGS:
-#. Control id 1, Dialog IDD_EDITPROPLOCALHOOKS: Control id 1, Dialog
-#. IDD_EDITPROPMERGELOGTEMPLATE: Control id 1, Dialog IDD_EDITPROPUSERBOOL:
-#. Control id 1, Dialog IDD_EDITPROPUSERMULTILINE: Control id 1, Dialog
-#. IDD_EDITPROPUSERSINGLELINE: Control id 1, Dialog IDD_EDITPROPUSERSTATE:
-#. Control id 1, Dialog IDD_ENCODING: Control id 1, Dialog IDD_GOTO: Control
-#. id 1, Dialog IDD_GOTODLG: Control id 1, Dialog IDD_MONITOROPTIONS: Control
-#. id 1, Dialog IDD_MONITORPROJECT: Control id 1, Dialog IDD_OPEN: Control id
-#. 1, Dialog IDD_OPENDLG: Control id 1, Dialog IDD_PASSWORD: Control id 1,
-#. Dialog IDD_REGEXFILTER: Control id 1, Dialog IDD_REGEXFILTERS: Control id
-#. 1, Dialog IDD_SETTINGSBUGTRAQADV: Control id 1, Dialog
-#. IDD_SETTINGSHOOKCONFIG: Control id 1, Dialog IDD_SETTINGSPROGSADV: Control
-#. id 1, Dialog IDD_SETTINGS_CLEARAUTH: Control id 1)
+#. Resource IDs: (1, Dialog IDD_ABOUT: Control id 1, Dialog IDD_BUGTRAQREGEXTESTER: Control id 1, Dialog IDD_COLLABORATORSETTINGS: Control id 1, Dialog IDD_EDITPROPLOCALHOOKS: Control id 1, Dialog IDD_EDITPROPMERGELOGTEMPLATE: Control id 1, Dialog IDD_EDITPROPUSERBOOL: Control id 1, Dialog IDD_EDITPROPUSERMULTILINE: Control id 1, Dialog IDD_EDITPROPUSERSINGLELINE: Control id 1, Dialog IDD_EDITPROPUSERSTATE: Control id 1, Dialog IDD_ENCODING: Control id 1, Dialog IDD_GOTO: Control id 1, Dialog IDD_GOTODLG: Control id 1, Dialog IDD_MONITOROPTIONS: Control id 1, Dialog IDD_MONITORPROJECT: Control id 1, Dialog IDD_OPEN: Control id 1, Dialog IDD_OPENDLG: Control id 1, Dialog IDD_PASSWORD: Control id 1, Dialog IDD_REGEXFILTER: Control id 1, Dialog IDD_REGEXFILTERS: Control id 1, Dialog IDD_SETTINGSBUGTRAQADV: Control id 1, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1, Dialog IDD_SETTINGSPROGSADV: Control id 1, Dialog IDD_SETTINGS_CLEARAUTH: Control id 1)
 msgid "OK"
 msgstr "Labi"
 
@@ -7099,9 +7068,7 @@ msgstr "Vecākas rindas"
 msgid "Oldest on to&p"
 msgstr "Vecākās &augšā:"
 
-#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1202, Dialog IDD_EXPORT:
-#. Control id 1202, Dialog IDD_SWITCH: Control id 1202, Dialog IDD_UPDATE:
-#. Control id 1202)
+#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1202, Dialog IDD_EXPORT: Control id 1202, Dialog IDD_SWITCH: Control id 1202, Dialog IDD_UPDATE: Control id 1202)
 msgid "Omit e&xternals"
 msgstr "I&zlaist ārējos"
 
@@ -7122,14 +7089,6 @@ msgstr "Tika atrasts viens vai vairāki auto-saglabāti dokumenti."
 #. Resource IDs: (IDS_PROGRS_CONFLICTSOCCURED)
 msgid "One or more files are in a conflicted state."
 msgstr "Viens vai vairāki faili ir konfliktējošā stāvoklī."
-
-#. Resource IDs: (IDS_ERR_SHELVE_FAILED_PATHS)
-#, c-format
-msgid ""
-"One or more paths could not be shelved.\n"
-"The following paths failed:\n"
-"%s"
-msgstr ""
 
 #. Resource IDs: (IDS_MONITOR_NOTIFY_TITLE)
 msgid "One project has updates:"
@@ -7219,7 +7178,9 @@ msgstr ""
 msgid ""
 "Opens Help\n"
 "Help Topics"
-msgstr "Atver palīdzību\nPalīdzības temati"
+msgstr ""
+"Atver palīdzību\n"
+"Palīdzības temati"
 
 #. Resource IDs: (IDS_MENUDESCREPOBROWSE)
 msgid "Opens the repository browser to tweak the repository online"
@@ -7321,9 +7282,7 @@ msgstr ""
 msgid "Password/phrase"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, Dialog
-#. IDD_PASSWORD: Control id 65535, Dialog IDD_SETTINGSSYNC: Control id 65535,
-#. IDS_AUTH_PASSWORD)
+#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, Dialog IDD_PASSWORD: Control id 65535, Dialog IDD_SETTINGSSYNC: Control id 65535, IDS_AUTH_PASSWORD)
 msgid "Password:"
 msgstr "Parole:"
 
@@ -7370,9 +7329,7 @@ msgstr ""
 msgid "Patching file '%1!ls!'"
 msgstr ""
 
-#. Resource IDs: (IDS_HEADER_PATH, IDS_PATH, IDS_PROGRS_PATH,
-#. IDS_SETTINGS_BUGTRAQ_PATHCOL, IDS_SETTINGS_HOOKS_PATHCOL,
-#. IDS_SHELF_UNSHELVE_FILECOL, IDS_STATUSLIST_COLFILE)
+#. Resource IDs: (IDS_HEADER_PATH, IDS_PATH, IDS_PROGRS_PATH, IDS_SETTINGS_BUGTRAQ_PATHCOL, IDS_SETTINGS_HOOKS_PATHCOL, IDS_STATUSLIST_COLFILE)
 msgid "Path"
 msgstr "Ceļš"
 
@@ -7416,8 +7373,8 @@ msgstr ""
 
 #. Resource IDs: (IDS_PICTUREFILEFILTER)
 msgid ""
-"Pictures (*.svg, *.wmf, *.jpg, *.png, *.bmp, *.gif, "
-"*.webp)|*.svg;*.wmf;*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|All (*.*)|*.*||"
+"Pictures (*.svg, *.wmf, *.jpg, *.png, *.bmp, *.gif, *.webp)|*.svg;*.wmf;*."
+"jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|All (*.*)|*.*||"
 msgstr ""
 
 #. Resource IDs: (IDS_STATGRAPH_PIEBUTTON_TT)
@@ -7439,7 +7396,8 @@ msgstr ""
 #. Resource IDs: (IDS_PROGRS_COPY_WARNING)
 msgid ""
 "Please note:\n"
-"Your working copy remains on the previous path. If you want your next changes\n"
+"Your working copy remains on the previous path. If you want your next "
+"changes\n"
 "to be committed to the copy or branch you have just created,\n"
 "then you need to switch your working copy over to the new URL.\n"
 "Use the Switch command to do that."
@@ -7465,9 +7423,7 @@ msgstr ""
 msgid "Please wait while the repository browser is initializing..."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_PLEASEWAIT: Control id 347,
-#. IDS_BLAME_PROGRESSINFO, IDS_PROC_CLEANUP_INFO2, IDS_PROGRESSWAIT,
-#. IDS_REPOBROWSE_WAIT, IDS_STATUSLIST_BUSYMSG)
+#. Resource IDs: (Dialog IDD_PLEASEWAIT: Control id 347, IDS_BLAME_PROGRESSINFO, IDS_PROC_CLEANUP_INFO2, IDS_PROGRESSWAIT, IDS_REPOBROWSE_WAIT, IDS_STATUSLIST_BUSYMSG)
 msgid "Please wait..."
 msgstr "Lūdzu, uzgaidiet..."
 
@@ -7527,18 +7483,15 @@ msgstr ""
 msgid "Preview patched file"
 msgstr ""
 
-#. Resource IDs: (ID_NAVIGATE_PREVIOUSCONFLICT - Menu,
-#. cmdNavigatePreviousConflict_LabelTitle_RESID)
+#. Resource IDs: (ID_NAVIGATE_PREVIOUSCONFLICT - Menu, cmdNavigatePreviousConflict_LabelTitle_RESID)
 msgid "Previous conflict"
 msgstr "Iepriekšējais konflikts"
 
-#. Resource IDs: (ID_NAVIGATE_PREVIOUSDIFFERENCE - Menu,
-#. cmdNavigatePreviousDifference_LabelTitle_RESID)
+#. Resource IDs: (ID_NAVIGATE_PREVIOUSDIFFERENCE - Menu, cmdNavigatePreviousDifference_LabelTitle_RESID)
 msgid "Previous difference"
 msgstr "Iepriekšējā atšķirība"
 
-#. Resource IDs: (ID_NAVIGATE_PREVINLINEDIFF - Menu,
-#. cmdNavigatePreviousInlineDiff_LabelTitle_RESID)
+#. Resource IDs: (ID_NAVIGATE_PREVINLINEDIFF - Menu, cmdNavigatePreviousInlineDiff_LabelTitle_RESID)
 msgid "Previous inline difference"
 msgstr ""
 
@@ -7589,8 +7542,7 @@ msgstr "Progress"
 msgid "Project"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 226, Dialog
-#. IDD_PROPERTIES: Control id 177, IDS_MENUPROPERTIES)
+#. Resource IDs: (Dialog IDD_EDITPROPERTIES: Control id 226, Dialog IDD_PROPERTIES: Control id 177, IDS_MENUPROPERTIES)
 msgid "Properties"
 msgstr "Īpašības"
 
@@ -7716,7 +7668,9 @@ msgstr ""
 msgid ""
 "Quit\n"
 "Exit TortoiseMerge without saving the modifications"
-msgstr "Iziet\nIziet no TortoiseMerge bez izmaiņu saglabāšanas"
+msgstr ""
+"Iziet\n"
+"Iziet no TortoiseMerge bez izmaiņu saglabāšanas"
 
 #. Resource IDs: (cmdReload_Keytip_RESID)
 msgid "R"
@@ -7848,8 +7802,7 @@ msgstr ""
 msgid "Reduce the window to an icon"
 msgstr "Samazināt logu līdz ikonai"
 
-#. Resource IDs: (Dialog IDD_LOGMESSAGE: Control id 1382,
-#. IDS_REPOBROWSE_REFRESH)
+#. Resource IDs: (Dialog IDD_LOGMESSAGE: Control id 1382, IDS_REPOBROWSE_REFRESH)
 msgid "Refresh"
 msgstr "Atjaunināt"
 
@@ -7862,8 +7815,7 @@ msgstr ""
 msgid "Refreshing shell for %1!ls!"
 msgstr ""
 
-#. Resource IDs: (65535 - PopupMenu, Dialog IDD_REGEXFILTER: Control id 165,
-#. cmdRegexFilterConfig1, cmdRegexFilterConfig1_LabelTitle_RESID)
+#. Resource IDs: (65535 - PopupMenu, Dialog IDD_REGEXFILTER: Control id 165, cmdRegexFilterConfig1, cmdRegexFilterConfig1_LabelTitle_RESID)
 msgid "Regex Filter"
 msgstr ""
 
@@ -7929,8 +7881,7 @@ msgid "Release loc&k..."
 msgstr "At&laist saslēgumu..."
 
 #. Resource IDs: (IDS_MENUDESC_UNLOCKFORCE)
-msgid ""
-"Releases locks even if you're not the owner of the locks (breaks them)."
+msgid "Releases locks even if you're not the owner of the locks (breaks them)."
 msgstr "Atlaist saslēgumus pat, ja jūs neesat to autors (salauž tos)."
 
 #. Resource IDs: (IDS_MENUDESC_UNLOCK)
@@ -7983,8 +7934,7 @@ msgstr ""
 msgid "Remote text status"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1470, Dialog
-#. IDD_SETTINGSHOOKS: Control id 1332)
+#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1470, Dialog IDD_SETTINGSHOOKS: Control id 1332)
 msgid "Remove"
 msgstr "Noņemt"
 
@@ -8113,8 +8063,8 @@ msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_INCOMPLETEREOPEN_TT)
 msgid ""
-"Reopens the commit dialog after a successful commit if there were files "
-"and/or folders left uncommitted."
+"Reopens the commit dialog after a successful commit if there were files and/"
+"or folders left uncommitted."
 msgstr ""
 
 #. Resource IDs: (IDS_STATUSLIST_CONTEXT_REPAIRCOPY)
@@ -8129,7 +8079,9 @@ msgstr ""
 msgid ""
 "Repeat the last action\n"
 "Repeat"
-msgstr "Atkārtot pēdējo darbību\nAtkārtot"
+msgstr ""
+"Atkārtot pēdējo darbību\n"
+"Atkārtot"
 
 #. Resource IDs: (Dialog IDD_FIND: Control id 1512)
 msgid "Replace &All"
@@ -8139,7 +8091,9 @@ msgstr ""
 msgid ""
 "Replace specific text with different text\n"
 "Replace"
-msgstr "Aizvietot konkrētu tekstu ar citu tekstu\nAizvietot"
+msgstr ""
+"Aizvietot konkrētu tekstu ar citu tekstu\n"
+"Aizvietot"
 
 #. Resource IDs: (Dialog IDD_FIND: Control id 65535)
 msgid "Replace with:"
@@ -8158,9 +8112,7 @@ msgstr ""
 msgid "Replacing"
 msgstr "Aizvietošana"
 
-#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1374, Dialog IDD_COPY:
-#. Control id 1383, Dialog IDD_EXPORT: Control id 1383, Dialog IDD_IMPORT:
-#. Control id 1055)
+#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1374, Dialog IDD_COPY: Control id 1383, Dialog IDD_EXPORT: Control id 1383, Dialog IDD_IMPORT: Control id 1055)
 msgid "Repository"
 msgstr "Repozitorijs"
 
@@ -8204,8 +8156,7 @@ msgstr ""
 msgid "Reset columns"
 msgstr "Pāriestatīt kolonnas"
 
-#. Resource IDs: (Dialog IDD_RESOLVE: Control id 207, IDS_PROGRS_CMD_RESOLVE,
-#. IDS_PROGRS_TITLE_RESOLVE)
+#. Resource IDs: (Dialog IDD_RESOLVE: Control id 207, IDS_PROGRS_CMD_RESOLVE, IDS_PROGRS_TITLE_RESOLVE)
 msgid "Resolve"
 msgstr "Atrisināt"
 
@@ -8226,7 +8177,9 @@ msgstr "Atrisināts"
 msgid ""
 "Resolved:\n"
 "%ls"
-msgstr "Atrisināts:\n%ls"
+msgstr ""
+"Atrisināts:\n"
+"%ls"
 
 #. Resource IDs: (IDS_MENUDESCRESOLVE)
 msgid "Resolves conflicted files"
@@ -8236,10 +8189,7 @@ msgstr "Atrisina konfliktējošos failus"
 msgid "Restore"
 msgstr "Atjaunot"
 
-#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 1097, Dialog
-#. IDD_SETTINGSCOLORS: Control id 1254, Dialog IDD_SETTINGSREVGRAPHCOLORS:
-#. Control id 1254, Dialog IDD_SETTINGSTBLAME: Control id 1254, Dialog
-#. IDD_SETTINGSUDIFF: Control id 1254)
+#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 1097, Dialog IDD_SETTINGSCOLORS: Control id 1254, Dialog IDD_SETTINGSREVGRAPHCOLORS: Control id 1254, Dialog IDD_SETTINGSTBLAME: Control id 1254, Dialog IDD_SETTINGSUDIFF: Control id 1254)
 msgid "Restore Default"
 msgstr "Atjaunot noklusēto"
 
@@ -8269,8 +8219,7 @@ msgstr ""
 msgid "Reverse merging %ld"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_REVERT: Control id 175, IDS_PROGRS_CMD_REVERT,
-#. IDS_PROGRS_TITLE_REVERT)
+#. Resource IDs: (Dialog IDD_REVERT: Control id 175, IDS_PROGRS_CMD_REVERT, IDS_PROGRS_TITLE_REVERT)
 msgid "Revert"
 msgstr "Atgriezt"
 
@@ -8305,12 +8254,7 @@ msgstr ""
 msgid "Reverts an addition to version control"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1375, Dialog
-#. IDD_EDITPROPEXTERNALSVALUE: Control id 1375, Dialog IDD_EDITPROPKEYWORDS:
-#. Control id 1593, Dialog IDD_EXPORT: Control id 1393, Dialog IDD_REVISION:
-#. Control id 1306, Dialog IDD_SWITCH: Control id 1306, Dialog IDD_UPDATE:
-#. Control id 65535, Dialog IDD_URLDIFF: Control id 1306, IDS_HEADER_REVISION,
-#. IDS_LOG_REVISION, IDS_STATUSLIST_COLREVISION)
+#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1375, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1375, Dialog IDD_EDITPROPKEYWORDS: Control id 1593, Dialog IDD_EXPORT: Control id 1393, Dialog IDD_REVISION: Control id 1306, Dialog IDD_SWITCH: Control id 1306, Dialog IDD_UPDATE: Control id 65535, Dialog IDD_URLDIFF: Control id 1306, IDS_HEADER_REVISION, IDS_LOG_REVISION, IDS_STATUSLIST_COLREVISION)
 msgid "Revision"
 msgstr "Revīzija"
 
@@ -8328,8 +8272,7 @@ msgstr "Revīzija %ld"
 msgid "Revision &graph"
 msgstr "Revīziju &grafiks"
 
-#. Resource IDs: (Dialog IDD_REVISIONGRAPH: Control id 182, Dialog
-#. IDD_SETTINGSREVGRAPH: Control id 296)
+#. Resource IDs: (Dialog IDD_REVISIONGRAPH: Control id 182, Dialog IDD_SETTINGSREVGRAPH: Control id 296)
 msgid "Revision Graph"
 msgstr "Revīziju grafiks"
 
@@ -8383,8 +8326,7 @@ msgid ""
 "%9!ls!"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_LOGCACHESTATISTICS: Control id 65535,
-#. IDS_LOG_FILTER_REVS, IDS_LOG_POPUP_CLIPBOARD_REVS)
+#. Resource IDs: (Dialog IDD_LOGCACHESTATISTICS: Control id 65535, IDS_LOG_FILTER_REVS, IDS_LOG_POPUP_CLIPBOARD_REVS)
 msgid "Revisions"
 msgstr "Revīzijas"
 
@@ -8510,7 +8452,8 @@ msgstr ""
 msgid ""
 "Sample log message to test the bugtraq: regex strings.\n"
 "\n"
-"Testing mentions of issues inside a text: Mention issue #55. Mention issues #77, #78.\n"
+"Testing mentions of issues inside a text: Mention issue #55. Mention issues "
+"#77, #78.\n"
 "\n"
 "Update issue #101\n"
 "Fixes issue #202\n"
@@ -8612,7 +8555,9 @@ msgstr "Saglabāt kā..."
 msgid ""
 "Save as\n"
 "You're asked where to save the file"
-msgstr "Saglabāt kā\nTiks jautāts, kur saglabāt failu"
+msgstr ""
+"Saglabāt kā\n"
+"Tiks jautāts, kur saglabāt failu"
 
 #. Resource IDs: (61699)
 #, c-format
@@ -8643,7 +8588,9 @@ msgstr ""
 msgid ""
 "Save the modified file\n"
 "Save file"
-msgstr "Saglabāt laboto failu\nSaglabāt failu"
+msgstr ""
+"Saglabāt laboto failu\n"
+"Saglabāt failu"
 
 #. Resource IDs: (IDS_PATCH_COPYTOCLIPBOARD)
 msgid "Save to clipboard"
@@ -8653,7 +8600,9 @@ msgstr ""
 msgid ""
 "Save\n"
 "Save the file with the conflict markers."
-msgstr "Saglabāt\nSaglabāt failu ar konfliktu atzīmēm."
+msgstr ""
+"Saglabāt\n"
+"Saglabāt failu ar konfliktu atzīmēm."
 
 #. Resource IDs: (IDS_ASKFORSAVE_TASK3)
 #, c-format
@@ -8687,11 +8636,7 @@ msgstr ""
 msgid "Scan"
 msgstr "Skenēt"
 
-#. Resource IDs: (Dialog IDD_BUGTRAQREGEXTESTER: Control id 1014, Dialog
-#. IDD_COMMITDLG: Control id 1014, Dialog IDD_COPY: Control id 1014, Dialog
-#. IDD_IMPORT: Control id 1017, Dialog IDD_INPUTDLG: Control id 1064, Dialog
-#. IDD_INPUTLOGDLG: Control id 1064, Dialog IDD_LOCK: Control id 1212, Dialog
-#. IDD_SHELVE: Control id 1014, Dialog IDD_UNSHELVE: Control id 1014)
+#. Resource IDs: (Dialog IDD_BUGTRAQREGEXTESTER: Control id 1014, Dialog IDD_COMMITDLG: Control id 1014, Dialog IDD_COPY: Control id 1014, Dialog IDD_IMPORT: Control id 1017, Dialog IDD_INPUTDLG: Control id 1064, Dialog IDD_INPUTLOGDLG: Control id 1064, Dialog IDD_LOCK: Control id 1212)
 msgid "Scintilla"
 msgstr ""
 
@@ -8728,11 +8673,7 @@ msgstr ""
 msgid "Select &All"
 msgstr "Iezīmēt &visus"
 
-#. Resource IDs: (Dialog IDD_ADD: Control id 1067, Dialog IDD_CREATEPATCH:
-#. Control id 1067, Dialog IDD_DELUNVERSIONED: Control id 1067, Dialog
-#. IDD_LOCK: Control id 1067, Dialog IDD_RESOLVE: Control id 1067, Dialog
-#. IDD_REVERT: Control id 1067, Dialog IDD_SHELVE: Control id 1067, Dialog
-#. IDD_UNLOCK: Control id 1067)
+#. Resource IDs: (Dialog IDD_ADD: Control id 1067, Dialog IDD_CREATEPATCH: Control id 1067, Dialog IDD_DELUNVERSIONED: Control id 1067, Dialog IDD_LOCK: Control id 1067, Dialog IDD_RESOLVE: Control id 1067, Dialog IDD_REVERT: Control id 1067, Dialog IDD_SHELVE: Control id 1067, Dialog IDD_UNLOCK: Control id 1067)
 msgid "Select / deselect &all"
 msgstr "Izvēlēties / neizvēlēties &visus"
 
@@ -8751,12 +8692,6 @@ msgstr "Izvēlēties SSH klientu"
 #. Resource IDs: (61717)
 msgid "Select a button."
 msgstr "Izvēlieties pogu."
-
-#. Resource IDs: (Dialog IDD_SHELVE: Control id 1679)
-msgid ""
-"Select an existing shelf to create a new version, or enter a new name to "
-"create a new shelf"
-msgstr ""
 
 #. Resource IDs: (57346)
 msgid "Select an object on which to get Help"
@@ -8906,8 +8841,7 @@ msgstr ""
 msgid "Setting properties..."
 msgstr "Iestata īpašības..."
 
-#. Resource IDs: (IDS_SETTINGSTITLE, ID_VIEW_OPTIONS - Menu,
-#. cmdSettings_LabelTitle_RESID)
+#. Resource IDs: (IDS_SETTINGSTITLE, ID_VIEW_OPTIONS - Menu, cmdSettings_LabelTitle_RESID)
 msgid "Settings"
 msgstr "Iestatījumi"
 
@@ -8919,13 +8853,7 @@ msgstr "Iestatījumi - TortoiseSVN"
 msgid "Shall I update the working copy and retry?"
 msgstr ""
 
-#. Resource IDs: (IDS_SHELF_INFO_LABEL)
-#, c-format
-msgid "Shelf \"%s\" has %ld version(s)"
-msgstr ""
-
-#. Resource IDs: (Dialog IDD_SETTINGSOVERLAY: Control id 1270,
-#. IDS_STATUSLIST_CONTEXT_SHELL)
+#. Resource IDs: (Dialog IDD_SETTINGSOVERLAY: Control id 1270, IDS_STATUSLIST_CONTEXT_SHELL)
 msgid "Shell"
 msgstr "Čaula"
 
@@ -8937,17 +8865,8 @@ msgstr ""
 msgid "Shelve"
 msgstr ""
 
-#. Resource IDs: (IDS_SHELF_BTN_TT)
-msgid "Shelve the selected files and revert the changes."
-msgstr ""
-
 #. Resource IDs: (IDS_MENUSHELVE)
 msgid "Shelve..."
-msgstr ""
-
-#. Resource IDs: (IDS_SHELF_SHELVING)
-#, c-format
-msgid "Shelving to \"%s\""
 msgstr ""
 
 #. Resource IDs: (32822)
@@ -9007,13 +8926,7 @@ msgstr ""
 msgid "Show &locks"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1228, Dialog
-#. IDD_EDITPROPEXTERNALSVALUE: Control id 1228, Dialog IDD_EXPORT: Control id
-#. 1228, Dialog IDD_MERGEWIZARD_REVRANGE: Control id 1420, Dialog
-#. IDD_MERGEWIZARD_TREE: Control id 1031, Dialog IDD_PROPPAGE: Control id
-#. 1016, Dialog IDD_SWITCH: Control id 1132, Dialog IDD_UPDATE: Control id
-#. 1132, Dialog IDD_URLDIFF: Control id 1132, IDS_MENULOG,
-#. IDS_REPOBROWSE_SHOWLOG, ID_SHOWLOG - Menu)
+#. Resource IDs: (Dialog IDD_CHECKOUT: Control id 1228, Dialog IDD_EDITPROPEXTERNALSVALUE: Control id 1228, Dialog IDD_EXPORT: Control id 1228, Dialog IDD_MERGEWIZARD_REVRANGE: Control id 1420, Dialog IDD_MERGEWIZARD_TREE: Control id 1031, Dialog IDD_PROPPAGE: Control id 1016, Dialog IDD_SWITCH: Control id 1132, Dialog IDD_UPDATE: Control id 1132, Dialog IDD_URLDIFF: Control id 1132, IDS_MENULOG, IDS_REPOBROWSE_SHOWLOG, ID_SHOWLOG - Menu)
 msgid "Show &log"
 msgstr "&Parādīt žurnālu"
 
@@ -9025,8 +8938,7 @@ msgstr "&Parādīt žurnālu..."
 msgid "Show &overlays and context menu only in explorer"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1073, Dialog
-#. IDD_CREATEPATCH: Control id 1073)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1073, Dialog IDD_CREATEPATCH: Control id 1073)
 msgid "Show &unversioned files"
 msgstr ""
 
@@ -9062,8 +8974,7 @@ msgstr "Rādīt &pārskatu"
 msgid "Show WC &modifications"
 msgstr ""
 
-#. Resource IDs: (ID_VIEW_WHITESPACES - Menu,
-#. cmdShowWhitespaces_LabelTitle_RESID)
+#. Resource IDs: (ID_VIEW_WHITESPACES - Menu, cmdShowWhitespaces_LabelTitle_RESID)
 msgid "Show Whitespaces"
 msgstr "Parādīt atstarpes"
 
@@ -9095,8 +9006,7 @@ msgstr ""
 msgid "Show externals from &different repositories"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MERGEWIZARD_REVRANGE: Control id 1037, Dialog
-#. IDD_MERGEWIZARD_TREE: Control id 1034)
+#. Resource IDs: (Dialog IDD_MERGEWIZARD_REVRANGE: Control id 1037, Dialog IDD_MERGEWIZARD_TREE: Control id 1034)
 msgid "Show l&og"
 msgstr "Rādīt ž&urnālu"
 
@@ -9104,8 +9014,7 @@ msgstr "Rādīt ž&urnālu"
 msgid "Show linenumber&s"
 msgstr "Rādīt rindu numurus"
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1132, Dialog
-#. IDD_MERGEWIZARD_TREE: Control id 1037)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1132, Dialog IDD_MERGEWIZARD_TREE: Control id 1037)
 msgid "Show lo&g"
 msgstr "Rādīt ž&urnālu"
 
@@ -9186,8 +9095,8 @@ msgstr ""
 #. Resource IDs: (IDS_LOG_LOGINFOSTRING)
 #, c-format
 msgid ""
-"Showing %1!ld! revision(s), from revision %2!ld! to revision %3!ld! - %4!ld!"
-" revision(s) selected, showing %5!ld! changed paths"
+"Showing %1!ld! revision(s), from revision %2!ld! to revision %3!ld! - %4!ld! "
+"revision(s) selected, showing %5!ld! changed paths"
 msgstr ""
 
 #. Resource IDs: (IDS_REVGRAPH_STATUSBARNUMNODES)
@@ -9212,8 +9121,8 @@ msgstr ""
 
 #. Resource IDs: (IDS_MENUDESCSHOWCHANGED)
 msgid ""
-"Shows all files which were changed since the last update, locally and in the"
-" repository"
+"Shows all files which were changed since the last update, locally and in the "
+"repository"
 msgstr ""
 
 #. Resource IDs: (32796)
@@ -9450,9 +9359,7 @@ msgstr ""
 msgid "Statistics"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSMISC: Control id 65535,
-#. IDS_SHELF_UNSHELVE_STATUSCOL, IDS_STATUSLIST_COLSTATUS,
-#. IDS_SVNACTION_STATUS)
+#. Resource IDs: (Dialog IDD_SETTINGSMISC: Control id 65535, IDS_STATUSLIST_COLSTATUS, IDS_SVNACTION_STATUS)
 msgid "Status"
 msgstr ""
 
@@ -9506,18 +9413,25 @@ msgstr ""
 #. Resource IDs: (IDS_LOG_FILTER_SUBSTRING_TT)
 msgid ""
 "Sub-string filter:\r\n"
-"* Specify one or more strings, separated by spaces. They will be evaluated left to right.\r\n"
-"* Put a - in front of a sub-string to exclude revisions that contain this sub-string.\r\n"
-"* Put a + in front of a sub-string to include revisions that may not match the filter so far.\r\n"
+"* Specify one or more strings, separated by spaces. They will be evaluated "
+"left to right.\r\n"
+"* Put a - in front of a sub-string to exclude revisions that contain this "
+"sub-string.\r\n"
+"* Put a + in front of a sub-string to include revisions that may not match "
+"the filter so far.\r\n"
 "* Enclose strings that contain spaces etc. with \".\r\n"
-"* Put a ! at the beginning of the line to invert the whole filter condition.\r\n"
+"* Put a ! at the beginning of the line to invert the whole filter condition."
+"\r\n"
 "\r\n"
 "Examples:\r\n"
 "myname  2008    : my commits of 2008\r\n"
-".h  -.cpp              : commits that changed headers but no implementations\r\n"
+".h  -.cpp              : commits that changed headers but no implementations"
+"\r\n"
 ".doc +.xls 2010  : commits from 2010 with .doc or .xls files in it\r\n"
-"\" \"                        : commits with spaces (ex. when searching in paths only)\r\n"
-"-\"\"show all\"\"        : commits that don't contain the string \"show all\"\r\n"
+"\" \"                        : commits with spaces (ex. when searching in "
+"paths only)\r\n"
+"-\"\"show all\"\"        : commits that don't contain the string \"show all"
+"\"\r\n"
 "!myname  .cpp    : everything but my commits to .cpp files"
 msgstr ""
 
@@ -9618,8 +9532,7 @@ msgid ""
 "Previous Pane"
 msgstr ""
 
-#. Resource IDs: (ID_VIEW_ONEWAYDIFF - Menu,
-#. cmdViewOneWayDiff_LabelTitle_RESID)
+#. Resource IDs: (ID_VIEW_ONEWAYDIFF - Menu, cmdViewOneWayDiff_LabelTitle_RESID)
 msgid "Switch between single and double pane view"
 msgstr ""
 
@@ -9629,8 +9542,7 @@ msgid ""
 "Switch between single and double pane view"
 msgstr ""
 
-#. Resource IDs: (ID_VIEW_SWITCHLEFT - Menu,
-#. cmdViewSwitchLeft_LabelTitle_RESID)
+#. Resource IDs: (ID_VIEW_SWITCHLEFT - Menu, cmdViewSwitchLeft_LabelTitle_RESID)
 msgid "Switch left and right view"
 msgstr "Samainīt kreiso un labo skatu"
 
@@ -9700,8 +9612,7 @@ msgstr ""
 msgid "TORTOISEIDIFF"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSTBLAME: Control id 65535, Dialog
-#. IDD_SETTINGSUDIFF: Control id 65535)
+#. Resource IDs: (Dialog IDD_SETTINGSTBLAME: Control id 65535, Dialog IDD_SETTINGSUDIFF: Control id 65535)
 msgid "Tab size:"
 msgstr ""
 
@@ -9746,8 +9657,8 @@ msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_TWEAKTAGSCOLORS)
 msgid ""
-"The color of creation, copy and rename nodes of tags will be shifted towards"
-" yellow."
+"The color of creation, copy and rename nodes of tags will be shifted towards "
+"yellow."
 msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_TWEAKTRUNKCOLORS)
@@ -9831,7 +9742,10 @@ msgid ""
 "The file\n"
 "%ls\n"
 "is not a valid text file!"
-msgstr "Fails\n%ls\nnav derīgs teksta fails!"
+msgstr ""
+"Fails\n"
+"%ls\n"
+"nav derīgs teksta fails!"
 
 #. Resource IDs: (IDS_PROC_OVERWRITEEXPORT)
 #, c-format
@@ -9879,7 +9793,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_ERR_PATCH_NOEQUATIONCHARLINE)
 #, c-format
-msgid "The line '====' was expected in line %d!"
+msgid "The line '====' was expected in line %d !"
 msgstr ""
 
 #. Resource IDs: (IDS_ERR_PATCH_NOINDEX)
@@ -9890,7 +9804,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_ERR_PATCH_NOADDFILELINE)
 #, c-format
-msgid "The line indicating the new file was expected in line %d!"
+msgid "The line indicating the new file was expected in line %d !"
 msgstr ""
 
 #. Resource IDs: (IDS_GOTO_OUTOFRANGE)
@@ -9950,7 +9864,8 @@ msgid ""
 "The path/URL you've entered seems to be illegal on Windows!\n"
 "You can try it anyway, but you might get an error later.\n"
 "\n"
-"A valid path on windows must not contain '<>|\"?*:' or one of the following device names:\n"
+"A valid path on windows must not contain '<>|\"?*:' or one of the following "
+"device names:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$\n"
 "\n"
 "Do you want to proceed anyway?"
@@ -9984,7 +9899,9 @@ msgstr ""
 msgid ""
 "The returned error was:\n"
 "%ls"
-msgstr "Atgrieztā kļūda bija:\n%ls"
+msgstr ""
+"Atgrieztā kļūda bija:\n"
+"%ls"
 
 #. Resource IDs: (IDS_PROGRS_REVERTMARKERS)
 msgid ""
@@ -10080,8 +9997,10 @@ msgstr ""
 
 #. Resource IDs: (IDS_COMMITDLG_EXTERNALS)
 msgid ""
-"There are changes or unversioned items inside one or more directories which you have included with svn:externals.\n"
-"Those files are not listed for commit. You need to commit those files separately."
+"There are changes or unversioned items inside one or more directories which "
+"you have included with svn:externals.\n"
+"Those files are not listed for commit. You need to commit those files "
+"separately."
 msgstr ""
 
 #. Resource IDs: (IDS_SETTINGS_OVERLAYINFO)
@@ -10107,7 +10026,8 @@ msgid ""
 "There are still unresolved conflicts in line %d!\n"
 "You should resolve those conflicts first before saving.\n"
 "Do you want to save the file with the conflicts still there?\n"
-"If you click YES, then you have to manually resolve the conflicts in another editor!"
+"If you click YES, then you have to manually resolve the conflicts in another "
+"editor!"
 msgstr ""
 
 #. Resource IDs: (IDS_WARNMODIFIEDLOOSECHANGES)
@@ -10122,9 +10042,7 @@ msgid ""
 "Do you want to see the cached data instead?\n"
 "\n"
 "Please understand that the cached data may be outdated,\n"
-"incomplete or even misleading due to incomplete history data.\n"
-"\n"
-"The error was:"
+"incomplete or even misleading due to incomplete history data."
 msgstr ""
 
 #. Resource IDs: (IDS_ERR_NOTHINGTOADD)
@@ -10167,19 +10085,22 @@ msgstr ""
 
 #. Resource IDs: (IDS_SVNERR_POSTCOMMITHOOKFAILED)
 msgid ""
-"This error was generated by a custom post-commit hook script on the Subversion server.\n"
+"This error was generated by a custom post-commit hook script on the "
+"Subversion server.\n"
 "Please contact your server administrator for help with resolving this issue."
 msgstr ""
 
 #. Resource IDs: (IDS_SVNERR_POSTLOCKHOOKFAILED)
 msgid ""
-"This error was generated by a custom post-lock hook script on the Subversion server.\n"
+"This error was generated by a custom post-lock hook script on the Subversion "
+"server.\n"
 "Please contact your server administrator for help with resolving this issue."
 msgstr ""
 
 #. Resource IDs: (IDS_SVNERR_POSTUNLOCKHOOKFAILED)
 msgid ""
-"This error was generated by a custom post-unlock hook script on the Subversion server.\n"
+"This error was generated by a custom post-unlock hook script on the "
+"Subversion server.\n"
 "Please contact your server administrator for help with resolving this issue."
 msgstr ""
 
@@ -10196,7 +10117,8 @@ msgstr ""
 #. Resource IDs: (IDS_ERR_NOVALIDPATH)
 msgid ""
 "This is not a valid path!\n"
-"A valid path must not contain '<>|\"?*:' or one of the following device names:\n"
+"A valid path must not contain '<>|\"?*:' or one of the following device "
+"names:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$"
 msgstr ""
 
@@ -10221,8 +10143,8 @@ msgstr ""
 
 #. Resource IDs: (Dialog IDD_ABOUT: Control id 1531)
 msgid ""
-"This product includes software from Apache™ Subversion® "
-"(https://subversion.apache.org)"
+"This product includes software from Apache™ Subversion® (https://subversion."
+"apache.org)"
 msgstr ""
 
 #. Resource IDs: (61710)
@@ -10234,8 +10156,7 @@ msgstr ""
 
 #. Resource IDs: (61709)
 #, c-format
-msgid ""
-"This program requires the file %Ts, which was not found on this system."
+msgid "This program requires the file %Ts, which was not found on this system."
 msgstr ""
 
 #. Resource IDs: (IDS_ERR_PROPNOTONFILE)
@@ -10255,7 +10176,8 @@ msgstr ""
 #. Resource IDs: (IDS_HOOKS_APPROVE_TASK1)
 #, c-format
 msgid ""
-"This working copy has a client-side hook script configured. Do you want this script to run?\n"
+"This working copy has a client-side hook script configured. Do you want this "
+"script to run?\n"
 "The command line to run is:\n"
 "%ls"
 msgstr ""
@@ -10283,12 +10205,13 @@ msgstr ""
 
 #. Resource IDs: (IDS_SVNPROGRESS_LOCKHINT)
 msgid ""
-"To steal the lock, right-click on the parent folder of this item and select 'Get Lock' from the context menu.\n"
-"This will bring up the locking dialog where you can enforce the lock, i.e., 'steal' it from the one currently holding it."
+"To steal the lock, right-click on the parent folder of this item and select "
+"'Get Lock' from the context menu.\n"
+"This will bring up the locking dialog where you can enforce the lock, i.e., "
+"'steal' it from the one currently holding it."
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_LOGMESSAGE: Control id 1201, Dialog
-#. IDD_REVGRAPHFILTER: Control id 65535)
+#. Resource IDs: (Dialog IDD_LOGMESSAGE: Control id 1201, Dialog IDD_REVGRAPHFILTER: Control id 65535)
 msgid "To:"
 msgstr ""
 
@@ -10302,7 +10225,9 @@ msgid ""
 "TortoiseProc.exe /command:blame /path:\"path\\to\\file\"\n"
 "instead.\n"
 "\n"
-"TortoiseBlame.exe blamefile [logfile [viewtitle]] [/line:linenumber] [/path:originalpath] [/pegrev:peg] [/revrange:text] [/ignoreeol] [/ignorespaces] [/ignoreallspaces]"
+"TortoiseBlame.exe blamefile [logfile [viewtitle]] [/line:linenumber] [/path:"
+"originalpath] [/pegrev:peg] [/revrange:text] [/ignoreeol] [/ignorespaces] [/"
+"ignoreallspaces]"
 msgstr ""
 
 #. Resource IDs: (Dialog IDD_ABOUT: Control id 153, IDS_APP_TITLE)
@@ -10327,8 +10252,7 @@ msgid ""
 "/showinfo\t\tto show the image info boxes"
 msgstr ""
 
-#. Resource IDs: (100, 32897, 57344, Dialog IDD_OPENDLG: Control id 130,
-#. IDS_APPNAME)
+#. Resource IDs: (100, 32897, 57344, Dialog IDD_OPENDLG: Control id 130, IDS_APPNAME)
 msgid "TortoiseMerge"
 msgstr ""
 
@@ -10392,7 +10316,9 @@ msgstr ""
 #. Resource IDs: (IDS_RECYCLEBINSLOWDOWN)
 #, c-format
 msgid ""
-"TortoiseSVN detected a serious slowdown when moving %1!ld! items to the recycle bin. The recycle bin currently contains %2!ld! items, which most likely is the reason for this slowdown.\n"
+"TortoiseSVN detected a serious slowdown when moving %1!ld! items to the "
+"recycle bin. The recycle bin currently contains %2!ld! items, which most "
+"likely is the reason for this slowdown.\n"
 "To fix this, you should empty the recycle bin now."
 msgstr ""
 
@@ -10407,7 +10333,8 @@ msgstr ""
 msgid ""
 "TortoiseSVN is a shell extension.\n"
 "That means it is integrated into the Windows explorer.\n"
-"To use TortoiseSVN please open the explorer and right-click on any folder you like\n"
+"To use TortoiseSVN please open the explorer and right-click on any folder "
+"you like\n"
 "to bring up the context menu where you will find all TortoiseSVN commands.\n"
 "And read the manual!"
 msgstr ""
@@ -10486,8 +10413,7 @@ msgstr ""
 msgid "U&pdate"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_EDITPROPKEYWORDS: Control id 1594, Dialog
-#. IDD_URL: Control id 164, IDS_STATUSLIST_COLURL)
+#. Resource IDs: (Dialog IDD_EDITPROPKEYWORDS: Control id 1594, Dialog IDD_URL: Control id 164, IDS_STATUSLIST_COLURL)
 msgid "URL"
 msgstr ""
 
@@ -10503,17 +10429,12 @@ msgstr ""
 msgid "URL to merge &from"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_PROPPAGE: Control id 11023, Dialog IDD_PROPPAGE:
-#. Control id 65535)
+#. Resource IDs: (Dialog IDD_PROPPAGE: Control id 11023, Dialog IDD_PROPPAGE: Control id 65535)
 msgid "URL:"
 msgstr ""
 
 #. Resource IDs: (IDS_REPO_BROWSEURL)
 msgid "URL: "
-msgstr ""
-
-#. Resource IDs: (IDS_LOG_POPUP_CLIPBOARD_URLREV)
-msgid "URLs with revision"
 msgstr ""
 
 #. Resource IDs: (Dialog IDD_CHANGEDFILES: Control id 1209)
@@ -10553,7 +10474,8 @@ msgstr ""
 msgid ""
 "Unable to reconstruct working copy path!\n"
 "This can happen if the file has been renamed.\n"
-"Please start the log dialog on this specific file alone and then revert the changes\n"
+"Please start the log dialog on this specific file alone and then revert the "
+"changes\n"
 "from the top pane in the log dialog."
 msgstr ""
 
@@ -10592,7 +10514,9 @@ msgstr ""
 msgid ""
 "Undo the last modifications\n"
 "Undo"
-msgstr "Anulēt pēdējās izmaiņas\nAnulēt"
+msgstr ""
+"Anulēt pēdējās izmaiņas\n"
+"Anulēt"
 
 #. Resource IDs: (61728)
 msgid "Unexpected file format."
@@ -10604,8 +10528,7 @@ msgid ""
 "text without any formatting"
 msgstr ""
 
-#. Resource IDs: (IDS_REVGRAPH_POPUP_UNIDIFFHEADS,
-#. ID_VIEW_UNIFIEDDIFFOFHEADREVISIONS - Menu)
+#. Resource IDs: (IDS_REVGRAPH_POPUP_UNIDIFFHEADS, ID_VIEW_UNIFIEDDIFFOFHEADREVISIONS - Menu)
 msgid "Unified &diff of HEAD revisions"
 msgstr ""
 
@@ -10629,8 +10552,7 @@ msgstr ""
 msgid "Unknown failure in SVN::List"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_UNLOCK: Control id 242, IDS_PROGRS_CMD_UNLOCK,
-#. IDS_PROGRS_TITLE_UNLOCK)
+#. Resource IDs: (Dialog IDD_UNLOCK: Control id 242, IDS_PROGRS_CMD_UNLOCK, IDS_PROGRS_TITLE_UNLOCK)
 msgid "Unlock"
 msgstr ""
 
@@ -10701,8 +10623,7 @@ msgstr ""
 msgid "Up one folder"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_UPDATE: Control id 152, IDS_PROGRS_CMD_UPDATE,
-#. IDS_PROGRS_TITLE_UPDATE)
+#. Resource IDs: (Dialog IDD_UPDATE: Control id 152, IDS_PROGRS_TITLE_UPDATE)
 msgid "Update"
 msgstr ""
 
@@ -10721,6 +10642,11 @@ msgstr ""
 #. Resource IDs: (IDS_DROPEXT_UPDATE_TASK2)
 msgid "Update externals"
 msgstr ""
+
+#. Resource IDs: (IDS_PROGRS_CMD_UPDATE)
+#, fuzzy, c-format
+msgid "Update from %1!ls!"
+msgstr "Nokopēts no: %1!ls!@%2!ld!\r\n"
 
 #. Resource IDs: (IDS_SVNACTION_UPDATE)
 msgid "Updated"
@@ -10760,8 +10686,7 @@ msgid ""
 "to the new 1.8 format."
 msgstr ""
 
-#. Resource IDs: (IDS_MENUUPGRADE, IDS_PROC_UPGRADE,
-#. IDS_PROC_UPGRADECONFIRMATION_TASK2)
+#. Resource IDs: (IDS_MENUUPGRADE, IDS_PROC_UPGRADE, IDS_PROC_UPGRADECONFIRMATION_TASK2)
 msgid "Upgrade working copy"
 msgstr ""
 
@@ -10797,18 +10722,15 @@ msgstr ""
 msgid "Use 'mine' text block"
 msgstr "Izmantot 'manu' teksta bloku"
 
-#. Resource IDs: (ID_EDIT_USEMINETHENTHEIRBLOCK - Menu,
-#. cmdUseMineThenTheirsBlock_LabelTitle_RESID)
+#. Resource IDs: (ID_EDIT_USEMINETHENTHEIRBLOCK - Menu, cmdUseMineThenTheirsBlock_LabelTitle_RESID)
 msgid "Use 'mine' text block then 'theirs'"
 msgstr "Izmantot 'manu' teksta bloku, pēc tam 'viņu'"
 
-#. Resource IDs: (ID_EDIT_USETHEIRBLOCK - Menu,
-#. cmdUseTheirsBlock_LabelTitle_RESID)
+#. Resource IDs: (ID_EDIT_USETHEIRBLOCK - Menu, cmdUseTheirsBlock_LabelTitle_RESID)
 msgid "Use 'theirs' text block"
 msgstr "Izmantot 'viņu' teksta bloku"
 
-#. Resource IDs: (ID_EDIT_USETHEIRTHENMYBLOCK - Menu,
-#. cmdUseTheirsThenMineBlock_LabelTitle_RESID)
+#. Resource IDs: (ID_EDIT_USETHEIRTHENMYBLOCK - Menu, cmdUseTheirsThenMineBlock_LabelTitle_RESID)
 msgid "Use 'theirs' text block then 'mine'"
 msgstr "Izmantot 'viņu' teksta bloku, pēc tam 'manu'"
 
@@ -10834,8 +10756,7 @@ msgid ""
 "Use left file"
 msgstr ""
 
-#. Resource IDs: (ID_EDIT_USEBLOCKFROMLEFTBEFORERIGHT - Menu,
-#. cmdUseBlockFromLeftBeforeRight_LabelTitle_RESID)
+#. Resource IDs: (ID_EDIT_USEBLOCKFROMLEFTBEFORERIGHT - Menu, cmdUseBlockFromLeftBeforeRight_LabelTitle_RESID)
 msgid "Use block from left before right"
 msgstr ""
 
@@ -10845,8 +10766,7 @@ msgid ""
 "Use block from left before right"
 msgstr ""
 
-#. Resource IDs: (ID_EDIT_USEBLOCKFROMRIGHTBEFORELEFT - Menu,
-#. cmdUseBlockFromRightBeforeLeft_LabelTitle_RESID)
+#. Resource IDs: (ID_EDIT_USEBLOCKFROMRIGHTBEFORELEFT - Menu, cmdUseBlockFromRightBeforeLeft_LabelTitle_RESID)
 msgid "Use block from right before left"
 msgstr ""
 
@@ -10864,8 +10784,7 @@ msgstr ""
 msgid "Use both text blocks (this one last)"
 msgstr ""
 
-#. Resource IDs: (ID_EDIT_USELEFTBLOCK - Menu,
-#. cmdUseLeftBlock_LabelTitle_RESID)
+#. Resource IDs: (ID_EDIT_USELEFTBLOCK - Menu, cmdUseLeftBlock_LabelTitle_RESID)
 msgid "Use left block"
 msgstr "Izmantot kreiso bloku"
 
@@ -10953,7 +10872,9 @@ msgstr ""
 
 #. Resource IDs: (IDS_MERGEWIZARD_REVRANGESTRING)
 msgid ""
-"Use the log dialog to select the revisions you want to merge, or enter the revisions to merge, separated by commas. A revision range can be specified by a dash.\r\n"
+"Use the log dialog to select the revisions you want to merge, or enter the "
+"revisions to merge, separated by commas. A revision range can be specified "
+"by a dash.\r\n"
 "\r\n"
 "Example: 4-7,9,11,15-HEAD@pegrevision\r\n"
 "\r\n"
@@ -10992,8 +10913,7 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535,
-#. IDS_AUTH_USERNAME)
+#. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535, IDS_AUTH_USERNAME)
 msgid "Username:"
 msgstr ""
 
@@ -11040,14 +10960,8 @@ msgstr ""
 msgid "Vendor branch"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_ABOUT: Control id 1004, Dialog IDD_ABOUT: Control
-#. id 1075)
+#. Resource IDs: (Dialog IDD_ABOUT: Control id 1004, Dialog IDD_ABOUT: Control id 1075)
 msgid "Version"
-msgstr ""
-
-#. Resource IDs: (IDS_SHELF_VERSION_TIME)
-#, c-format
-msgid "Version %d - %s"
 msgstr ""
 
 #. Resource IDs: (IDS_VERSION)
@@ -11110,8 +11024,7 @@ msgstr "WC mezgla robeža"
 msgid "Wait"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_EDITPROPLOCALHOOKS: Control id 1327, Dialog
-#. IDD_SETTINGSHOOKCONFIG: Control id 1327)
+#. Resource IDs: (Dialog IDD_EDITPROPLOCALHOOKS: Control id 1327, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1327)
 msgid "Wait for the script to finish"
 msgstr ""
 
@@ -11172,19 +11085,15 @@ msgstr ""
 msgid "Whitespace changes (tabs, spaces)"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535,
-#. cmdGroupWhitespaces_LabelTitle_RESID)
+#. Resource IDs: (Dialog IDD_SETCOLORPAGE: Control id 65535, cmdGroupWhitespaces_LabelTitle_RESID)
 msgid "Whitespaces"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_CHANGEDFILES: Control id 158, Dialog
-#. IDD_MERGEWIZARD_REVRANGE: Control id 1493, Dialog IDD_MERGEWIZARD_TREE:
-#. Control id 1496)
+#. Resource IDs: (Dialog IDD_CHANGEDFILES: Control id 158, Dialog IDD_MERGEWIZARD_REVRANGE: Control id 1493, Dialog IDD_MERGEWIZARD_TREE: Control id 1496)
 msgid "Working Copy"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQADV: Control id 1472, Dialog
-#. IDD_SETTINGSHOOKCONFIG: Control id 1335)
+#. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQADV: Control id 1472, Dialog IDD_SETTINGSHOOKCONFIG: Control id 1335)
 msgid "Working Copy Path:"
 msgstr ""
 
@@ -11229,7 +11138,8 @@ msgstr ""
 #. Resource IDs: (Dialog IDD_SETTINGSOVERLAYHANDLERS: Control id 65535)
 msgid ""
 "You can disable specific Overlay handlers here.\n"
-"Disabled handlers won't use up an overlay slot and give other shell extensions a chance to show their overlays."
+"Disabled handlers won't use up an overlay slot and give other shell "
+"extensions a chance to show their overlays."
 msgstr ""
 
 #. Resource IDs: (IDS_ERR_EDIT_LIMIT_REACHED)
@@ -11248,7 +11158,8 @@ msgstr ""
 #. Resource IDs: (IDS_REPOBROWSE_MULTIIMPORT_TASK1)
 msgid ""
 "You dropped more than one file or folder to add to the repository.\n"
-"It's not possible to do that in one step, so TortoiseSVN will add each file/folder\n"
+"It's not possible to do that in one step, so TortoiseSVN will add each file/"
+"folder\n"
 "individually, creating a new revision for every added item."
 msgstr ""
 
@@ -11295,13 +11206,15 @@ msgid ""
 "'%2!ls!'\n"
 "already exists.\n"
 "\n"
-"It seems the item got renamed outside Subversion but only with case changes.\n"
+"It seems the item got renamed outside Subversion but only with case "
+"changes.\n"
 "Do you really want to add it?"
 msgstr ""
 
 #. Resource IDs: (IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK2)
 msgid ""
-"You've committed changes to external item that is tagged to a specific revision.\n"
+"You've committed changes to external item that is tagged to a specific "
+"revision.\n"
 "Do you want to change the tagged revision now to the just committed revision?"
 msgstr ""
 
@@ -11476,7 +11389,8 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_BQAPPEND)
 msgid ""
 "bugtraq:append\r\n"
-"Set to 'false' if you want the bugtracking ID to be inserted at the top of the\r\n"
+"Set to 'false' if you want the bugtracking ID to be inserted at the top of "
+"the\r\n"
 "log message. The default is 'true' which means the bugtracking ID\r\n"
 "is appended to the log message."
 msgstr ""
@@ -11499,14 +11413,16 @@ msgstr ""
 #, c-format
 msgid ""
 "bugtraq:message\r\n"
-"String which is appended to a log message when an issue number is entered.\r\n"
+"String which is appended to a log message when an issue number is entered."
+"\r\n"
 "The string must contain '%BUGID%' which gets replaced with the issue number."
 msgstr ""
 
 #. Resource IDs: (IDS_PROP_TT_BQNUMBER)
 msgid ""
 "bugtraq:number\r\n"
-"Set to 'false' if your bugtracking system has issues which are referenced not by numbers."
+"Set to 'false' if your bugtracking system has issues which are referenced "
+"not by numbers."
 msgstr ""
 
 #. Resource IDs: (IDS_PROP_TT_BQPROVIDERPARAMS)
@@ -11538,8 +11454,7 @@ msgstr ""
 msgid "column '%ls'"
 msgstr ""
 
-#. Resource IDs: (IDS_STATGRAPH_COMMITSBYAUTHORY,
-#. IDS_STATGRAPH_COMMITSBYDATEY)
+#. Resource IDs: (IDS_STATGRAPH_COMMITSBYAUTHORY, IDS_STATGRAPH_COMMITSBYDATEY)
 msgid "commits"
 msgstr ""
 
@@ -11677,8 +11592,8 @@ msgstr ""
 
 #. Resource IDs: (Dialog IDD_MONITORPROJECT: Control id 65535)
 msgid ""
-"leave username and password empty if the repository allows anonymous access,"
-" or if the authentication is stored already"
+"leave username and password empty if the repository allows anonymous access, "
+"or if the authentication is stored already"
 msgstr ""
 
 #. Resource IDs: (IDS_PROPLOCKED, IDS_SETTINGS_LOCKEDNAME)
@@ -11689,8 +11604,7 @@ msgstr ""
 msgid "locked (cleanup required):"
 msgstr "saslēgts (nepieciešama uzkopšana):"
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1539, Dialog IDD_COPY:
-#. Control id 1539)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1539, Dialog IDD_COPY: Control id 1539)
 msgid "log text &editor"
 msgstr ""
 
@@ -11706,8 +11620,7 @@ msgstr ""
 msgid "max. committed revision"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_SETTINGSCOLORS: Control id 65535,
-#. IDS_STATUSMERGED)
+#. Resource IDs: (Dialog IDD_SETTINGSCOLORS: Control id 65535, IDS_STATUSMERGED)
 msgid "merged"
 msgstr ""
 
@@ -11885,7 +11798,8 @@ msgstr "konkrēts &diapazons"
 #. Resource IDs: (IDS_PROP_TT_INHERITABLEAUTOPROPS)
 msgid ""
 "svn:auto-props\r\n"
-"A list of properties separated by newlines which get applied recursively automatically when adding/importing files.\r\n"
+"A list of properties separated by newlines which get applied recursively "
+"automatically when adding/importing files.\r\n"
 "Format: <filemask> = property=value;property=value\r\n"
 "Example: *.xml = svn:eol-style=native;svn:mime-type=text/xml"
 msgstr ""
@@ -11907,8 +11821,10 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_EXECUTABLE)
 msgid ""
 "svn:executable\r\n"
-"If present, make the file executable. This property cannot be set on a directory.\r\n"
-"A non-recursive attempt will fail, and a recursive attempt will set the property only on the file children of the directory."
+"If present, make the file executable. This property cannot be set on a "
+"directory.\r\n"
+"A non-recursive attempt will fail, and a recursive attempt will set the "
+"property only on the file children of the directory."
 msgstr ""
 
 #. Resource IDs: (Dialog IDD_EDITPROPEXTERNALS: Control id 318)
@@ -11919,7 +11835,8 @@ msgstr ""
 msgid ""
 "svn:externals\r\n"
 "A newline separated list of module specifiers, each of which consists of\r\n"
-"an optional revision, an URL with an optional peg revision and a relative directory path. For example\r\n"
+"an optional revision, an URL with an optional peg revision and a relative "
+"directory path. For example\r\n"
 "http://example.com/repos/zig foo\r\n"
 "-r 1234 http://example.com/repos/zag@1234 foo/bar\r\n"
 "\r\n"
@@ -11961,7 +11878,8 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_MERGEINFO)
 msgid ""
 "svn:mergeinfo\r\n"
-"A newline separated list of merge tracking info. Each line consists of an absolute\r\n"
+"A newline separated list of merge tracking info. Each line consists of an "
+"absolute\r\n"
 "path followed by a colon and a list of comma separated revision numbers.\r\n"
 "For example\r\n"
 "/trunk:123-125,129"
@@ -11974,8 +11892,10 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_MIMETYPE)
 msgid ""
 "svn:mime-type\r\n"
-"The mime type of the file. Used to determine whether to merge the file, and how to serve it from Apache.\r\n"
-"A mime type beginning with 'text/' (or an absent mime type) is treated as text.\r\n"
+"The mime type of the file. Used to determine whether to merge the file, and "
+"how to serve it from Apache.\r\n"
+"A mime type beginning with 'text/' (or an absent mime type) is treated as "
+"text.\r\n"
 "Anything else is treated as binary."
 msgstr ""
 
@@ -12040,7 +11960,8 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_TSVNAUTOPROPS)
 msgid ""
 "tsvn:autoprops\r\n"
-"A list of properties separated by newlines which get applied automatically when adding/importing files.\r\n"
+"A list of properties separated by newlines which get applied automatically "
+"when adding/importing files.\r\n"
 "Format: <filemask> = property=value;property=value\r\n"
 "Example: *.xml = svn:eol-style=native;svn:mime-type=text/xml"
 msgstr ""
@@ -12054,7 +11975,8 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_TSVNLOGFILELISTENGLISH)
 msgid ""
 "tsvn:logfilelistenglish\r\n"
-"Set to 'false' if you don't want the list of changed files to be pasted in English\r\n"
+"Set to 'false' if you don't want the list of changed files to be pasted in "
+"English\r\n"
 "in the commit dialog."
 msgstr ""
 
@@ -12073,7 +11995,8 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_TSVNLOGSUMMARY)
 msgid ""
 "tsvn:logsummary\r\n"
-"A regex string which extracts a summary from a log message in its first group."
+"A regex string which extracts a summary from a log message in its first "
+"group."
 msgstr ""
 
 #. Resource IDs: (IDS_PROP_TT_TSVNLOGTEMPLATE)
@@ -12087,7 +12010,8 @@ msgstr ""
 msgid ""
 "tsvn:logtemplatebranch\r\n"
 "String which is inserted in the log message boxes in the commit dialogs.\r\n"
-"Use this as a log message template for branch/tags/copies for users to fill in."
+"Use this as a log message template for branch/tags/copies for users to fill "
+"in."
 msgstr ""
 
 #. Resource IDs: (IDS_PROP_TT_TSVNLOGTEMPLATECOMMIT)
@@ -12114,7 +12038,8 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_TSVNLOGTEMPLATELOCK)
 msgid ""
 "tsvn:logtemplatelock\r\n"
-"String which is inserted in the log message boxes in the get-lock dialogs.\r\n"
+"String which is inserted in the log message boxes in the get-lock dialogs."
+"\r\n"
 "Use this as a log message template for get-locks for users to fill in."
 msgstr ""
 
@@ -12122,7 +12047,8 @@ msgstr ""
 msgid ""
 "tsvn:logtemplatemkdir\r\n"
 "String which is inserted in the log message boxes in the commit dialogs.\r\n"
-"Use this as a log message template for directory creations for users to fill in."
+"Use this as a log message template for directory creations for users to fill "
+"in."
 msgstr ""
 
 #. Resource IDs: (IDS_PROP_TT_TSVNLOGTEMPLATEMOVE)
@@ -12136,14 +12062,17 @@ msgstr ""
 msgid ""
 "tsvn:logtemplatepropset\r\n"
 "String which is inserted in the log message boxes in the commit dialogs.\r\n"
-"Use this as a log message template for property modifications for users to fill in."
+"Use this as a log message template for property modifications for users to "
+"fill in."
 msgstr ""
 
 #. Resource IDs: (IDS_PROP_TT_TSVNLOGWIDTHMARKER)
 msgid ""
 "tsvn:logwidthmarker\r\n"
-"Set this to the number of chars the log message should not exceed its width.\r\n"
-"A faded line is shown in the commit dialogs at that position. The default is 80 chars."
+"Set this to the number of chars the log message should not exceed its width."
+"\r\n"
+"A faded line is shown in the commit dialogs at that position. The default is "
+"80 chars."
 msgstr ""
 
 #. Resource IDs: (IDS_PROP_TT_TSVNPROJECTLANGUAGE)
@@ -12156,15 +12085,15 @@ msgstr ""
 #. Resource IDs: (IDS_PROP_TT_BQWARNNOISSUE)
 msgid ""
 "tsvn:warnifnoissue\r\n"
-"Set to 'yes' if a warning shall be shown when no issue is entered in the commit dialog."
+"Set to 'yes' if a warning shall be shown when no issue is entered in the "
+"commit dialog."
 msgstr ""
 
 #. Resource IDs: (Dialog IDD_LOGCACHESTATISTICS: Control id 65535)
 msgid "user revprops total: "
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_EDITPROPUSERBOOL: Control id 1562, Dialog
-#. IDD_EDITPROPUSERBOOL: Control id 336)
+#. Resource IDs: (Dialog IDD_EDITPROPUSERBOOL: Control id 1562, Dialog IDD_EDITPROPUSERBOOL: Control id 336)
 msgid "user:bool"
 msgstr ""
 
@@ -12176,9 +12105,7 @@ msgstr ""
 msgid "user:singleline"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_EDITPROPUSERSTATE: Control id 1622, Dialog
-#. IDD_EDITPROPUSERSTATE: Control id 1623, Dialog IDD_EDITPROPUSERSTATE:
-#. Control id 1624, Dialog IDD_EDITPROPUSERSTATE: Control id 337)
+#. Resource IDs: (Dialog IDD_EDITPROPUSERSTATE: Control id 1622, Dialog IDD_EDITPROPUSERSTATE: Control id 1623, Dialog IDD_EDITPROPUSERSTATE: Control id 1624, Dialog IDD_EDITPROPUSERSTATE: Control id 337)
 msgid "user:state"
 msgstr ""
 
@@ -12194,16 +12121,19 @@ msgstr ""
 #, c-format
 msgid ""
 "webviewer:pathrevision\r\n"
-"URL pointing to the web viewer for the repository for a specific file and revision.\r\n"
+"URL pointing to the web viewer for the repository for a specific file and "
+"revision.\r\n"
 "The string %REVISION% in the URL is replaced with the revision number,\r\n"
-"the string %PATH% is replaced with the path to the file relative to the repository root."
+"the string %PATH% is replaced with the path to the file relative to the "
+"repository root."
 msgstr ""
 
 #. Resource IDs: (IDS_PROP_TT_WEBVIEWERREVISION)
 #, c-format
 msgid ""
 "webviewer:revision\r\n"
-"URL pointing to the web viewer for the repository for a specific revision.\r\n"
+"URL pointing to the web viewer for the repository for a specific revision."
+"\r\n"
 "The string %REVISION% in that URL is replaced with the revision number."
 msgstr ""
 
@@ -12231,13 +12161,10 @@ msgstr "gads"
 msgid "years"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_PROPPAGE: Control id 1002, Dialog IDD_PROPPAGE:
-#. Control id 1011, Dialog IDD_PROPPAGE: Control id 1012, Dialog IDD_PROPPAGE:
-#. Control id 1013, IDS_YES)
+#. Resource IDs: (Dialog IDD_PROPPAGE: Control id 1002, Dialog IDD_PROPPAGE: Control id 1011, Dialog IDD_PROPPAGE: Control id 1012, Dialog IDD_PROPPAGE: Control id 1013, IDS_YES)
 msgid "yes"
 msgstr "jā"
 
-#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1382, Dialog IDD_COPY:
-#. Control id 1382, Dialog IDD_INPUTLOGDLG: Control id 1382)
+#. Resource IDs: (Dialog IDD_COMMITDLG: Control id 1382, Dialog IDD_COPY: Control id 1382, Dialog IDD_INPUTLOGDLG: Control id 1382)
 msgid "{BugTraq}"
 msgstr ""

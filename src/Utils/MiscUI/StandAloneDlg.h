@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,8 +26,7 @@
 #include "Tooltip.h"
 #include "CommonDialogFunctions.h"
 #include "CommonAppUtils.h"
-#include "LoadIconEx.h"
-#include "EditWordBreak.h"
+
 #include <Dwmapi.h>
 #pragma comment(lib, "Dwmapi.lib")
 #pragma comment(lib, "htmlhelp.lib")
@@ -88,10 +87,6 @@ protected:
         m_width = rect.right - rect.left;
         EnableToolTips();
         m_tooltips.Create(this);
-
-        auto CustomBreak = (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\UseCustomWordBreak", 2);
-        if (CustomBreak)
-            SetUrlWordBreakProcToChildWindows(GetSafeHwnd(), CustomBreak == 2);
 
         return FALSE;
     }
@@ -335,7 +330,7 @@ protected:
     }
     void SetBackgroundIcon(UINT idi, int width, int height)
     {
-        auto hIcon = LoadIconEx(AfxGetResourceHandle(), MAKEINTRESOURCE(idi), width, height);
+        HICON hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(idi), IMAGE_ICON, width, height, LR_DEFAULTCOLOR);
         SetBackgroundIcon(hIcon, width, height);
     }
     void BlockResize(int block)

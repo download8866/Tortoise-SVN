@@ -30,7 +30,6 @@
 #include "PreserveChdir.h"
 #include "OnOutOfScope.h"
 #include "DPIAware.h"
-#include "LoadIconEx.h"
 #include <WinInet.h>
 #include <oleacc.h>
 #include <initguid.h>
@@ -330,7 +329,7 @@ bool CCommonAppUtils::SetListCtrlBackgroundImage(HWND hListCtrl, UINT nID, int w
     ListView_SetTextBkColor(hListCtrl, CLR_NONE);
     COLORREF bkColor = ListView_GetBkColor(hListCtrl);
     // create a bitmap from the icon
-    auto hIcon = ::LoadIconEx(AfxGetResourceHandle(), MAKEINTRESOURCE(nID), width, height);
+    HICON hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(nID), IMAGE_ICON, width, height, LR_DEFAULTCOLOR);
     if (!hIcon)
         return false;
     OnOutOfScope(DestroyIcon(hIcon));
@@ -764,10 +763,10 @@ HRESULT CCommonAppUtils::EnableAutoComplete(HWND hWndEdit, LPWSTR szCurrentWorki
     return hr;
 }
 
-HICON CCommonAppUtils::LoadIconEx(UINT resourceId, UINT cx, UINT cy)
+HICON CCommonAppUtils::LoadIconEx(UINT resourceId, UINT cx, UINT cy, UINT fuLoad)
 {
-    return ::LoadIconEx(AfxGetResourceHandle(), MAKEINTRESOURCE(resourceId),
-                      cx, cy);
+    return (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(resourceId),
+                            IMAGE_ICON, cx, cy, fuLoad);
 }
 
 bool CCommonAppUtils::StartHtmlHelp(DWORD_PTR id)
