@@ -18,7 +18,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-12-15 12:36+0000\n"
+"PO-Revision-Date: 2019-01-07 00:14+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Finnish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "fi/)\n"
@@ -8952,15 +8952,15 @@ msgid ""
 "<guilabel>Merge</guilabel> and <guilabel>Blame</guilabel> dialogs, as well "
 "as in the settings for TortoiseMerge."
 msgstr ""
-"Jossain projektin elinkaaren vaiheessa saattaa tulla tarpeelliseksi muuttaa "
+"Jossain vaiheessa projektia saattaa tulla tarpeelliseksi muuttaa "
 "rivinloppumerkit <literal>CRLF</literal>-muodosta <literal>LF</literal>-"
 "muotoon. Saatat myös muuttaa jonkun lohkon sisennystä. Valitettavasti "
 "molemmat toimenpiteet merkitsevät suuren määrän rivejä muuttuneiksi, vaikka "
-"itse sisällön merkitys ei ole muuttunut. Seuraavat asetukset auttavat "
-"tällaisissa tilanteissa vertailtaessa ja sovellettaessa paikkatiedostoja. "
-"Valinnat löytyvät komentojen <guilabel>Yhdistä</guilabel> ja "
-"<guilabel>Selvitä tekijät</guilabel> yhteydestä, samoin kuin TortoiseMerge-"
-"työkalun asetuksista."
+"itse sisällön merkitys ei muutu. Seuraavat asetukset auttavat tällaisissa "
+"tilanteissa vertailtaessa ja sovellettaessa paikkatiedostoja. Valinnat "
+"löytyvät komentojen <guilabel>Yhdistä</guilabel> ja <guilabel>Selvitä "
+"tekijät</guilabel> yhteydestä, samoin kuin TortoiseMerge-työkalun "
+"asetuksista."
 
 #. (para)
 msgid ""
@@ -9351,10 +9351,10 @@ msgid ""
 "tool for free. Get more information from <ulink url=\"https://www.sourcegear."
 "com/diffmerge/\"><citetitle>SourceGear</citetitle></ulink>."
 msgstr ""
-"SourceGear Vault on kaupallinen versionhallintaohjelmisto, mutta voit hakea "
-"sen diff/merge -työkalun ilmaiseksi. Lisätietoa osoitteessa <ulink url="
-"\"https://www.sourcegear.com/diffmerge/\"><citetitle>SourceGear</citetitle></"
-"ulink>."
+"SourceGear Vault on kaupallinen versionhallintaohjelmisto, mutta voit "
+"käyttää sen diff/merge -työkalua ilmaiseksi. Lisätietoa osoitteessa <ulink "
+"url=\"https://www.sourcegear.com/diffmerge/\"><citetitle>https://www."
+"sourcegear.com/diffmerge/</citetitle></ulink>."
 
 #. (term)
 msgid "ExamDiff"
@@ -9535,11 +9535,11 @@ msgstr "Tiedostojen ja kansioiden kopiointi, siirto ja uudelleen nimeäminen"
 
 #. (primary)
 msgid "copy files"
-msgstr "kopioi tiedostoja"
+msgstr "kopioi tiedostot"
 
 #. (primary)
 msgid "rename files"
-msgstr "siirrä tiedostot"
+msgstr "nimeä tiedostot uudelleen"
 
 #. (primary)
 msgid "move files"
@@ -10217,9 +10217,9 @@ msgid ""
 "ulink> that will prevent checkins which result in case conflicts."
 msgstr ""
 "Paikantimessa <ulink url=\"https://svn.collab.net/repos/svn/trunk/contrib/"
-"hook-scripts/\"><citetitle>https://svn.collab.net/repos/svn/trunk/contrib/"
-"hook-scripts/</citetitle></ulink> on saatavana palvelimen toimintokomento, "
-"joka estää toimitukset, joista seuraisi merkkitaso-ongelmia."
+"hook-scripts/\"><citetitle>https://svn.apache.org/repos/asf/subversion/trunk/"
+"contrib/hook-scripts/</citetitle></ulink> on saatavana palvelimen "
+"toimintokomento, joka estää toimitukset, joista seuraisi merkkitaso-ongelmia."
 
 #. (title)
 msgid "Repairing File Renames"
@@ -10808,7 +10808,7 @@ msgstr ""
 
 #. (title)
 msgid "Edit properties at HEAD revision"
-msgstr "Muokikaa ominaisuuksia HEAD-versiossa"
+msgstr "Muokkaa HEAD-version ominaisuuksia"
 
 #. (para)
 msgid ""
@@ -10924,7 +10924,7 @@ msgstr "Automaattiset ominaisuudet"
 
 #. (primary)
 msgid "auto-props"
-msgstr "Automaattiset ominaisuudet"
+msgstr "auto-props"
 
 #. (para)
 msgid ""
@@ -13842,7 +13842,7 @@ msgstr ""
 
 #. (title)
 msgid "Handling Conflicts after Merge"
-msgstr "Ristiriitojem ratkaisu yhdistämisen jälkeen"
+msgstr "Ristiriitojen ratkaisu yhdistämisen jälkeen"
 
 #. (primary)
 msgid "merge conflicts"

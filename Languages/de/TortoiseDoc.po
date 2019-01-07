@@ -37,7 +37,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-11-17 01:52+0000\n"
+"PO-Revision-Date: 2019-01-07 00:14+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: German (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "de/)\n"
@@ -7205,6 +7205,8 @@ msgid ""
 "Shelves are purely a local client feature. Creating and removing Shelves "
 "will not affect the repository, nor anyone else's working copy."
 msgstr ""
+"Ablagen sind eine rein clientseitige Funktion. Das Anlegen und entfernen von "
+"Ablagen beeinflusst weder das Projektarchiv noch jemand anderes Arbeitskopie."
 
 #. (para)
 msgid ""
@@ -14527,7 +14529,7 @@ msgstr ""
 
 #. (title)
 msgid "The Merge Tree Conflict Dialog"
-msgstr "Der Dialog Zusammenführen von Baumkonflikten"
+msgstr "Der Dialog zum Zusammenführen von Baumkonflikten"
 
 #. (para)
 msgid ""
