@@ -4,12 +4,12 @@
     <setenv>
       <variable name="MajorVersion" value="1" />
       <variable name="MinorVersion" value="10" />
-      <variable name="MicroVersion" value="2" />
+      <variable name="MicroVersion" value="3" />
       <variable name="WCREV" value="$WCREV$" />
       <variable name="WCDATE" value="$WCDATE$" />
       <variable name="SVNMajorVersion" value="1" />
       <variable name="SVNMinorVersion" value="10" />
-      <variable name="SVNMicroVersion" value="3" />
+      <variable name="SVNMicroVersion" value="4" />
     </setenv>
   </target>
 </project>
