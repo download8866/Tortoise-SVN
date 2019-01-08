@@ -13,15 +13,13 @@
 # andreas88 <andreaspower@gmail.com>, 2011
 # Endra Granasamsa <endra.granasamsa@gmail.com>, 2011-2013
 # omixen <omixen@gmail.com>, 2011
-# omixen <omixen@gmail.com>, 2011
-# uring <uringinteristi@gmail.com>, 2011
 # uring <uringinteristi@gmail.com>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2019-01-07 00:14+0000\n"
+"PO-Revision-Date: 2018-09-23 00:21+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Indonesian (http://www.transifex.com/luebbe/tortoisesvn/language/id/)\n"
 "MIME-Version: 1.0\n"
@@ -486,13 +484,6 @@ msgid ""
 " it, committing your changes, etc. It then progresses to more advanced "
 "topics."
 msgstr "<xref linkend=\"tsvn-dug\"/> adalah bagian paling penting karena menjelaskan semua fitur utama TortoiseSVN dan bagaimana menggunakannya. Bagian itu berbentuk tutorial, bermula dengan check out salinan bekerja, mengubahnya, mengkomit perubahan Anda, dll. Bagian itu kemudian berlanjut ke topik lebih lanjut."
-
-#. (para)
-msgid ""
-"The <xref linkend=\"tsvn-projectmonitor\"/> explains how you can monitor "
-"your Subversion projects so you don't miss important commits from your other"
-" team members."
-msgstr ""
 
 #. (para)
 msgid ""
@@ -8148,8 +8139,8 @@ msgid ""
 "<literal>tsvn:projectlanguage</literal> sets the language module the spell "
 "checking engine should use when you enter a log message. You can find the "
 "values for your language on this page: <ulink "
-"url=\"https://docs.microsoft.com/en-us/windows/desktop/intl/language-"
-"identifier-constants-and-strings\"><citetitle>MSDN: Language "
+"url=\"http://msdn2.microsoft.com/en-"
+"us/library/ms776260.aspx\"><citetitle>MSDN: Language "
 "Identifiers</citetitle></ulink>."
 msgstr ""
 
@@ -15357,15 +15348,6 @@ msgid ""
 "file to find out if there are updates available. This might be useful for "
 "company admins who don't want their users to update TortoiseSVN until they "
 "approve it."
-msgstr ""
-
-#. (para)
-msgid ""
-"The standard edit controls do not stop on forward slashes like they're found"
-" in paths and urls. TortoiseSVN uses a custom word break procedure for the "
-"edit controls. If you don't want that and use the default instead, set this "
-"value to 0. If you only want the default for edit controls in combo boxes, "
-"set this value to 1."
 msgstr ""
 
 #. (para)

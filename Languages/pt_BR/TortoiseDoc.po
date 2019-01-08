@@ -20,22 +20,16 @@
 # Jonas Ricardo Rossi Cardoso <jrrossicardoso@gmail.com>, 2015
 # Leandro Hermes Neto <leandro@leandrohermes.net>, 2015
 # Lorhan Sohaky, 2018
-# Lorhan Sohaky, 2018
-# luebbe <luebbe.opensource@gmail.com>, 2012
 # luebbe <luebbe.opensource@gmail.com>, 2012
 # luebbe <luebbe.opensource@gmail.com>, 2012
 # Marcelo Boeira <marceloboeira@live.com>, 2013
 # Marco Costa <mmarcottulio@gmail.com>, 2012
-# Marco Costa <mmarcottulio@gmail.com>, 2012
-# Michel K <michel.apt1@gmail.com>, 2015
 # Michel K <michel.apt1@gmail.com>, 2015
 # Marco Costa <mmarcottulio@gmail.com>, 2012
 # Paulo Pires <paulo.albert.pires@gmail.com>, 2015
 # Rafael Heise <rmheise@gmail.com>, 2011-2012,2014
 # Raphael Mendonça, 2014
 # Raphael Mendonça, 2014
-# Raphael Mendonça, 2014
-# Ricardo Souza (RCDMK) <rcdmk@hotmail.com>, 2012
 # Ricardo Souza (RCDMK) <rcdmk@hotmail.com>, 2012
 # Ricardo Souza (RCDMK) <rcdmk@hotmail.com>, 2012
 # Rodrigo Monte <rodrigo.monte86@gmail.com>, 2014
@@ -45,7 +39,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2019-01-07 00:14+0000\n"
+"PO-Revision-Date: 2018-09-23 00:21+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/luebbe/tortoisesvn/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -510,13 +504,6 @@ msgid ""
 " it, committing your changes, etc. It then progresses to more advanced "
 "topics."
 msgstr "O <xref linkend=\"tsvn-dug\"/> é a parte mais importante pois explica todas as principais características do TortoiseSVN e como usá-las. Com o formato de tutorial, inicia explicando a função de obter uma cópia de trabalho, depois como modificar a cópia de trabalho, então submeter as modificações, etc. E então continua com os tópicos avançados."
-
-#. (para)
-msgid ""
-"The <xref linkend=\"tsvn-projectmonitor\"/> explains how you can monitor "
-"your Subversion projects so you don't miss important commits from your other"
-" team members."
-msgstr ""
 
 #. (para)
 msgid ""
@@ -8172,8 +8159,8 @@ msgid ""
 "<literal>tsvn:projectlanguage</literal> sets the language module the spell "
 "checking engine should use when you enter a log message. You can find the "
 "values for your language on this page: <ulink "
-"url=\"https://docs.microsoft.com/en-us/windows/desktop/intl/language-"
-"identifier-constants-and-strings\"><citetitle>MSDN: Language "
+"url=\"http://msdn2.microsoft.com/en-"
+"us/library/ms776260.aspx\"><citetitle>MSDN: Language "
 "Identifiers</citetitle></ulink>."
 msgstr ""
 
@@ -15381,15 +15368,6 @@ msgid ""
 "file to find out if there are updates available. This might be useful for "
 "company admins who don't want their users to update TortoiseSVN until they "
 "approve it."
-msgstr ""
-
-#. (para)
-msgid ""
-"The standard edit controls do not stop on forward slashes like they're found"
-" in paths and urls. TortoiseSVN uses a custom word break procedure for the "
-"edit controls. If you don't want that and use the default instead, set this "
-"value to 0. If you only want the default for edit controls in combo boxes, "
-"set this value to 1."
 msgstr ""
 
 #. (para)

@@ -11,15 +11,12 @@
 # Authors:
 # Translators:
 # ABE Tsunehiko, 2015,2017
-# ABE Tsunehiko, 2015,2017
 # Daisuke Deguchi <ddeguchi@nagoya-u.jp>, 2011-2012
-# luebbe <luebbe.opensource@gmail.com>, 2011
 # luebbe <luebbe.opensource@gmail.com>, 2011
 # luebbe <luebbe.opensource@gmail.com>, 2011
 # 藤本理弘 <mfujimot@gmail.com>, 2011-2015
 # 藤本理弘 <mfujimot@gmail.com>, 2012-2013
 # 藤本理弘 <mfujimot@gmail.com>, 2016-2017
-# 大川剛 <tu44okawa3@gmail.com>, 2016
 # 大川剛 <tu44okawa3@gmail.com>, 2016
 # 藤本理弘 <mfujimot@gmail.com>, 2017-2018
 msgid ""
@@ -27,7 +24,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2019-01-07 00:14+0000\n"
+"PO-Revision-Date: 2018-09-23 00:21+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/luebbe/tortoisesvn/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -492,13 +489,6 @@ msgid ""
 " it, committing your changes, etc. It then progresses to more advanced "
 "topics."
 msgstr "<xref linkend=\"tsvn-dug\"/>はもっとも重要な章で、TortoiseSVNの主要な機能すべてとその使い方を説明しています。チュートリアルの形を採って、作業コピーのチェックアウトから始め、変更、コミット、等を行います。それからさらに高度な話題に進みます。"
-
-#. (para)
-msgid ""
-"The <xref linkend=\"tsvn-projectmonitor\"/> explains how you can monitor "
-"your Subversion projects so you don't miss important commits from your other"
-" team members."
-msgstr ""
 
 #. (para)
 msgid ""
@@ -8154,10 +8144,10 @@ msgid ""
 "<literal>tsvn:projectlanguage</literal> sets the language module the spell "
 "checking engine should use when you enter a log message. You can find the "
 "values for your language on this page: <ulink "
-"url=\"https://docs.microsoft.com/en-us/windows/desktop/intl/language-"
-"identifier-constants-and-strings\"><citetitle>MSDN: Language "
+"url=\"http://msdn2.microsoft.com/en-"
+"us/library/ms776260.aspx\"><citetitle>MSDN: Language "
 "Identifiers</citetitle></ulink>."
-msgstr ""
+msgstr "TortoiseSVN はスペルチェッカーを使用できます。 Windows 10 では、 OS のスペルチェッカーが使用されます。それ以前のバージョンの Windows では、 OpenOffice や Mozilla で使われるスペルチェッカーモジュールを使用できます。スペルチェッカーをインストールしている場合、このプロパティでどのスペルチェッカーを使用するか決定します。つまり、どの言語でこのプロジェクトのログメッセージを書くかということでもあります。　<literal>tsvn:projectlanguage</literal> では、ログメッセージ入力時にスペルチェックエンジンがどの言語でチェックを行うかを設定します。自分の言語の値は <ulink url=\"http://msdn2.microsoft.com/en-us/library/ms776260.aspx\"><citetitle>MSDN: Language Identifiers</citetitle></ulink> で確認できます。"
 
 #. (para)
 msgid ""
@@ -15364,15 +15354,6 @@ msgid ""
 "company admins who don't want their users to update TortoiseSVN until they "
 "approve it."
 msgstr "この値は、TortoiseSVN が有効なアップデートがあるかどうかを検査するためのテキストファイルをダウンロードする URL です。企業の管理者が通知するまでユーザーに TortoiseSVN をアップデートさせたくない場合などに有効です。"
-
-#. (para)
-msgid ""
-"The standard edit controls do not stop on forward slashes like they're found"
-" in paths and urls. TortoiseSVN uses a custom word break procedure for the "
-"edit controls. If you don't want that and use the default instead, set this "
-"value to 0. If you only want the default for edit controls in combo boxes, "
-"set this value to 1."
-msgstr ""
 
 #. (para)
 msgid ""

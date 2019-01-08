@@ -336,10 +336,6 @@ msgid "The <xref linkend=\"tsvn-dug\"/> is the most important section as it expl
 msgstr ""
 
 #. (para)
-msgid "The <xref linkend=\"tsvn-projectmonitor\"/> explains how you can monitor your Subversion projects so you don't miss important commits from your other team members."
-msgstr ""
-
-#. (para)
 msgid "<xref linkend=\"tsvn-subwcrev\"/> is a separate program included with TortoiseSVN which can extract the information from your working copy and write it into a file. This is useful for including build information in your projects."
 msgstr ""
 
@@ -5123,7 +5119,7 @@ msgid "In the Commit dialog you have the option to paste in the list of changed 
 msgstr ""
 
 #. (para)
-msgid "TortoiseSVN can use a spell checker. On Windows 10, the spell checker of the OS is used. On earlier Windows versions, it can use spell checker modules which are also used by OpenOffice and Mozilla. If you have those installed this property will determine which spell checker to use, i.e. in which language the log messages for your project should be written. <literal>tsvn:projectlanguage</literal> sets the language module the spell checking engine should use when you enter a log message. You can find the values for your language on this page: <ulink url=\"https://docs.microsoft.com/en-us/windows/desktop/intl/language-identifier-constants-and-strings\"><citetitle>MSDN: Language Identifiers</citetitle></ulink>."
+msgid "TortoiseSVN can use a spell checker. On Windows 10, the spell checker of the OS is used. On earlier Windows versions, it can use spell checker modules which are also used by OpenOffice and Mozilla. If you have those installed this property will determine which spell checker to use, i.e. in which language the log messages for your project should be written. <literal>tsvn:projectlanguage</literal> sets the language module the spell checking engine should use when you enter a log message. You can find the values for your language on this page: <ulink url=\"http://msdn2.microsoft.com/en-us/library/ms776260.aspx\"><citetitle>MSDN: Language Identifiers</citetitle></ulink>."
 msgstr ""
 
 #. (para)
@@ -9643,10 +9639,6 @@ msgstr ""
 
 #. (para)
 msgid "This value contains the URL from which TortoiseSVN tries to download a text file to find out if there are updates available. This might be useful for company admins who don't want their users to update TortoiseSVN until they approve it."
-msgstr ""
-
-#. (para)
-msgid "The standard edit controls do not stop on forward slashes like they're found in paths and urls. TortoiseSVN uses a custom word break procedure for the edit controls. If you don't want that and use the default instead, set this value to 0. If you only want the default for edit controls in combo boxes, set this value to 1."
 msgstr ""
 
 #. (para)

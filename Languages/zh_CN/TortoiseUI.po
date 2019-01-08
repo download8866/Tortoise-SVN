@@ -26,15 +26,14 @@
 # Nick Vrvilo <nick@vrvilo.com>, 2011, 2012
 # pluwen <pluwen@gmail.com>, 2011
 # pluwen <pluwen@gmail.com>, 2011
-# pop corner <memoword@163.com>, 2018-2019
 # qingxianhao <qinghao1@foxmail.com>, 2012
 # Verplusor, 2011
 # Shengbin Meng <shengbinmeng@gmail.com>, 2013
 # wwj402 <wwj402@gmail.com>, 2013
 # xiaobing chen <olivetchan@qq.com>, 2016
 # Xijian Yan, 2018
-# YFdyh000 <yfdyh000@gmail.com>, 2016
-# YFdyh000 <yfdyh000@gmail.com>, 2013-2018
+# YF <yfdyh000@gmail.com>, 2016
+# YF <yfdyh000@gmail.com>, 2013-2018
 # loveyu <yuht@qq.com>, 2012
 # zhang chuan <zhangchuan.cn@gmail.com>, 2011
 msgid ""
@@ -42,8 +41,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2019-01-02 14:20+0000\n"
-"Last-Translator: pop corner <memoword@163.com>\n"
+"PO-Revision-Date: 2018-09-16 11:03+0000\n"
+"Last-Translator: YF <yfdyh000@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/luebbe/tortoisesvn/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -142,7 +141,7 @@ msgstr "%1!ls! : 工作基础，版本 %2!ld!"
 #. Resource IDs: (IDS_PROGRS_UPDATE)
 #, c-format
 msgid "%1!ls! from %2!ls!"
-msgstr "%1!ls! 来自 %2!ls!"
+msgstr ""
 
 #. Resource IDs: (IDS_PROGRS_FINALINFO)
 #, c-format
@@ -1845,7 +1844,7 @@ msgstr "... 正在读取工作副本的状态"
 #. Resource IDs: (IDS_ERR_SHELVE_FAILED_MORE)
 #, c-format
 msgid "...and %d more paths."
-msgstr "...和%d更多路径"
+msgstr ""
 
 #. Resource IDs: (IDS_DIFF_REVISIONPATCHED)
 #, c-format
@@ -1868,7 +1867,7 @@ msgstr "(新修改列表)"
 msgid ""
 "=&Check Now=&Add Project=E&dit=&Remove=&Mark all as read=&Clear "
 "errors=&Update all=&Options=="
-msgstr "=立即检查(&C)=添加项目(&A)=编辑(&D)=移除(&R)=全部标记为已读(&M)=清除错误(&C)=全部更新(&U)=选项(&O)=="
+msgstr ""
 
 #. Resource IDs: (ID_ABOUT - Menu)
 msgid "?"
@@ -3625,7 +3624,7 @@ msgstr "创建补丁"
 msgid ""
 "Create a checkpoint.\n"
 "The selected modifications are saved to a shelf, but the local modifications are kept."
-msgstr "创建一个检查点。\n选定的修改将保存到工具架，但会保留本地修改。"
+msgstr ""
 
 #. Resource IDs: (IDS_LOG_CODE_COLLABORATOR)
 msgid "Create code collaborator revie&w..."
@@ -7150,7 +7149,7 @@ msgid ""
 "One or more paths could not be shelved.\n"
 "The following paths failed:\n"
 "%s"
-msgstr "一条或多条路径无法贮藏。\n以下路径失败：\n%s"
+msgstr ""
 
 #. Resource IDs: (IDS_MONITOR_NOTIFY_TITLE)
 msgid "One project has updates:"
@@ -8777,7 +8776,7 @@ msgstr "请选择一个按钮。"
 msgid ""
 "Select an existing shelf to create a new version, or enter a new name to "
 "create a new shelf"
-msgstr "选择现有工具架以创建新版本，或输入新名称以创建新工具架"
+msgstr ""
 
 #. Resource IDs: (57346)
 msgid "Select an object on which to get Help"
@@ -8943,7 +8942,7 @@ msgstr "是否更新工作副本并重试？"
 #. Resource IDs: (IDS_SHELF_INFO_LABEL)
 #, c-format
 msgid "Shelf \"%s\" has %ld version(s)"
-msgstr "贮藏%s有 %ld 版本"
+msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSOVERLAY: Control id 1270,
 #. IDS_STATUSLIST_CONTEXT_SHELL)
@@ -8956,7 +8955,7 @@ msgstr "图标缓存重建完成！"
 
 #. Resource IDs: (Dialog IDD_SHELVE: Control id 205)
 msgid "Shelve"
-msgstr "贮藏"
+msgstr "搁置"
 
 #. Resource IDs: (IDS_SHELF_BTN_TT)
 msgid "Shelve the selected files and revert the changes."
@@ -8964,7 +8963,7 @@ msgstr "贮藏选中的文件并还原更改。"
 
 #. Resource IDs: (IDS_MENUSHELVE)
 msgid "Shelve..."
-msgstr "贮藏..."
+msgstr "搁置..."
 
 #. Resource IDs: (IDS_SHELF_SHELVING)
 #, c-format
@@ -9912,7 +9911,7 @@ msgstr "找不到“Index: ”行！\n这可能不是补丁文件，或是没有
 #. Resource IDs: (IDS_ERR_PATCH_NOADDFILELINE)
 #, c-format
 msgid "The line indicating the new file was expected in line %d!"
-msgstr "代表新文件的行应该位于%d行！"
+msgstr ""
 
 #. Resource IDs: (IDS_GOTO_OUTOFRANGE)
 #, c-format
@@ -10146,7 +10145,7 @@ msgid ""
 "incomplete or even misleading due to incomplete history data.\n"
 "\n"
 "The error was:"
-msgstr "联系服务器时出现问题\n您想要查看缓存的数据吗？\n\n请明白这些是不完整的历史数据，\n缓存的数据可能已过时，不完整甚至是令人误解的。\n\n错误是："
+msgstr ""
 
 #. Resource IDs: (IDS_ERR_NOTHINGTOADD)
 msgid ""
@@ -10533,10 +10532,6 @@ msgstr "URL: "
 msgid "URL: "
 msgstr "URL: "
 
-#. Resource IDs: (IDS_LOG_POPUP_CLIPBOARD_URLREV)
-msgid "URLs with revision"
-msgstr "带修订版的网址"
-
 #. Resource IDs: (Dialog IDD_CHANGEDFILES: Control id 1209)
 msgid "Un&modified"
 msgstr "未修改的(&M)"
@@ -10677,11 +10672,11 @@ msgstr "未解决的冲突！"
 
 #. Resource IDs: (Dialog IDD_UNSHELVE: Control id 206)
 msgid "Unshelve"
-msgstr "取消贮藏"
+msgstr "取消搁置"
 
 #. Resource IDs: (IDS_MENUUNSHELVE)
 msgid "Unshelve..."
-msgstr "取消贮藏..."
+msgstr "取消搁置..."
 
 #. Resource IDs: (61443)
 msgid "Untitled"

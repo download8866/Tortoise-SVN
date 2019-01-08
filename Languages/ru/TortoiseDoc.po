@@ -28,14 +28,13 @@
 # Vladimir.Serykh <Vladimir.Serykh@extenza-studio.ru>, 2015-2016
 # Vladimir.Serykh <Vladimir.Serykh@extenza-studio.ru>, 2015
 # Вячеслав Третьяков <tret2003@gmail.com>, 2013,2015,2017
-# Дмитрий Ошкало <dmitry.oshkalo@gmail.com>, 2015
 # Сергей Аксёнов <aksenov007bond@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2019-01-07 00:14+0000\n"
+"PO-Revision-Date: 2018-09-23 00:21+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/luebbe/tortoisesvn/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -500,13 +499,6 @@ msgid ""
 " it, committing your changes, etc. It then progresses to more advanced "
 "topics."
 msgstr "<xref linkend=\"tsvn-dug\"/> является наиболее важным разделом, поскольку описывает все основные возможности TortoiseSVN и способы их использования. Оно представлено в виде учебного пособия, которое начинает с создания рабочей копии, её изменения, фиксации изменений и т.д., а дальше переходит к более сложным вопросам."
-
-#. (para)
-msgid ""
-"The <xref linkend=\"tsvn-projectmonitor\"/> explains how you can monitor "
-"your Subversion projects so you don't miss important commits from your other"
-" team members."
-msgstr ""
 
 #. (para)
 msgid ""
@@ -8162,10 +8154,10 @@ msgid ""
 "<literal>tsvn:projectlanguage</literal> sets the language module the spell "
 "checking engine should use when you enter a log message. You can find the "
 "values for your language on this page: <ulink "
-"url=\"https://docs.microsoft.com/en-us/windows/desktop/intl/language-"
-"identifier-constants-and-strings\"><citetitle>MSDN: Language "
+"url=\"http://msdn2.microsoft.com/en-"
+"us/library/ms776260.aspx\"><citetitle>MSDN: Language "
 "Identifiers</citetitle></ulink>."
-msgstr ""
+msgstr "TortoiseSVN может использовать программу проверки орфографии. На Windows 10 используется программа проверки орфографии ОС. На более ранних версиях Windows он может использовать модули программы проверки орфографии, которые также использутся OpenOffice и Mozilla. Если они у вас установлены, это свойство будет определять, какую программу проверки орфографии использовать, т.е., на каком языке должны записываться сообщения в журнал вашего проекта. <literal>tsvn:projectlanguage</literal> устанавливает, модуль какого языка должен быть использован при проверке орфографии, когда вы вводите сообщение журнала. Вы можете найти значения для вашего языка на этой странице: <ulink url=\"http://msdn2.microsoft.com/en-us/library/ms776260.aspx\"><citetitle>MSDN: Идентификаторы языка</citetitle></ulink>"
 
 #. (para)
 msgid ""
@@ -15372,15 +15364,6 @@ msgid ""
 "company admins who don't want their users to update TortoiseSVN until they "
 "approve it."
 msgstr "Это значение содержит URL, по которому TortoiseSVN загружает текстовый файл для проверки на наличие обновлений. Это может полезно для администраторов компаний, которые не хотят, чтобы пользователи обновляли TortoiseSVN без их разрешения."
-
-#. (para)
-msgid ""
-"The standard edit controls do not stop on forward slashes like they're found"
-" in paths and urls. TortoiseSVN uses a custom word break procedure for the "
-"edit controls. If you don't want that and use the default instead, set this "
-"value to 0. If you only want the default for edit controls in combo boxes, "
-"set this value to 1."
-msgstr ""
 
 #. (para)
 msgid ""

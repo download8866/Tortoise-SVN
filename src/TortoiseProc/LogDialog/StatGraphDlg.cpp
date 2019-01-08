@@ -39,7 +39,7 @@ using namespace Gdiplus;
 
 // BinaryPredicate for comparing authors based on their commit count
 template<class DataType>
-class MoreCommitsThan {
+class MoreCommitsThan : public std::binary_function<tstring, tstring, bool> {
 public:
     typedef std::map<tstring, DataType> MapType;
     MoreCommitsThan(MapType &author_commits) : m_authorCommits(author_commits) {}
@@ -139,7 +139,7 @@ void CStatGraphDlg::SetSkipper (bool reloadSkiper)
     // the resolution limit of the screen will already not allow for displaying
     // it in a reasonable way
 
-    int max_authors_count = std::max(1, (int)std::min((int)m_authorNames.size(), 250));
+    int max_authors_count = max(1, (int)min(m_authorNames.size(), 250) );
     m_Skipper.SetRange (1, max_authors_count);
     m_Skipper.SetPageSize(5);
 

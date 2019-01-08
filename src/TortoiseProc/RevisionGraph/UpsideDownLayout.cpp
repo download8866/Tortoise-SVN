@@ -1,4 +1,4 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2009, 2014 - TortoiseSVN
 
@@ -29,8 +29,8 @@ std::pair<int, int> CUpsideDownLayout::GetMinMaxY
     for (size_t i = 0, count = nodeAccess->GetNodeCount(); i < count; ++i)
     {
         const CRect& rect = nodeAccess->GetNode((index_t)i)->rect;
-        minY = min(minY, (int)rect.top);
-        maxY = max(maxY, (int)rect.bottom);
+        minY = min (minY, rect.top);
+        maxY = max (maxY, rect.bottom);
     }
 
     return std::make_pair (minY, maxY);

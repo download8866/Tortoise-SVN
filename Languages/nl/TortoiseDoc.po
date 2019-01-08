@@ -14,12 +14,10 @@
 # Jean-Marc van Leerdam <j.m.van.leerdam@gmail.com>, 2011
 # luebbe <luebbe.opensource@gmail.com>, 2011
 # luebbe <luebbe.opensource@gmail.com>, 2011
-# luebbe <luebbe.opensource@gmail.com>, 2011
 # mark van tilburg <markvantilburg@gmail.com>, 2015-2016,2018
 # Paul <paul@piak.nl>, 2011
 # Paul <paul@piak.nl>, 2011
 # Paul <paul@piak.nl>, 2011
-# wstalsma, 2011
 # wstalsma, 2011
 # wstalsma, 2011
 # W VB <vanbeirendonck.willem@gmail.com>, 2011
@@ -28,7 +26,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2019-01-07 00:14+0000\n"
+"PO-Revision-Date: 2018-09-23 00:21+0000\n"
 "Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/luebbe/tortoisesvn/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -493,13 +491,6 @@ msgid ""
 " it, committing your changes, etc. It then progresses to more advanced "
 "topics."
 msgstr "<xref linkend=\"tsvn-dug\"/> is de belangrijkste sectie, omdat hierin de voornaamste functies van TortoiseSVN alsmede hoe ze te gebruiken, worden uitgelegd. Het is in de vorm van een handleiding, die begint met het ophalen van een werkkopie, het wijzigen ervan, het vastleggen van je wijzigingen, enz. Het vervolgt dan met meer geavanceerde thema's."
-
-#. (para)
-msgid ""
-"The <xref linkend=\"tsvn-projectmonitor\"/> explains how you can monitor "
-"your Subversion projects so you don't miss important commits from your other"
-" team members."
-msgstr ""
 
 #. (para)
 msgid ""
@@ -8155,8 +8146,8 @@ msgid ""
 "<literal>tsvn:projectlanguage</literal> sets the language module the spell "
 "checking engine should use when you enter a log message. You can find the "
 "values for your language on this page: <ulink "
-"url=\"https://docs.microsoft.com/en-us/windows/desktop/intl/language-"
-"identifier-constants-and-strings\"><citetitle>MSDN: Language "
+"url=\"http://msdn2.microsoft.com/en-"
+"us/library/ms776260.aspx\"><citetitle>MSDN: Language "
 "Identifiers</citetitle></ulink>."
 msgstr ""
 
@@ -15365,15 +15356,6 @@ msgid ""
 "company admins who don't want their users to update TortoiseSVN until they "
 "approve it."
 msgstr "Deze waarde bevat de URL waar vandaan TortoiseSVN een tekstbestand probeert op te halen om te achterhalen of er nieuwe versies beschikbaar zijn. Dit kan handig zijn voor beheerders van bedrijven, die willen voorkomen dat gebruikers hun TortoiseSVN bijwerken voordat zij dat geaccepteerd hebben."
-
-#. (para)
-msgid ""
-"The standard edit controls do not stop on forward slashes like they're found"
-" in paths and urls. TortoiseSVN uses a custom word break procedure for the "
-"edit controls. If you don't want that and use the default instead, set this "
-"value to 0. If you only want the default for edit controls in combo boxes, "
-"set this value to 1."
-msgstr ""
 
 #. (para)
 msgid ""

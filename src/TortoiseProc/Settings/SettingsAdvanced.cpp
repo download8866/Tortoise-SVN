@@ -181,10 +181,6 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeString;
     settings[i++].def.s = L"";
 
-    settings[i].sName   = L"UseCustomWordBreak";
-    settings[i].type    = CSettingsAdvanced::SettingTypeNumber;
-    settings[i++].def.l = 2;
-
     settings[i].sName   = L"VersionCheck";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
@@ -193,7 +189,7 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeNone;
     settings[i++].def.b = false;
 
-    // 42 so far...
+    // 41 so far...
     ASSERT(i < _countof(settings));
 }
 

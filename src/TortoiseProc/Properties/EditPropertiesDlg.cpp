@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2017 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -488,7 +488,7 @@ void CEditPropertiesDlg::OnBnClickedRemoveProps()
 void CEditPropertiesDlg::OnNMDblclkEditproplist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 {
     if (m_propList.GetSelectedCount() == 1)
-        EditProps((GetKeyState(VK_SHIFT) & 0x8000) == 0);
+        EditProps(true);
 
     *pResult = 0;
 }

@@ -234,11 +234,8 @@
     <ClCompile Include="NativeRibbonApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utils\MiscUI\EditWordBreak.cpp">
-      <Filter>Utils\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Utils\LoadIconEx.cpp">
-      <Filter>Utils\Source Files</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -464,11 +461,8 @@
     <ClInclude Include="NativeRibbonApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\EditWordBreak.h">
-      <Filter>Utils\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Utils\LoadIconEx.h">
-      <Filter>Utils\Header Files</Filter>
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
