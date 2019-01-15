@@ -14,7 +14,7 @@
 # Crhistian <crhistian.ti@gmail.com>, 2012
 # Edson Chen <edson.chen@gmail.com>, 2011
 # Eduardo Marques <ebmarques@gmail.com>, 2011
-# Fagner Antunes Dornelles <fagdorn@gmail.com>, 2017
+# Fagner Antunes Dornelles <fagdorn@gmail.com>, 2017,2019
 # FelipeL <felipe.idj@hotmail.com>, 2014
 # FelipeL <felipe.idj@hotmail.com>, 2014
 # Hugo Rossi <hugo.hrossi@gmail.com>, 2015
@@ -38,8 +38,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-09-16 01:39+0000\n"
-"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2019-01-09 10:44+0000\n"
+"Last-Translator: Fagner Antunes Dornelles <fagdorn@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/luebbe/"
 "tortoisesvn/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
