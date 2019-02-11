@@ -38,6 +38,7 @@
 # luebbe <luebbe.opensource@gmail.com>, 2011
 # Lucas Mascaro <mascaro.lucas@yahoo.fr>, 2015
 # Mickael Patron <mickael_patron@hotmail.com>, 2012
+# Naheulf <newheulf@gmail.com>, 2019
 # Le Gall Nicolas <contact@nlegall.fr>, 2014
 # Philippe <kissifrot@gmail.com>, 2012-2014
 # Philippe PERIN, 2016
@@ -51,8 +52,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-12-17 12:32+0000\n"
-"Last-Translator: Jocelyn <jocelyn.flament@gmail.com>\n"
+"PO-Revision-Date: 2019-01-28 22:10+0000\n"
+"Last-Translator: Naheulf <newheulf@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "fr/)\n"
 "MIME-Version: 1.0\n"
@@ -1067,7 +1068,7 @@ msgstr "&Blocs déplacés"
 
 #. Resource IDs: (Dialog IDD_SHELVE: Control id 1672, Dialog IDD_UNSHELVE: Control id 1672)
 msgid "&Name"
-msgstr ""
+msgstr "&Nom"
 
 #. Resource IDs: (65535 - PopupMenu)
 msgid "&Navigate"
@@ -1436,7 +1437,7 @@ msgstr "&Arrêt à la copie/renommage"
 
 #. Resource IDs: (Dialog IDD_COLLABORATORSETTINGS: Control id 65535)
 msgid "&Subversion username"
-msgstr "Nom d'utilisateur &Subversion"
+msgstr "&Nom d'utilisateur Subversion"
 
 #. Resource IDs: (IDS_REVGRAPH_POPUP_SWITCH)
 msgid "&Switch WC to path and revision"
@@ -1586,7 +1587,7 @@ msgstr "&Utiliser la corbeille"
 
 #. Resource IDs: (Dialog IDD_PROMPT: Control id 1005, Dialog IDD_SETTINGSPROXY: Control id 1410, Dialog IDD_SIMPLEPROMPT: Control id 65535)
 msgid "&Username:"
-msgstr "&Nom :"
+msgstr "&Nom d'utilisateur :"
 
 #. Resource IDs: (Dialog IDD_CLEANUP: Control id 1647)
 msgid "&Vacuum pristine copies"
