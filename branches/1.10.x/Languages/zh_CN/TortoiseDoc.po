@@ -41,17 +41,18 @@
 # szkingrose <1072258106@qq.com>, 2014
 # Thomas ZHANG <zjbthomas@gmail.com>, 2016
 # Verplusor, 2011
+# Wanping Zhang <i@iwpz.net>, 2019
 # xiaobing chen <olivetchan@qq.com>, 2016
 # YFdyh000 <yfdyh000@gmail.com>, 2013
 # zhang chuan <zhangchuan.cn@gmail.com>, 2011
-# Ziang Song <songziang@gmail.com>, 2011
+# ced773123cfad7b4e8b79ca80f736af9, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-11-17 01:52+0000\n"
-"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2019-02-20 03:55+0000\n"
+"Last-Translator: Wanping Zhang <i@iwpz.net>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -1038,6 +1039,9 @@ msgid ""
 "commands that are not in the submenu have <literal>SVN</literal> prepended: "
 "<menuchoice><guimenuitem>SVN Checkout...</guimenuitem></menuchoice>"
 msgstr ""
+"在默认设置时，检出菜单项不在TortoiseSVN 子目录而在资源管理器根目录。不在子目"
+"录中的 TortoiseSVN 命令有<literal>SVN</literal>前缀："
+"<menuchoice><guimenuitem>SVN 检出...</guimenuitem></menuchoice>"
 
 #. (para)
 msgid ""
@@ -1063,6 +1067,10 @@ msgid ""
 "files have now changed to red, indicating that changes have been made "
 "locally."
 msgstr ""
+"该工作了。在 <filename>Widget1-Dev</filename> 文件夹中，我们开始编辑文件 - 假"
+"设我们对 <filename>Widget1.c</filename> 和 <filename>ReadMe.txt</filename> 做"
+"出了一些修改。注意这些文件的图标上的小图标变成了红色，这说明本地文件已经被修"
+"改了。"
 
 #. (title)
 msgid "File Difference Viewer"
@@ -1152,6 +1160,10 @@ msgid ""
 "important). <placeholder-1/> OK, so I cheated a little here and used a "
 "screenshot from the TortoiseSVN repository."
 msgstr ""
+"日志对话框是TortoiseSVN 最有用的功能之一。它把你所有的文件/文件夹提交记录显示"
+"为一个列表，并且显示你输入的详细提交信息（你按照建议<emphasis>输入</emphasis>"
+"提交信息了吗？如果没有，现在知道多重要了吧）。<placeholder-1/>好吧，我在这儿"
+"偷个懒，用一张TortoiseSVN 版本库的截图。"
 
 #. (para)
 msgid ""
@@ -20335,7 +20347,7 @@ msgstr ""
 
 #. (para)
 msgid "Click <guibutton>Merge</guibutton> to complete the merge."
-msgstr ""
+msgstr "点击<guibutton>合并</guibutton>完成合并。"
 
 #. (para)
 msgid ""
