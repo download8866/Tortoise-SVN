@@ -112,6 +112,11 @@ msgstr ""
 msgid "%1!ls! : Working Base, Revision %2!ld!"
 msgstr ""
 
+#. Resource IDs: (IDS_PROGRS_UPDATE)
+#, c-format
+msgid "%1!ls! from %2!ls!"
+msgstr ""
+
 #. Resource IDs: (IDS_PROGRS_FINALINFO)
 #, c-format
 msgid "%1!ls! in %2!ls!"
@@ -3674,6 +3679,14 @@ msgstr ""
 msgid "Edit Properties"
 msgstr ""
 
+#. Resource IDs: (IDS_PROC_EDIT_PROP_CONFLICTS)
+msgid "Edit Property Conflicts"
+msgstr ""
+
+#. Resource IDs: (IDS_PROC_EDIT_TEXT_CONFLICTS)
+msgid "Edit Text Conflicts"
+msgstr ""
+
 #. Resource IDs: (IDS_PROC_EDIT_TREE_CONFLICTS)
 msgid "Edit Tree Conflicts"
 msgstr ""
@@ -3713,6 +3726,10 @@ msgstr ""
 
 #. Resource IDs: (Dialog IDD_SETTINGSBUGTRAQ: Control id 1382, Dialog IDD_SETTINGSHOOKS: Control id 1331)
 msgid "Edit..."
+msgstr ""
+
+#. Resource IDs: (IDS_EDITCONFLICT_TEXT_EDITCMD)
+msgid "Edit\nEdit text conflicts"
 msgstr ""
 
 #. Resource IDs: (IDS_EDITCONFLICT_PROP_EDITCMD)
@@ -9217,7 +9234,7 @@ msgstr ""
 msgid "Up one folder"
 msgstr ""
 
-#. Resource IDs: (Dialog IDD_UPDATE: Control id 152, IDS_PROGRS_TITLE_UPDATE)
+#. Resource IDs: (Dialog IDD_UPDATE: Control id 152, IDS_PROGRS_CMD_UPDATE, IDS_PROGRS_TITLE_UPDATE)
 msgid "Update"
 msgstr ""
 
@@ -9235,11 +9252,6 @@ msgstr ""
 
 #. Resource IDs: (IDS_DROPEXT_UPDATE_TASK2)
 msgid "Update externals"
-msgstr ""
-
-#. Resource IDs: (IDS_PROGRS_CMD_UPDATE)
-#, c-format
-msgid "Update from %1!ls!"
 msgstr ""
 
 #. Resource IDs: (IDS_SVNACTION_UPDATE)
