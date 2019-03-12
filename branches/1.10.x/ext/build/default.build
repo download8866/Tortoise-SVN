@@ -31,7 +31,6 @@
     <nant target="build" buildfile="serf.build" />
     <nant target="build" buildfile="libintl.build" />
     <nant target="build" buildfile="subversion.build" />
-    <nant target="build" buildfile="crashserver.build" />
     <nant target="build" buildfile="editorconfig.build" />
   </target>
 
