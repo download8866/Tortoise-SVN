@@ -12,14 +12,15 @@
 # Translators:
 # Baquatelle <abel@abel.hu>, 2012
 # Balázs Meskó <meskobalazs@gmail.com>, 2016
+# Csanád Kalmár <csanadkalmar@kuka-robotics.hu>, 2019
 # Petrovics Sándor <egeramasrol@gmail.com>, 2014,2016
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-10-02 02:10+0000\n"
-"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2019-04-02 13:39+0000\n"
+"Last-Translator: Csanád Kalmár <csanadkalmar@kuka-robotics.hu>\n"
 "Language-Team: Hungarian (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/hu/)\n"
 "MIME-Version: 1.0\n"
@@ -688,6 +689,8 @@ msgid ""
 "&Delete\n"
 "Remove the cache files."
 msgstr ""
+"&Törlés és\n"
+"gyorsítótár ürítése."
 
 #. Resource IDs: (IDS_MENUDIFF)
 msgid "&Diff"
@@ -1108,7 +1111,7 @@ msgstr "&Beállítások"
 
 #. Resource IDs: (ID_NEW_ADVANCED - Menu)
 msgid "&Other"
-msgstr ""
+msgstr "&Egyéb"
 
 #. Resource IDs: (ID_VIEW_OVERLAPIMAGES - Menu)
 msgid "&Overlay images\t(O)"
@@ -1242,7 +1245,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_LOG_POPUP_MONITORREMOVE)
 msgid "&Remove project"
-msgstr ""
+msgstr "&Projekt eltávolítása"
 
 #. Resource IDs: (IDS_PROC_REMOVEFORCE_TASK3)
 msgid ""
@@ -1275,7 +1278,7 @@ msgstr ""
 
 #. Resource IDs: (Dialog IDD_FIND: Control id 1511)
 msgid "&Replace"
-msgstr ""
+msgstr "&Csere"
 
 #. Resource IDs: (IDS_MENUREPOBROWSE)
 msgid "&Repo-browser"
@@ -1293,7 +1296,7 @@ msgstr "&Alapértelmezett beállítások"
 
 #. Resource IDs: (Dialog IDD_SVNPROGRESS: Control id 1545)
 msgid "&Retry as different user"
-msgstr ""
+msgstr "&Ismétlés, más felhasználói adatokkal"
 
 #. Resource IDs: (Dialog IDD_SVNPROGRESS: Control id 1542, IDS_MSGBOX_RETRYWITHOUTHOOKS)
 msgid "&Retry without hooks"
@@ -1373,7 +1376,7 @@ msgstr ""
 
 #. Resource IDs: (Dialog IDD_MONITOROPTIONS: Control id 1529)
 msgid "&Show popup notifications"
-msgstr ""
+msgstr "&Értesítések megjelenítése"
 
 #. Resource IDs: (Dialog IDD_COPY: Control id 1185)
 msgid "&Specific revision in repository"
@@ -1445,7 +1448,7 @@ msgstr "&Új URL:"
 
 #. Resource IDs: (Dialog IDD_COPY: Control id 1384, Dialog IDD_SWITCH: Control id 1305)
 msgid "&To path:"
-msgstr ""
+msgstr "&Elérési út:"
 
 #. Resource IDs: (Dialog IDD_MERGEWIZARD_TREE: Control id 1495)
 msgid "&To: (end URL and revision of the range to merge)"
@@ -1505,7 +1508,7 @@ msgstr "&Frissítés"
 
 #. Resource IDs: (ID_POPUP_UPDATEALL - Menu)
 msgid "&Update all"
-msgstr ""
+msgstr "&Összes frissítése"
 
 #. Resource IDs: (IDS_LOG_POPUP_UPDATE)
 msgid "&Update item to revision"
@@ -1606,11 +1609,11 @@ msgstr "(bináris adat)"
 
 #. Resource IDs: (IDS_CONTENTANDPROP)
 msgid "(content and properties)"
-msgstr ""
+msgstr "(tartalom és tulajdonságok)"
 
 #. Resource IDs: (IDS_CONTENTONLY)
 msgid "(content only)"
-msgstr ""
+msgstr "(tartalom)"
 
 #. Resource IDs: (IDS_REVGRAPH_NODEIS_COPY)
 msgid "(copy)"
@@ -1670,7 +1673,7 @@ msgstr "(nem található)"
 
 #. Resource IDs: (IDS_PROPMODS, IDS_PROPONLY)
 msgid "(properties only)"
-msgstr ""
+msgstr "(tulajdonságok)"
 
 #. Resource IDs: (IDS_STATUSLIST_PROPONLY)
 msgid "(property change only)"
@@ -1758,6 +1761,8 @@ msgid ""
 "A newer version is available.\r\n"
 "Please go to https://tortoisesvn.net and download the current version."
 msgstr ""
+"Új verzió elérhető.\r\n"
+"A https://tortoisesvn.net weboldalon letöltheted az aktuális verziót."
 
 #. Resource IDs: (IDS_SETTINGS_INCLUDELIST_TT)
 msgid ""
@@ -5879,7 +5884,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_INFORMATION)
 msgid "Information"
-msgstr ""
+msgstr "Információ"
 
 #. Resource IDs: (ID_VIEW_INLINEDIFF - Menu, cmdViewInlineDiff_LabelTitle_RESID)
 msgid "Inline diff"
@@ -5931,7 +5936,7 @@ msgstr "Rossz pénznem."
 
 #. Resource IDs: (IDS_INVALIDPARAMS)
 msgid "Invalid parameters"
-msgstr ""
+msgstr "Helytelen paraméterek"
 
 #. Resource IDs: (IDS_ERR_INVALIDREV)
 msgid ""
@@ -8602,7 +8607,7 @@ msgstr "Mentés"
 
 #. Resource IDs: (cmdSaveAs_LabelTitle_RESID)
 msgid "Save &as"
-msgstr ""
+msgstr "Mentés &másként.."
 
 #. Resource IDs: (IDS_REPOBROWSE_SAVEAS, ID_FILE_SAVE_AS - Menu)
 msgid "Save &as..."
@@ -8620,7 +8625,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_SAVE)
 msgid "Save File"
-msgstr ""
+msgstr "Fájl mentése"
 
 #. Resource IDs: (IDS_ASKFORSAVE_SAVELEFTAS)
 msgid ""
@@ -8705,7 +8710,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_ASKFORSAVE_TASK2)
 msgid "Save modifications."
-msgstr ""
+msgstr "Módosítások mentése"
 
 #. Resource IDs: (IDS_LOG_POPUP_SAVE)
 msgid "Save revision &to..."
@@ -8713,7 +8718,7 @@ msgstr "Verzió mentése &ide..."
 
 #. Resource IDs: (Dialog IDD_SETTINGSSYNC: Control id 1664)
 msgid "Save settings to file"
-msgstr ""
+msgstr "Beállítások mentése"
 
 #. Resource IDs: (cmdSave, cmdSaveAs)
 msgid ""
@@ -8797,7 +8802,7 @@ msgstr "Keresés megált %1-nél"
 
 #. Resource IDs: (IDS_SELECT)
 msgid "Select"
-msgstr ""
+msgstr "Kiválaszt"
 
 #. Resource IDs: (IDS_SCIEDIT_SELECTALL)
 msgid "Select &All"
@@ -11721,7 +11726,7 @@ msgstr ""
 
 #. Resource IDs: (IDS_STATUSLIST_CONTEXT_COPYEXT)
 msgid "all information"
-msgstr ""
+msgstr "összes információ"
 
 #. Resource IDs: (61446)
 msgid "an unnamed file"
