@@ -40,10 +40,6 @@ CXXFLAGS=$(CXXFLAGS) $(NOLOGO)
 LDFLAGS=$(LDFLAGS) $(NOLOGO)
 !ENDIF
 
-!IFDEF ENABLE_BIDIRECTIONAL
-CXXFLAGS=$(CXXFLAGS) -DENABLE_BIDIRECTIONAL
-!ENDIF
-
 !IFDEF NO_CXX11_REGEX
 CXXFLAGS=$(CXXFLAGS) -DNO_CXX11_REGEX
 !ENDIF
@@ -124,6 +120,7 @@ LEXOBJS=\
 	$(DIR_O)\LexBibTeX.obj \
 	$(DIR_O)\LexBullant.obj \
 	$(DIR_O)\LexCaml.obj \
+	$(DIR_O)\LexCIL.obj \
 	$(DIR_O)\LexCLW.obj \
 	$(DIR_O)\LexCmake.obj \
 	$(DIR_O)\LexCOBOL.obj \
@@ -171,6 +168,7 @@ LEXOBJS=\
 	$(DIR_O)\LexMPT.obj \
 	$(DIR_O)\LexMSSQL.obj \
 	$(DIR_O)\LexMySQL.obj \
+	$(DIR_O)\LexNim.obj \
 	$(DIR_O)\LexNimrod.obj \
 	$(DIR_O)\LexNsis.obj \
 	$(DIR_O)\LexNull.obj \
@@ -193,6 +191,7 @@ LEXOBJS=\
 	$(DIR_O)\LexRegistry.obj \
 	$(DIR_O)\LexRuby.obj \
 	$(DIR_O)\LexRust.obj \
+	$(DIR_O)\LexSAS.obj \
 	$(DIR_O)\LexScriptol.obj \
 	$(DIR_O)\LexSmalltalk.obj \
 	$(DIR_O)\LexSML.obj \
@@ -200,6 +199,7 @@ LEXOBJS=\
 	$(DIR_O)\LexSpecman.obj \
 	$(DIR_O)\LexSpice.obj \
 	$(DIR_O)\LexSQL.obj \
+	$(DIR_O)\LexStata.obj \
 	$(DIR_O)\LexSTTXT.obj \
 	$(DIR_O)\LexTACL.obj \
 	$(DIR_O)\LexTADS3.obj \
@@ -564,6 +564,8 @@ $(DIR_O)\LexBullant.obj: ..\lexers\LexBullant.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexCaml.obj: ..\lexers\LexCaml.cxx $(LEX_HEADERS)
 
+$(DIR_O)\LexCIL.obj: ..\lexers\LexCIL.cxx $(LEX_HEADERS)
+
 $(DIR_O)\LexCLW.obj: ..\lexers\LexCLW.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexCmake.obj: ..\lexers\LexCmake.cxx $(LEX_HEADERS)
@@ -658,6 +660,8 @@ $(DIR_O)\LexMSSQL.obj: ..\lexers\LexMSSQL.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexMySQL.obj: ..\lexers\LexMySQL.cxx $(LEX_HEADERS)
 
+$(DIR_O)\LexNim.obj: ..\lexers\LexNim.cxx $(LEX_HEADERS)
+
 $(DIR_O)\LexNimrod.obj: ..\lexers\LexNimrod.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexNsis.obj: ..\lexers\LexNsis.cxx $(LEX_HEADERS)
@@ -702,6 +706,8 @@ $(DIR_O)\LexRuby.obj: ..\lexers\LexRuby.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexRust.obj: ..\lexers\LexRust.cxx $(LEX_HEADERS)
 
+$(DIR_O)\LexSAS.obj: ..\lexers\LexSAS.cxx $(LEX_HEADERS)
+
 $(DIR_O)\LexScriptol.obj: ..\lexers\LexScriptol.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexSmalltalk.obj: ..\lexers\LexSmalltalk.cxx $(LEX_HEADERS)
@@ -715,6 +721,8 @@ $(DIR_O)\LexSpecman.obj: ..\lexers\LexSpecman.cxx $(LEX_HEADERS)
 $(DIR_O)\LexSpice.obj: ..\lexers\LexSpice.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexSQL.obj: ..\lexers\LexSQL.cxx $(LEX_HEADERS)
+
+$(DIR_O)\LexStata.obj: ..\lexers\LexStata.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexSTTXT.obj: ..\lexers\LexSTTXT.cxx $(LEX_HEADERS)
 
