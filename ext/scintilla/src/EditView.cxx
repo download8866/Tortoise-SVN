@@ -2026,8 +2026,7 @@ void EditView::DrawLine(Surface *surface, const EditModel &model, const ViewStyl
 		((Editor*)editor)->NotifyParent(&scn);
 	if (scn.lParam != -1)
 	{
-		background.Set(scn.lParam);
-		background.isSet = true;
+		background = ColourOptional(true, scn.lParam);
 	}
 
 	const Sci::Position posLineStart = model.pdoc->LineStart(line);
