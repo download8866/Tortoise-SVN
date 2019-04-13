@@ -10,6 +10,7 @@
 #include <cstring>
 
 #include <stdexcept>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -25,6 +26,8 @@
 #include "LineMarker.h"
 #include "Style.h"
 #include "ViewStyle.h"
+
+#define CARETSTYLE_INS_MASK 0xF
 
 using namespace Scintilla;
 
@@ -79,7 +82,7 @@ void FontRealised::Realise(Surface &surface, int zoomLevel, int technology, cons
 	descent = static_cast<unsigned int>(surface.Descent(font));
 	capitalHeight = surface.Ascent(font) - surface.InternalLeading(font);
 	aveCharWidth = surface.AverageCharWidth(font);
-	spaceWidth = surface.WidthChar(font, ' ');
+	spaceWidth = surface.WidthText(font, " ");
 }
 
 ViewStyle::ViewStyle() : markers(MARKER_MAX + 1), indicators(INDIC_MAX + 1) {
@@ -365,7 +368,8 @@ void ViewStyle::Refresh(Surface &surface, int tabInChars) {
 
 	controlCharWidth = 0.0;
 	if (controlCharSymbol >= 32) {
-		controlCharWidth = surface.WidthChar(styles[STYLE_CONTROLCHAR].font, static_cast<char>(controlCharSymbol));
+		const char cc[2] = { static_cast<char>(controlCharSymbol), '\0' };
+		controlCharWidth = surface.WidthText(styles[STYLE_CONTROLCHAR].font, cc);
 	}
 
 	CalculateMarginWidthAndMask();
@@ -402,7 +406,7 @@ void ViewStyle::ResetDefaultStyle() {
 
 void ViewStyle::ClearStyles() {
 	// Reset all styles to be like the default style
-	for (unsigned int i=0; i<styles.size(); i++) {
+	for (size_t i=0; i<styles.size(); i++) {
 		if (i != STYLE_DEFAULT) {
 			styles[i].ClearTo(styles[STYLE_DEFAULT]);
 		}
@@ -428,7 +432,7 @@ int ViewStyle::ExternalMarginWidth() const {
 
 int ViewStyle::MarginFromLocation(Point pt) const {
 	int margin = -1;
-	int x = textStart - fixedColumnWidth;
+	int x = marginInside ? 0 : -fixedColumnWidth;
 	for (size_t i = 0; i < ms.size(); i++) {
 		if ((pt.x >= x) && (pt.x < x + ms[i].width))
 			margin = static_cast<int>(i);
@@ -570,6 +574,19 @@ bool ViewStyle::SetWrapIndentMode(int wrapIndentMode_) {
 	return changed;
 }
 
+bool ViewStyle::IsBlockCaretStyle() const noexcept {
+	return (caretStyle == CARETSTYLE_BLOCK) || (caretStyle & CARETSTYLE_OVERSTRIKE_BLOCK) != 0;
+}
+
+ViewStyle::CaretShape ViewStyle::CaretShapeForMode(bool inOverstrike) const noexcept {
+	if (inOverstrike) {
+		return (caretStyle & CARETSTYLE_OVERSTRIKE_BLOCK) ? CaretShape::block : CaretShape::bar;
+	}
+
+	const int caret = caretStyle & CARETSTYLE_INS_MASK;
+	return (caret <= CARETSTYLE_BLOCK) ? static_cast<CaretShape>(caret) : CaretShape::line;
+}
+
 void ViewStyle::AllocStyles(size_t sizeNew) {
 	size_t i=styles.size();
 	styles.resize(sizeNew);
@@ -599,7 +616,7 @@ FontRealised *ViewStyle::Find(const FontSpecification &fs) {
 		// Should always reach here since map was just set for all styles
 		return it->second.get();
 	}
-	return 0;
+	return nullptr;
 }
 
 void ViewStyle::FindMaxAscentDescent() {

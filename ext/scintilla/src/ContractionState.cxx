@@ -10,6 +10,7 @@
 #include <cstring>
 
 #include <stdexcept>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 #include <memory>
@@ -210,7 +211,7 @@ Sci::Line ContractionState<LINE>::DocFromDisplay(Sci::Line lineDisplay) const {
 
 template <typename LINE>
 void ContractionState<LINE>::InsertLines(Sci::Line lineDoc, Sci::Line lineCount) {
-	for (int l = 0; l < lineCount; l++) {
+	for (Sci::Line l = 0; l < lineCount; l++) {
 		InsertLine(lineDoc + l);
 	}
 	Check();
