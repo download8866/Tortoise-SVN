@@ -1,4 +1,8 @@
-﻿Version 1.10.2
+﻿Version 1.10.4
+- BUG: "save as..." from the log dialog saved
+       the file with an escaped name. (Stefan)
+
+Version 1.10.2
 - BUG: Display issues in the log dialog when
        resizing the dialog. (Stefan)
 - CHG: splitter positions saved separately
