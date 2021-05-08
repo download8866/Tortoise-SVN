@@ -38,7 +38,7 @@
     "grunt-usemin": "^3.1.1",
     "load-grunt-tasks": "^4.0.0",
     "time-grunt": "^2.0.0",
-    "lodash": ">=4.17.13"
+    "lodash": ">=4.17.21"
   },
   "engines": {
     "node": ">=10"
